@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2018-03-08T15:25:02.356Z</updated>
+  <updated>2018-03-08T15:46:32.164Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,30 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>计网概述笔记</title>
+    <link href="http://yoursite.com/2018/03/08/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E7%AC%94%E8%AE%B0/"/>
+    <id>http://yoursite.com/2018/03/08/计算机网络笔记/</id>
+    <published>2018-03-08T15:44:11.853Z</published>
+    <updated>2018-03-08T15:46:32.164Z</updated>
+    
+    <content type="html"><![CDATA[<p>这是我第一次学习计网总结的一些自以为值得一提的东西。没有整理完，先上传一部分。</p><h1 id="常识"><a href="#常识" class="headerlink" title="常识"></a>常识</h1><h2 id="三网融合"><a href="#三网融合" class="headerlink" title="三网融合"></a>三网融合</h2><p>21世纪是一个以网络为核心的信息时代，起初，三网有电信网络、有线电视网络、计算机网络。到了后期，计算机网络发展最快而且起到了核心作用</p><h2 id="互联网（Internet）和互连网（internet）"><a href="#互联网（Internet）和互连网（internet）" class="headerlink" title="互联网（Internet）和互连网（internet）"></a>互联网（Internet）和互连网（internet）</h2><p>互联网是国际的；互连网是局部的</p><h2 id="互联网的特性："><a href="#互联网的特性：" class="headerlink" title="互联网的特性："></a>互联网的特性：</h2><ol><li>连通性</li><li>共享性：资源共享。</li></ol><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><h3 id="网络的网络"><a href="#网络的网络" class="headerlink" title="网络的网络"></a>网络的网络</h3><ul><li>计算机网络（网络）由若干结点（node）和链接他们的链路（link）组成。</li><li>互连网（internet）就是网络的网络，就是指网络与网络之间用路由器互联起来，组成覆盖范围更大的网络。</li><li>主机（host）就是与网络相连的计算机。</li></ul><h2 id="互联网基础发展三阶段"><a href="#互联网基础发展三阶段" class="headerlink" title="互联网基础发展三阶段"></a>互联网基础发展三阶段</h2><h4 id="1-单个网络ARPANET向互联网发展"><a href="#1-单个网络ARPANET向互联网发展" class="headerlink" title="1. 单个网络ARPANET向互联网发展"></a>1. 单个网络ARPANET向互联网发展</h4><p>该过程导致了互连网络的产生，是互联网的雏形</p><ul><li>互联网（Internet）专用名词，单指最大的特定互连网，采用<strong>TCP/IP协议族</strong>作为通信规则，前身就是ARPANET</li><li>互连网（internet）通用名词，泛指多个网络互连而成的网络。通信协议可以<strong>不是</strong>TCP/IP协议。</li></ul><h4 id="2-形成三级结构互联网"><a href="#2-形成三级结构互联网" class="headerlink" title="2. 形成三级结构互联网"></a>2. 形成三级结构互联网</h4><p>三级计算机网络国家科学基金网诞生，分为<strong>主干网</strong>、<strong>地区网</strong>和<strong>校园网（企业网）</strong>。这一阶段美国政府将主干网转交给了私人公司经营。</p><h4 id="3-形成多层次ISP结构的互联网"><a href="#3-形成多层次ISP结构的互联网" class="headerlink" title="3. 形成多层次ISP结构的互联网"></a>3. 形成多层次ISP结构的互联网</h4><p>NSFNET被若干商用互联网主干网替代，政府机构不再负责互联网运营，于是互联网服务提供商<strong>ISP</strong>（Internet Service Provider）应运而生。</p><ul><li>ISP从互联网机构申请大量IP地址，同时拥有联网设备和通信线路，这样个人使用者向ISP缴费后就可以被分配一个IP地址的使用权，从而可以连入网络。（管理机构不单卖IP，只会批发给ISP。）所以如今可以说，<em>互联网是被全世界的ISP共有的</em>。而ISP根据大小和IP数目不同也分为主干ISP、地区ISP、本地ISP。分层交流</li><li>为了解决应对互联网上流量数据增长，互联网交换点IXP应运而生。他的作用就是允许两个网络直接相连交换分组。它通常在数据链路层的网络交换机中起作用。</li></ul><h2 id="互联网标准化。"><a href="#互联网标准化。" class="headerlink" title="互联网标准化。"></a>互联网标准化。</h2><p>互联网协会ISOC下有一个技术组织IAB下有两个工程部IETF（互联网工程部）和IRTF（互联网研究部）进行研究协议、应用和体系。<br><br>所有的互联网标准都是以<strong>RFC（Request For Comment）</strong>的形式在互联网上发表的，都可以被下载。<br><br>制定互联网正是标准需要三个阶段：互联网草案、建议标准和互联网标准（STD XX）。</p><h1 id="互联网组成"><a href="#互联网组成" class="headerlink" title="互联网组成"></a>互联网组成</h1><p>互联网的工作方式大概可以划分为边缘部分和核心部分</p><h2 id="边缘部分"><a href="#边缘部分" class="headerlink" title="边缘部分"></a>边缘部分</h2><p>用户直接使用，由所有连接到互联网上的主机组成。这些主机又称为<strong>端系统</strong>。边缘部分利用核心部分提供的服务进行通信交换共享信息。这种<strong>计算机之间的通信</strong>通信方式通常可划分为两大类：客户-服务器方式（C/S方式）和对等方式（P2P方式）</p><h3 id="C-S方式"><a href="#C-S方式" class="headerlink" title="C/S方式"></a>C/S方式</h3><table><thead><tr><th>客户Client</th><th>服务器Server</th></tr></thead><tbody><tr><td>请求方</td><td>服务提供方</td></tr><tr><td>调用后运行，通信时发送通信</td><td>启动后自动调用不断运行，被动接受信息后响应</td></tr><tr><td>需要知道服务器程序地址</td><td>不需要知道客户地址</td></tr><tr><td>不需要特殊硬件和操作系统</td><td>需要强大的硬件和高级的操作系统</td></tr></tbody></table><h3 id="P2P（peer-to-peer）方式"><a href="#P2P（peer-to-peer）方式" class="headerlink" title="P2P（peer-to-peer）方式"></a>P2P（peer-to-peer）方式</h3><p>每个主机既是客户也是服务器。</p><h3 id="核心部分"><a href="#核心部分" class="headerlink" title="核心部分"></a>核心部分</h3><p>为边缘部分提供服务，由大量网络和连接他们的路由器组成。核心是<strong>路由器（router）</strong>，实现分组交换的关键，任务是转发收到的分组。 </p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;这是我第一次学习计网总结的一些自以为值得一提的东西。没有整理完，先上传一部分。&lt;/p&gt;
+&lt;h1 id=&quot;常识&quot;&gt;&lt;a href=&quot;#常识&quot; class=&quot;headerlink&quot; title=&quot;常识&quot;&gt;&lt;/a&gt;常识&lt;/h1&gt;&lt;h2 id=&quot;三网融合&quot;&gt;&lt;a href=&quot;#三网
+      
+    
+    </summary>
+    
+    
+      <category term="计算机网络，学习笔记" scheme="http://yoursite.com/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%EF%BC%8C%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"/>
+    
+  </entry>
   
   <entry>
     <title>Hello World</title>
