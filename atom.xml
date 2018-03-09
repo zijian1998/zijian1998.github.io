@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2018-03-08T15:49:21.440Z</updated>
+  <updated>2018-03-09T13:26:25.809Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,27 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title></title>
+    <link href="http://yoursite.com/2018/03/09/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%8E%9F%E7%90%86%EF%BC%88%E4%B8%80%EF%BC%89%E2%80%94%E2%80%94%E6%95%B0%E6%8D%AE%E5%BA%93%E6%A6%82%E8%BF%B0/"/>
+    <id>http://yoursite.com/2018/03/09/数据库原理（一）——数据库概述/</id>
+    <published>2018-03-09T13:26:14.442Z</published>
+    <updated>2018-03-09T13:26:25.809Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="数据库原理（一）——数据库概述"><a href="#数据库原理（一）——数据库概述" class="headerlink" title="数据库原理（一）——数据库概述"></a>数据库原理（一）——数据库概述</h1><p>标签（空格分隔）： 数据库 学习笔记</p><hr><p>数据库用于数据管理，是数据管理的最新技术，数据库技术一般包括数据管理和数据处理两部分。<br>数据库系统本质上是一个用计算机存储数据的系统。<br>以下将先对一些基本概念进行总结。</p><h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><ul><li>数据（Data）：描述事物的符号记录。是有结构的</li><li>数据库（Database，DB）：将数据存储在计算机存储设备上、按一定格式存储的仓库，严格上讲是<em>长期存储在计算机中的</em>、<em>有组织的</em>、<em>可共享的</em>数据的集合</li><li>数据库管理系统（Database Management System，DBMS）：专门用于实现对数据进行管理和维护的系统软件。DBMS位于用户应用程序与操作系统之间，其主要功能有以下几个方面<ol><li>数据库的建立和维护</li><li>数据定义功能</li><li>数据组织、存储和管理功能</li><li>数据操作功能</li><li>事物的管理和运行功能</li><li>其他功能</li></ol></li><li>数据库系统（Database System，DBS）：指计算机引入数据库后的系统，一般有数据库、数据库管理系统、应用程序、数据库管理员组成。<em>一般数据库系统被简称为数据库</em></li></ul><h2 id="数据管理技术发展"><a href="#数据管理技术发展" class="headerlink" title="数据管理技术发展"></a>数据管理技术发展</h2><p>数据管理技术的发展分为两个阶段：文件管理和数据库管理。先展示一下两者的优缺点：<br>文件管理 | 数据库管理<br>—|—<br>编写应用程序不方便 | 相互关联的数据集合<br>数据冗余不可避免|较小的数据冗余<br>应用程序依赖性|程序与程序相互对立<br>不支持并发访问|保证数据安全、可靠<br>数据间联系弱|最大限度保证数据正确性<br>难以满足不同用户对数据需求|数据可以共享并能保证数据的一致性<br>无安全控制功能|<br><strong>总结：数据库是相互关联的数据的集合，他用综合的方法组织数据，具有较小的数据冗余，可供多个用户共享，具有较高的数据独立性，具有安全控制机构，能够保证数据安全可靠、允许并发的使用数据库，能有效即使的处理数据，并能保证数据的一致性和正确性</strong>。</p><h2 id="数据独立性"><a href="#数据独立性" class="headerlink" title="数据独立性"></a>数据独立性</h2><p>数据独立性指的是应用程序不会因数据的物理表示方式和访问技术的改变而改变，即应用不依赖于任何特定的物理表示方式和访问技术。它包括两个以下方面：</p><ul><li>物理独立性：当数据的存储位置和存储结构发生变化时，不影响应用程序的特性</li><li>逻辑独立性：当表达现实世界的信息内容发生变化时（增删列行），也不影响应用程序的特性</li></ul><h2 id="数据库系统组成"><a href="#数据库系统组成" class="headerlink" title="数据库系统组成"></a>数据库系统组成</h2><p>数据库系统包括如下部分：</p><ol><li>数据库：数据的汇集场所，以一定形式存储在存储介质上</li><li>数据库管理系统：管理数据库的系统软件，实现数据库系统的各种功能</li><li>应用程序：这里专指访问数据库数据的程序</li><li>数据库管理员：负责整个数据库的正常运行</li></ol><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">A[应用程序] --&gt; B[数据库管理系统]</span><br><span class="line">C[应用程序] --&gt; B</span><br><span class="line">D[应用程序] --&gt; B</span><br><span class="line">B --&gt; E[数据库]</span><br><span class="line">F[数据库管理员]--&gt;B</span><br><span class="line">F--&gt;E</span><br></pre></td></tr></table></figure><p>数据库管理系统程序的使用需要占用硬件资源，这里从硬件、软件和人员方面简要介绍主要内容。</p><ul><li>硬件：内存要足够大来运行操作系统、数据库管理系统和应用程序</li><li>软件：包括以下内容：<ol><li>数据库管理系统：整个数据库系统核心，是建立、使用和维护数据库的系统软件（可以使用微软公司的<a href="https://www.microsoft.com/en-us/sql-server/sql-server-downloads" target="_blank" rel="noopener">SQL Server</a>，免费的开发者版足够练习使用）</li><li>支持数据库管理系统运行的操作系统。</li><li>以数据库管理系统为核心的使用工具。。</li></ol></li><li>人员：包括数据库管理员、系统分析人员、数据库设计人员、应用程序编程人员和最终用户。</li></ul>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h1 id=&quot;数据库原理（一）——数据库概述&quot;&gt;&lt;a href=&quot;#数据库原理（一）——数据库概述&quot; class=&quot;headerlink&quot; title=&quot;数据库原理（一）——数据库概述&quot;&gt;&lt;/a&gt;数据库原理（一）——数据库概述&lt;/h1&gt;&lt;p&gt;标签（空格分隔）： 数据库 学习笔记
+      
+    
+    </summary>
+    
+    
+  </entry>
   
   <entry>
     <title>计网概述笔记</title>
