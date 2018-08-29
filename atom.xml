@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2018-07-08T09:16:02.906Z</updated>
+  <updated>2018-03-27T01:26:43.873Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,27 +15,6 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
-  
-  <entry>
-    <title></title>
-    <link href="http://yoursite.com/2018/07/07/IDEA%E5%BF%AB%E6%8D%B7%E9%94%AE/"/>
-    <id>http://yoursite.com/2018/07/07/IDEA快捷键/</id>
-    <published>2018-07-07T09:51:13.314Z</published>
-    <updated>2018-07-08T09:16:02.906Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="IDEA-的使用技巧"><a href="#IDEA-的使用技巧" class="headerlink" title="IDEA 的使用技巧"></a>IDEA 的使用技巧</h1><h2 id="定位技巧"><a href="#定位技巧" class="headerlink" title="定位技巧"></a>定位技巧</h2><h3 id="跳转"><a href="#跳转" class="headerlink" title="跳转"></a>跳转</h3><p>1.两个项目窗口的跳转</p><p><strong>Ctrl + Alt + [</strong>     上一个窗口项目跳转</p><p><strong>Ctrl + Alt + [</strong>     下一个窗口项目跳转</p><p>2.一个项目中多个文件的跳转</p><p><strong>Ctrl+E</strong>    查找最近文件</p><p><strong>Ctrl+Shift+E</strong>    查找最近修改文件</p><p>3.文件内编辑位置定位</p><p><strong>Ctrl+Shift+Backspace</strong>    上一次编辑定位</p><p>4.利用书签跳转</p><p><strong>F11</strong>设立书签<br><strong>Ctrl+F11+序号</strong>设立带序号书签</p><p>5.收藏文件和位置</p><p><strong>Alt+2</strong> 调出收藏文件夹</p><p><strong>Alt+Shift+f</strong> 添加收藏</p><p>6.插件跳转</p>]]></content>
-    
-    <summary type="html">
-    
-      
-      
-        &lt;h1 id=&quot;IDEA-的使用技巧&quot;&gt;&lt;a href=&quot;#IDEA-的使用技巧&quot; class=&quot;headerlink&quot; title=&quot;IDEA 的使用技巧&quot;&gt;&lt;/a&gt;IDEA 的使用技巧&lt;/h1&gt;&lt;h2 id=&quot;定位技巧&quot;&gt;&lt;a href=&quot;#定位技巧&quot; class=&quot;head
-      
-    
-    </summary>
-    
-    
-  </entry>
   
   <entry>
     <title>数据库原理（二）——数据模型与数据库结构</title>
