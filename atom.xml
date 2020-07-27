@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2018-03-27T01:26:43.873Z</updated>
+  <updated>2020-07-27T03:27:32.345Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,54 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Linux学习笔记</title>
+    <link href="http://yoursite.com/2018/11/19/Linux%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"/>
+    <id>http://yoursite.com/2018/11/19/Linux学习笔记/</id>
+    <published>2018-11-19T13:26:18.312Z</published>
+    <updated>2020-07-27T03:27:32.345Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="标准输入输出"><a href="#标准输入输出" class="headerlink" title="标准输入输出"></a>标准输入输出</h2><h3 id="1-文件描述字和流的区别"><a href="#1-文件描述字和流的区别" class="headerlink" title="1. 文件描述字和流的区别"></a>1. 文件描述字和流的区别</h3><ol><li>文件描述字为int型对象，流为指向类型为FILE结构的指针。</li><li>文件描述字多为系统调用，提供底层基本的输入输出操作接口。流函数建立在文件描述字之上，通过文件描述字实现。</li><li><p>文件描述字针对特定设备或特殊方式输入输出时必不可少，流函数更利于程序的移植，一般情况下使用流函数的更多一些。</p><h3 id="2-文件名和路径名"><a href="#2-文件名和路径名" class="headerlink" title="2. 文件名和路径名"></a>2. 文件名和路径名</h3><p>文件名指不带路径的文件名，路径名指包含路径的文件名                                                                                                                                                                                                                                                                                                                                         </p><h3 id="3-文件路径"><a href="#3-文件路径" class="headerlink" title="3. 文件路径"></a>3. 文件路径</h3><p>文件位置就是已打开文件当前可读写字符的位置。<br>进程每次打开一个文件都会创建一个独立的文件位置，即使在同一个程序中打开同一个文件两次，也会产生两个具有独立文件位置的流或描述字。但是如果打开一个文件描述字，复制得到另一个文件描述字，则两个文件描述字事实上会共享同一个文件位置，改变一个会影响另一个文件描述字的文件位置。</p><h3 id="4-打开关闭流"><a href="#4-打开关闭流" class="headerlink" title="4. 打开关闭流"></a>4. 打开关闭流</h3><p> #include &lt;stdio.h&gt;</p><p> FILE <em> fopen (const char </em>pathname, const char <em> opentype);<br> int fclose (FILE </em>stream);<br> FILE <em> freopen (const char </em>pathname,const char <em>opentype,FILE </em>stream);</p></li><li>fopen() 成功返回文件流，失败返回空指针NULL</li><li>opentype的值：<ul><li>“r”:为读而打开一个已存在的文件，文件位置定位文件开始</li><li>“w”:为写而打开一个文件，如果存在，则长度截为零，如果不存在，则创建</li><li>“a”:在文件尾添加内容，若文件存在，则在后面添加内容，否则创建</li><li>“r+”:为读又写而打开已存在的文件，文件内容不变，位置定为文件开始</li><li>“w+”:为读又写而打开一个文件，若文件存在，则长度截为零，否则，创建新文件</li><li>“a+”:为读又写打开一个文件，若存在，原内容不变，否则创建新文件，同时文件位置在文件末尾。</li></ul></li><li>fclose() 成功返回0，失败返回EOF，并重置errno。在main退出或者exit()时一定要提前用fclose关闭，并检查错误信息，防止文件不完整。</li><li><p>freopen() 一般用于标准流</p><h3 id="5-读和写流"><a href="#5-读和写流" class="headerlink" title="5. 读和写流"></a>5. 读和写流</h3><p>无格式I/O函数有三种类型：字符IO、行IO和块IO<br> #include &lt;stdio.h&gt;</p><p> int fgetc (FILE <em> stream);<br> int getc (FILE </em> stream);</p></li></ol>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h2 id=&quot;标准输入输出&quot;&gt;&lt;a href=&quot;#标准输入输出&quot; class=&quot;headerlink&quot; title=&quot;标准输入输出&quot;&gt;&lt;/a&gt;标准输入输出&lt;/h2&gt;&lt;h3 id=&quot;1-文件描述字和流的区别&quot;&gt;&lt;a href=&quot;#1-文件描述字和流的区别&quot; class=&quot;head
+      
+    
+    </summary>
+    
+    
+      <category term="Linux" scheme="http://yoursite.com/tags/Linux/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>IDEA 的使用技巧</title>
+    <link href="http://yoursite.com/2018/07/07/IDEA%E5%BF%AB%E6%8D%B7%E9%94%AE/"/>
+    <id>http://yoursite.com/2018/07/07/IDEA快捷键/</id>
+    <published>2018-07-07T09:51:13.314Z</published>
+    <updated>2020-07-27T03:29:39.527Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="定位技巧"><a href="#定位技巧" class="headerlink" title="定位技巧"></a>定位技巧</h2><h3 id="跳转"><a href="#跳转" class="headerlink" title="跳转"></a>跳转</h3><p>1.两个项目窗口的跳转</p><p><strong>Ctrl + Alt + [</strong>     上一个窗口项目跳转</p><p><strong>Ctrl + Alt + [</strong>     下一个窗口项目跳转</p><p>2.一个项目中多个文件的跳转</p><p><strong>Ctrl+E</strong>    查找最近文件</p><p><strong>Ctrl+Shift+E</strong>    查找最近修改文件</p><p>3.文件内编辑位置定位</p><p><strong>Ctrl+Shift+Backspace</strong>    上一次编辑定位</p><p>4.利用书签跳转</p><p><strong>F11</strong>设立书签<br><strong>Ctrl+F11+序号</strong>设立带序号书签</p><p>5.收藏文件和位置</p><p><strong>Alt+2</strong> 调出收藏文件夹</p><p><strong>Alt+Shift+f</strong> 添加收藏</p><p>6.插件跳转</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h2 id=&quot;定位技巧&quot;&gt;&lt;a href=&quot;#定位技巧&quot; class=&quot;headerlink&quot; title=&quot;定位技巧&quot;&gt;&lt;/a&gt;定位技巧&lt;/h2&gt;&lt;h3 id=&quot;跳转&quot;&gt;&lt;a href=&quot;#跳转&quot; class=&quot;headerlink&quot; title=&quot;跳转&quot;&gt;&lt;/a&gt;跳转&lt;/h
+      
+    
+    </summary>
+    
+    
+      <category term="java" scheme="http://yoursite.com/tags/java/"/>
+    
+      <category term="工具" scheme="http://yoursite.com/tags/%E5%B7%A5%E5%85%B7/"/>
+    
+  </entry>
   
   <entry>
     <title>数据库原理（二）——数据模型与数据库结构</title>
