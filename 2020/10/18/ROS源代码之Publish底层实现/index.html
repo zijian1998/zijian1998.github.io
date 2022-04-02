@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>ROS源代码阅读——publish底层实现部分 | 妄越</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+    <meta name="description" content="学海无涯，记在路上">
+  
+  
+    <meta name="keywords" content="技术博客">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="妄越" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/logo.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+    
+<link rel="stylesheet" href="/localshare/css/share.css">
+
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">妄越</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">平生蹉跎少年志，雨落樱花又一年</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/."><i class="fa fa-home"></i> 首页</a>
+        
+          <a class="main-nav-link" href="/archives/"><i class="fa fa-archive"></i> 归档</a>
+        
+          <a class="main-nav-link" href="/about/"><i class="fa fa-user"></i> 关于</a>
+        
+      </nav>
+    </div>
+    <div id="search-form">
+      <div id="result-mask" class="hide"></div>
+      <label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label>
+      <div id="result-wrap" class="hide">
+        <div id="search-result"></div>
+      </div>
+      <div class="hide">
+        <template id="search-tpl">
+          <div class="item">
+            <a href="/{path}" title="{title}">
+              <div class="title">{title}</div>
+              <div class="time">{date}</div>
+              <div class="tags">{tags}</div>
+            </a>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-ROS源代码之Publish底层实现" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      ROS源代码阅读——publish底层实现部分
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2020-10-18T12:09:30.000Z" itemprop="datePublished">2020年10月18日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/ROS/">ROS</a>
+  </div>
+
+      
+        <span class="article-views">
+  <i class="fa fa-views"></i>
+  <i id="busuanzi_container_page_pv">
+      <i id="busuanzi_value_page_pv"></i>
+  </i>
+</span>
+
+      
+      
+<a href="/2020/10/18/ROS%E6%BA%90%E4%BB%A3%E7%A0%81%E4%B9%8BPublish%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0/#comments" class="article-comment-link">
+  
+    
+    
+    
+    
+    
+      <i id="changyan_count_unit" data-xid="/2020/10/18/ROS%E6%BA%90%E4%BB%A3%E7%A0%81%E4%B9%8BPublish%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0/"></i>
+    
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>在之前对ROS的源码的学习中，基本弄清楚了ROS的topic通信方式中，节点发布/订阅的机制和原理，可以说解释了节点与master之间的交流方式。但是对于节点与节点之间通信的具体过程，却一笔带过，所以这次通过再次阅读这部分源码，来明确节点在advertise之后，注册完成之后，publish消息时底层通信的逻辑和形式。</p>
+<span id="more"></span>
+<p>本次源码阅读主要通过dfs的方式来进行。首先是<a target="_blank" rel="noopener" href="http://wiki.ros.org/ROS/Tutorials/WritingPublisherSubscriber%28c++%29">ROS wiki提供的发布者节点发布信息</a>时的最表层调用：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;ros/ros.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;std_msgs/String.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sstream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    ros::<span class="built_in">init</span>(argc, argv, <span class="string">&quot;talker&quot;</span>);</span><br><span class="line">  </span><br><span class="line">    ros::NodeHandle n;</span><br><span class="line">    </span><br><span class="line">    ros::Publisher chatter_pub = n.advertise&lt;std_msgs::String&gt;(<span class="string">&quot;chatter&quot;</span>, <span class="number">1000</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="function">ros::Rate <span class="title">loop_rate</span><span class="params">(<span class="number">10</span>)</span></span>;</span><br><span class="line">    <span class="keyword">int</span> count = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span> (ros::<span class="built_in">ok</span>())</span><br><span class="line">    &#123;</span><br><span class="line">        std_msgs::String msg;</span><br><span class="line">        std::stringstream ss;</span><br><span class="line">        ss &lt;&lt; <span class="string">&quot;hello world &quot;</span> &lt;&lt; count;</span><br><span class="line">        msg.data = ss.<span class="built_in">str</span>();</span><br><span class="line">        <span class="built_in">ROS_INFO</span>(<span class="string">&quot;%s&quot;</span>, msg.data.<span class="built_in">c_str</span>());</span><br><span class="line">        chatter_pub.<span class="built_in">publish</span>(msg);</span><br><span class="line">        ros::<span class="built_in">spinOnce</span>();</span><br><span class="line">        loop_rate.<span class="built_in">sleep</span>();        </span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到，其中调用publish函数的正是之前我们使用nodehandle对象的advertise注册发布者时所返回的publisher类对象chatter<em>pub,传入的参数时我们自定义的msg类型。<br>我们在roscpp包中寻找相关的代码，如下是在publisher.h中所定义的两种重载的模板函数，分别用来应传入参数类型不同的的两种情况。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line">······</span><br><span class="line"><span class="comment">//共享指针类型的引用传参</span></span><br><span class="line">    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> M&gt;</span><br><span class="line">      <span class="function"><span class="keyword">void</span> <span class="title">publish</span><span class="params">(<span class="keyword">const</span> boost::shared_ptr&lt;M&gt;&amp; message)</span> <span class="keyword">const</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">      <span class="keyword">using</span> <span class="keyword">namespace</span> serialization;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (!impl_)</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="built_in">ROS_ASSERT_MSG</span>(<span class="literal">false</span>, <span class="string">&quot;Call to publish() on an invalid Publisher&quot;</span>);</span><br><span class="line">          <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (!impl_-&gt;<span class="built_in">isValid</span>())</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="built_in">ROS_ASSERT_MSG</span>(<span class="literal">false</span>, <span class="string">&quot;Call to publish() on an invalid Publisher (topic [%s])&quot;</span>, impl_-&gt;topic_.<span class="built_in">c_str</span>());</span><br><span class="line">          <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">      <span class="built_in">ROS_ASSERT_MSG</span>(impl_-&gt;md5sum_ == <span class="string">&quot;*&quot;</span> || std::<span class="built_in">string</span>(mt::md5sum&lt;M&gt;(*message)) == <span class="string">&quot;*&quot;</span> || impl_-&gt;md5sum_ == mt::md5sum&lt;M&gt;(*message),</span><br><span class="line">                     <span class="string">&quot;Trying to publish message of type [%s/%s] on a publisher with type [%s/%s]&quot;</span>,</span><br><span class="line">                     mt::datatype&lt;M&gt;(*message), mt::md5sum&lt;M&gt;(*message),</span><br><span class="line">                     impl_-&gt;datatype_.<span class="built_in">c_str</span>(), impl_-&gt;md5sum_.<span class="built_in">c_str</span>());</span><br><span class="line"></span><br><span class="line">      SerializedMessage m;</span><br><span class="line">      m.type_info = &amp;<span class="built_in"><span class="keyword">typeid</span></span>(M);</span><br><span class="line">      m.message = message;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 这里使用ref函数是给bind绑定的参数传入ref()引用包装类型，使参数为引用传递；</span></span><br><span class="line">      <span class="comment">// 使用bind应该是为了把message绑定给serializeMessage</span></span><br><span class="line">      <span class="built_in">publish</span>(boost::<span class="built_in">bind</span>(serializeMessage&lt;M&gt;, boost::<span class="built_in">ref</span>(*message)), m);</span><br><span class="line">    &#125;</span><br><span class="line"><span class="comment">// M类型的引用传参 泛型</span></span><br><span class="line">    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> M&gt;</span><br><span class="line">      <span class="function"><span class="keyword">void</span> <span class="title">publish</span><span class="params">(<span class="keyword">const</span> M&amp; message)</span> <span class="keyword">const</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">      <span class="keyword">using</span> <span class="keyword">namespace</span> serialization;</span><br><span class="line">      <span class="keyword">namespace</span> mt = ros::message_traits;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (!impl_)</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="built_in">ROS_ASSERT_MSG</span>(<span class="literal">false</span>, <span class="string">&quot;Call to publish() on an invalid Publisher&quot;</span>);</span><br><span class="line">          <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (!impl_-&gt;<span class="built_in">isValid</span>())</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="built_in">ROS_ASSERT_MSG</span>(<span class="literal">false</span>, <span class="string">&quot;Call to publish() on an invalid Publisher (topic [%s])&quot;</span>, impl_-&gt;topic_.<span class="built_in">c_str</span>());</span><br><span class="line">          <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">      <span class="built_in">ROS_ASSERT_MSG</span>(impl_-&gt;md5sum_ == <span class="string">&quot;*&quot;</span> || std::<span class="built_in">string</span>(mt::md5sum&lt;M&gt;(message)) == <span class="string">&quot;*&quot;</span> || impl_-&gt;md5sum_ == mt::md5sum&lt;M&gt;(message),</span><br><span class="line">                     <span class="string">&quot;Trying to publish message of type [%s/%s] on a publisher with type [%s/%s]&quot;</span>,</span><br><span class="line">                     mt::datatype&lt;M&gt;(message), mt::md5sum&lt;M&gt;(message),</span><br><span class="line">                     impl_-&gt;datatype_.<span class="built_in">c_str</span>(), impl_-&gt;md5sum_.<span class="built_in">c_str</span>());</span><br><span class="line"></span><br><span class="line">      SerializedMessage m;</span><br><span class="line">      <span class="built_in">publish</span>(boost::<span class="built_in">bind</span>(serializeMessage&lt;M&gt;, boost::<span class="built_in">ref</span>(message)), m);</span><br><span class="line">    &#125;</span><br><span class="line">······</span><br></pre></td></tr></table></figure><br>他们最终都调用的publish函数在publisher.cpp中实现，具体如下：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">    ········</span><br><span class="line"><span class="comment">// publish函数</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Publisher::publish</span><span class="params">(<span class="keyword">const</span> boost::function&lt;SerializedMessage(<span class="keyword">void</span>)&gt;&amp; serfunc, SerializedMessage&amp; m)</span> <span class="keyword">const</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// impl是否存在</span></span><br><span class="line">  <span class="keyword">if</span> (!impl_)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">ROS_ASSERT_MSG</span>(<span class="literal">false</span>, <span class="string">&quot;Call to publish() on an invalid Publisher (topic [%s])&quot;</span>, impl_-&gt;topic_.<span class="built_in">c_str</span>());</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// impl是否可用</span></span><br><span class="line">  <span class="keyword">if</span> (!impl_-&gt;<span class="built_in">isValid</span>())</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">ROS_ASSERT_MSG</span>(<span class="literal">false</span>, <span class="string">&quot;Call to publish() on an invalid Publisher (topic [%s])&quot;</span>, impl_-&gt;topic_.<span class="built_in">c_str</span>());</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// topicManager的单例调用publish</span></span><br><span class="line">  TopicManager::<span class="built_in">instance</span>()-&gt;<span class="built_in">publish</span>(impl_-&gt;topic_, serfunc, m);</span><br><span class="line">&#125;</span><br><span class="line">    ···········</span><br></pre></td></tr></table></figure><br>其中的impl是publisher类在传参构造时的生成一个内部类对象，一般是由nodehandle类中的advertise函数，获取到ops的相关信息并传进来生成的impl</em>对象。也就是说在注册成功后才会存在的一个对象。<br>显然之后，Publisher.publish()函数让TopicManager的唯一实例调用了它的publish方法，我们在TopicManger.h函数中找到了相关代码，这也是一个模板函数，将message绑定给serializeMessage<M>后，将topic、bind、m传给后面的具体实现函数<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">········</span><br><span class="line">  <span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> M&gt;</span></span><br><span class="line"><span class="function">  <span class="keyword">void</span> <span class="title">publish</span><span class="params">(<span class="keyword">const</span> std::string&amp; topic, <span class="keyword">const</span> M&amp; message)</span></span></span><br><span class="line"><span class="function">  </span>&#123;</span><br><span class="line">    <span class="keyword">using</span> <span class="keyword">namespace</span> serialization;</span><br><span class="line"></span><br><span class="line">    SerializedMessage m;</span><br><span class="line">    <span class="built_in">publish</span>(topic, boost::<span class="built_in">bind</span>(serializeMessage&lt;M&gt;, boost::<span class="built_in">ref</span>(message)), m);</span><br><span class="line">  &#125;</span><br><span class="line">········</span><br></pre></td></tr></table></figure><br>具体实现函数在topicmanager.cpp中。大概如我注释写的那样的流程。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line">······</span><br><span class="line"><span class="comment">// 发布消息</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">TopicManager::publish</span><span class="params">(<span class="keyword">const</span> std::string&amp; topic, <span class="keyword">const</span> boost::function&lt;SerializedMessage(<span class="keyword">void</span>)&gt;&amp; serfunc, SerializedMessage&amp; m)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="comment">// 递归互斥量，允许多次加锁在统一线程内</span></span><br><span class="line">  boost::<span class="function">recursive_mutex::scoped_lock <span class="title">lock</span><span class="params">(advertised_topics_mutex_)</span></span>;</span><br><span class="line">  <span class="comment">// 是否shutdown</span></span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">isShuttingDown</span>())</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 寻找publication是否已注册</span></span><br><span class="line">  PublicationPtr p = <span class="built_in">lookupPublicationWithoutLock</span>(topic);</span><br><span class="line">  <span class="comment">// 当publication有订阅者或者有latch属性，就执行下列代码</span></span><br><span class="line">  <span class="keyword">if</span> (p-&gt;<span class="built_in">hasSubscribers</span>() || p-&gt;<span class="built_in">isLatching</span>())</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">ROS_DEBUG_NAMED</span>(<span class="string">&quot;superdebug&quot;</span>, <span class="string">&quot;Publishing message on topic [%s] with sequence number [%d]&quot;</span>, p-&gt;<span class="built_in">getName</span>().<span class="built_in">c_str</span>(), p-&gt;<span class="built_in">getSequence</span>());</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Determine what kinds of subscribers we&#x27;re publishing to.  If they&#x27;re intraprocess with the same C++ type we can</span></span><br><span class="line">    <span class="comment">// do a no-copy publish.</span></span><br><span class="line">    <span class="comment">// 确认我们要发布给的订阅者是什么类别，如果是进程内的，并且使用者相同的c++类型，我们就可以进行no-copy模式的publish</span></span><br><span class="line">    <span class="comment">// 这里定义两个标志nocopy和serialize</span></span><br><span class="line">    <span class="keyword">bool</span> nocopy = <span class="literal">false</span>;</span><br><span class="line">    <span class="keyword">bool</span> serialize = <span class="literal">false</span>;</span><br><span class="line">    <span class="comment">// 如果msg的指针已经有了，而且我们有他的类型我们就可以使用no-copy的publish，否则我们就要进行序列化了</span></span><br><span class="line">    <span class="comment">// We can only do a no-copy publish if a shared_ptr to the message is provided, and we have type information for it</span></span><br><span class="line">    <span class="keyword">if</span> (m.type_info &amp;&amp; m.message)</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="comment">// 注意这里表面传值，实际是引用传参，会修改serialize和nocopy的值，</span></span><br><span class="line">      p-&gt;<span class="built_in">getPublishTypes</span>(serialize, nocopy, *m.type_info);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">      serialize = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 如果nocopy为false，就说明publish的消息没有进程内同c++的订阅者，我们就要reset他的msg，并初始化type_info ？</span></span><br><span class="line">    <span class="keyword">if</span> (!nocopy)</span><br><span class="line">    &#123;</span><br><span class="line">      m.message.<span class="built_in">reset</span>();</span><br><span class="line">      m.type_info = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 如果序列化为true，并且p设置了latch属性，就设置msg，进行序列化</span></span><br><span class="line">    <span class="keyword">if</span> (serialize || p-&gt;<span class="built_in">isLatching</span>())</span><br><span class="line">    &#123;</span><br><span class="line">      SerializedMessage m2 = <span class="built_in">serfunc</span>();</span><br><span class="line">      m.buf = m2.buf;</span><br><span class="line">      m.num_bytes = m2.num_bytes;</span><br><span class="line">      m.message_start = m2.message_start;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 让publication执行发布命令</span></span><br><span class="line">    p-&gt;<span class="built_in">publish</span>(m);</span><br><span class="line">    <span class="comment">// 如果我们序列化了msg，那么显然我们就要进行进程间通信，利用的就是poll_manager的信号槽机制，调用signal信号</span></span><br><span class="line">    <span class="comment">// If we&#x27;re not doing a serialized publish we don&#x27;t need to signal the pollset.  The write()</span></span><br><span class="line">    <span class="comment">// call inside signal() is actually relatively expensive when doing a nocopy publish.</span></span><br><span class="line">    <span class="keyword">if</span> (serialize)</span><br><span class="line">    &#123;</span><br><span class="line">      poll_manager_-&gt;<span class="built_in">getPollSet</span>().<span class="built_in">signal</span>();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">//如果publication既没有订阅者，也没有latch属性，就执行自增序列就好，sequence一般是分布式系统的唯一id，这里我先猜测他是用来表明新的发布的吧。</span></span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">  &#123;</span><br><span class="line">    p-&gt;<span class="built_in">incrementSequence</span>();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">······</span><br></pre></td></tr></table></figure><br>解释一下其中的一些变量。</p>
+<ol>
+<li>首先是topicmanager本身，该类是每一个节点用来管理topic通信的类，采用的设计模式是单例模式，也就是说在同一个节点，或者说进程中，仅有一个topicmanager类对象，他管理了所有的topic相关的函数调用，它的初始化是在init函数中实现的。</li>
+<li>然后介绍下加锁的对象，是advertised_topic_mutex这个信号量，它的类型是递归互斥量，在同一个线程中，它是允许多次加锁的</li>
+<li>Publication类是在ROS的topic通信中极其重要的类，PublicationPtr是一个智能指针（boost::make_shared）。Publication的每个对象，在单个节点中，可以理解为topic的存在，也就是说每一个publication类的对象，都对应了一个topic，在同一个节点的topic通信中，不同的publisher如果往同一个topic上发送消息，都是通过同一个pubication的对象来实现的。而之所以使用智能指针，就是为了实现内存的自动管理，方便pubication的自动销毁。lookupPublicationWithoutLock()函数就是在topicmanager已存在的pubication中寻找当前topic是否已经具有相应的publication,一般如果具有impl_，那就必然能找到publication，因为我们的impl_的各个属性（包括topic）都是在advertise注册时从publication那里得到的。</li>
+<li>publication的latch属性。这个属性的含义是是否为订阅者保留最后一次发送的信息。如果该属性设为true，当新的订阅者订阅时，就必然会收到之前发布者所发布的最后一条消息。</li>
+</ol>
+<p>接下来，在topicmanager函数中，会检测一下publish消息所要发送的对象是在进程内还是在进程间。我个人认为其中比较关键的就是getPublishType函数和publish函数这两部分。<br>首先,这一段的逻辑首先讲清楚是这个样子的：</p>
+<ol>
+<li>定义nocpy和serialize两个bool型变量，来分别代表有进程内同C++类型订阅者和进程间订阅者</li>
+<li>调用publication的getPublishTypes()函数，该函数原型如下：<code>void getPublishTypes(bool&amp; serialize, bool&amp; nocopy, const std::type_info&amp; ti);</code>这里注意使用了引用传参，也就是说会将serialize和nocopy的值进行更改。</li>
+<li>如果nocopy为false，就会执行第一个if判断的语句，将m进行一个初始化（存疑）操作，然后判断是否需要序列化，如果需要，就对它进行序列化的赋值操作。</li>
+<li>使用publication的publish函数进行发布消息</li>
+<li>判断是否进行了序列化，如果进行了，就调用pollSet的信号函数触发槽函数。<br>我们先来dfs一下getPublishTypes()函数，首先是调用了publication类的函数<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">·····················</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * 得到publish的type，传入三个参数，是否序列化，是否无需拷贝，type_info</span></span><br><span class="line"><span class="comment">  * 这里调用了subscriberLink的getPublishTypes，得到它的serialize和nocopy，然后用一个或运算来返回给topicmanager是否需要进行nocopy和serialize</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Publication::getPublishTypes</span><span class="params">(<span class="keyword">bool</span>&amp; serialize, <span class="keyword">bool</span>&amp; nocopy, <span class="keyword">const</span> std::type_info&amp; ti)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  boost::<span class="function">mutex::scoped_lock <span class="title">lock</span><span class="params">(subscriber_links_mutex_)</span></span>;</span><br><span class="line">  V_SubscriberLink::const_iterator it = subscriber_links_.<span class="built_in">begin</span>();</span><br><span class="line">  V_SubscriberLink::const_iterator end = subscriber_links_.<span class="built_in">end</span>();</span><br><span class="line">  <span class="keyword">for</span> (; it != end; ++it)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">const</span> SubscriberLinkPtr&amp; sub = *it;</span><br><span class="line">    <span class="keyword">bool</span> s = <span class="literal">false</span>;</span><br><span class="line">    <span class="keyword">bool</span> n = <span class="literal">false</span>;</span><br><span class="line">    <span class="comment">// 这里的详细说明见下文</span></span><br><span class="line">    sub-&gt;<span class="built_in">getPublishTypes</span>(s, n, ti);</span><br><span class="line">    serialize = serialize || s;</span><br><span class="line">    nocopy = nocopy || n;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (serialize &amp;&amp; nocopy)</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">···················</span><br></pre></td></tr></table></figure>
+这里的sub是一个subscriberLink类的父类指针，该类本身没有实现getPublishTypes()函数，而是以虚函数的方式实现的，它的子类IntraProcessPSubscriberLink类也进行了实现，具体代码如下：<br><code>virtual void getPublishTypes(bool&amp; ser, bool&amp; nocopy, const std::type_info&amp; ti) &#123; (void)ti; ser = true; nocopy = false; &#125;</code><br>这是一个虚函数而不是纯虚函数，纯虚函数父类不会实现，只是在声明后加一个=0，如<code>virtual void enqueueMessage(const SerializedMessage&amp; m, bool ser, bool nocopy) = 0;</code>。虚函数一定会有一个自己的实现，在用父类指针进行调用函数时，实现了该函数的子类对象会调用自己的函数，没有实现该函数的子类对象会调用父类的函数，也就是说在这里，如果sub为transportPublisherLink对象，就会像上述代码一样，设置序列化为true，nocopy为false。否则，就会像下面的代码一样。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 这里会调用subscription的的getPublisType函数来修改值</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">IntraProcessSubscriberLink::getPublishTypes</span><span class="params">(<span class="keyword">bool</span>&amp; ser, <span class="keyword">bool</span>&amp; nocopy, <span class="keyword">const</span> std::type_info&amp; ti)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  boost::<span class="function">recursive_mutex::scoped_lock <span class="title">lock</span><span class="params">(drop_mutex_)</span></span>;</span><br><span class="line">  <span class="keyword">if</span> (dropped_)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  subscriber_-&gt;<span class="built_in">getPublishTypes</span>(ser, nocopy, ti);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+这里有一个很容易误会的地方就是subscriber_的类型，很容易以为她是subscription类，事实上，它是<code>IntraProcessPublisherLinkPtr subscriber_</code>定义的，所以实际这里调用了IntraProcessPublisherLink类中的方法<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">IntraProcessPublisherLink::getPublishTypes</span><span class="params">(<span class="keyword">bool</span>&amp; ser, <span class="keyword">bool</span>&amp; nocopy, <span class="keyword">const</span> std::type_info&amp; ti)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  boost::<span class="function">recursive_mutex::scoped_lock <span class="title">lock</span><span class="params">(drop_mutex_)</span></span>;</span><br><span class="line">  <span class="comment">// 如果连接已经dropped了，就全都false，无需序列化也无需查看是否nocopy直接return就好</span></span><br><span class="line">  <span class="comment">// dropoed是IntraProcessPublisherLink的一个成员变量，表示当前link是否已经失效</span></span><br><span class="line">  <span class="keyword">if</span> (dropped_)</span><br><span class="line">  &#123;</span><br><span class="line">    ser = <span class="literal">false</span>;</span><br><span class="line">    nocopy = <span class="literal">false</span>;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// parent_是父类PublisherLink定义的一个弱指针，指向intraprocessPublisher的所属subscription，所以这里实际是调用了subscription的这个函数，使用lock是因为weak指针的特性，只有使用lock才能短暂拥有对象。</span></span><br><span class="line">  SubscriptionPtr parent = parent_.<span class="built_in">lock</span>();</span><br><span class="line">  <span class="keyword">if</span> (parent)</span><br><span class="line">  &#123;</span><br><span class="line">    parent-&gt;<span class="built_in">getPublishTypes</span>(ser, nocopy, ti);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="comment">// 如果parent不存在，就说明没有内部订阅类，序列化设置为true，nocopy设置为false</span></span><br><span class="line">    ser = <span class="literal">true</span>;</span><br><span class="line">    nocopy = <span class="literal">false</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+在这里首先会判断当前link是否dropped掉了，如果没有，那就说明还在订阅，就尝试获取它的parent，也就是订阅的subscription，如果存在，就调用subscription的getPublishType()函数，否则，就说明他没有进程内订阅，就直接设置序列化为真，nocopy为假就ok了。至于subscription类的函数实现如下:<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 遍历callback_队列，比较传进来的type_info是否和callback_中的相同，如果相同，就将nocopy设置为true，表示不需要进行序列化，否则就是serialize为true，需要序列化，直到两个参数都为ture</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Subscription::getPublishTypes</span><span class="params">(<span class="keyword">bool</span>&amp; ser, <span class="keyword">bool</span>&amp; nocopy, <span class="keyword">const</span> std::type_info&amp; ti)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  boost::<span class="function">mutex::scoped_lock <span class="title">lock</span><span class="params">(callbacks_mutex_)</span></span>;</span><br><span class="line">  <span class="keyword">for</span> (V_CallbackInfo::iterator cb = callbacks_.<span class="built_in">begin</span>();</span><br><span class="line">       cb != callbacks_.<span class="built_in">end</span>(); ++cb)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">const</span> CallbackInfoPtr&amp; info = *cb;</span><br><span class="line">    <span class="keyword">if</span> (info-&gt;helper_-&gt;<span class="built_in">getTypeInfo</span>() == ti)</span><br><span class="line">    &#123;</span><br><span class="line">      nocopy = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">      ser = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (nocopy &amp;&amp; ser)</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+callbacks_容器就是一个放置了CallbackInfo的容器，它包含了subscription所订阅的message的类型等消息。具体细节会在subscribe中进行讨论。<br>接下来就调用了publication对象的publish函数，函数具体代码如下：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">········</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Publication::publish</span><span class="params">(SerializedMessage&amp; m)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (m.message)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="comment">//   给subscriber_link_加上区域锁</span></span><br><span class="line">    boost::<span class="function">mutex::scoped_lock <span class="title">lock</span><span class="params">(subscriber_links_mutex_)</span></span>;</span><br><span class="line">    <span class="comment">//   遍历subscriber_links_,如果找到的subscriber_links_是进程内的，就直接enqueueMessage信息，遍历完之后进行message.reset();</span></span><br><span class="line">    V_SubscriberLink::const_iterator it = subscriber_links_.<span class="built_in">begin</span>();</span><br><span class="line">    V_SubscriberLink::const_iterator end = subscriber_links_.<span class="built_in">end</span>();</span><br><span class="line">    <span class="keyword">for</span> (; it != end; ++it)</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">const</span> SubscriberLinkPtr&amp; sub = *it;</span><br><span class="line">      <span class="keyword">if</span> (sub-&gt;<span class="built_in">isIntraprocess</span>())</span><br><span class="line">      &#123;</span><br><span class="line">        sub-&gt;<span class="built_in">enqueueMessage</span>(m, <span class="literal">false</span>, <span class="literal">true</span>);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//</span></span><br><span class="line">    m.message.<span class="built_in">reset</span>();</span><br><span class="line">  &#125;</span><br><span class="line">    <span class="comment">// 如果buff有内容，就把m放入publish_queue中</span></span><br><span class="line">  <span class="keyword">if</span> (m.buf)</span><br><span class="line">  &#123;</span><br><span class="line">    boost::<span class="function">mutex::scoped_lock <span class="title">lock</span><span class="params">(publish_queue_mutex_)</span></span>;</span><br><span class="line">    publish_queue_.<span class="built_in">push_back</span>(m);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">··········</span><br></pre></td></tr></table></figure>
+在这段代码中，可以看到他在检测publication所管理的subscriber_links是否是本进程内的，如果是的话，就会直接把message进行入队，然后这里虽然是一个SubscriberLinkptr指针对象调用的enqueueMessage，实际上在SubscriberLink类中这只是一个虚函数，具体实现是由IntraProcessSubscriberLink类和TransportSubscriberLink类实现的。我们先介绍前者的实现，具体代码是这个样子的：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">IntraProcessSubscriberLink::enqueueMessage</span><span class="params">(<span class="keyword">const</span> SerializedMessage&amp; m, <span class="keyword">bool</span> ser, <span class="keyword">bool</span> nocopy)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  boost::<span class="function">recursive_mutex::scoped_lock <span class="title">lock</span><span class="params">(drop_mutex_)</span></span>;</span><br><span class="line">  <span class="keyword">if</span> (dropped_)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">ROS_ASSERT</span>(subscriber_);</span><br><span class="line">  <span class="comment">// subscriber_的类型其实是IntralProcessPublisherLink，这里的声明误导性很强</span></span><br><span class="line">  subscriber_-&gt;<span class="built_in">handleMessage</span>(m, ser, nocopy);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+在这里最让人难受的就是subscriber_的理解，它的声明出现在intra_processSubscriber_link.h文件中。<br><code>IntraProcessPublisherLinkPtr subscriber_</code><br>可以这样理解，发布者向订阅者发布信息时，会publication会先从自己的订阅列表中找出在进程内的订阅者，然后就会让IntraProcessSubscriberLink对象来进行enqueueMessage操作，这个入队操作到下面实际又交给了IntraProcessPublisherLink对象调用handleMessage,它的实现代码如下：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">IntraProcessPublisherLink::handleMessage</span><span class="params">(<span class="keyword">const</span> SerializedMessage&amp; m, <span class="keyword">bool</span> ser, <span class="keyword">bool</span> nocopy)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  boost::<span class="function">recursive_mutex::scoped_lock <span class="title">lock</span><span class="params">(drop_mutex_)</span></span>;</span><br><span class="line">  <span class="keyword">if</span> (dropped_)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  stats_.bytes_received_ += m.num_bytes;</span><br><span class="line">  stats_.messages_received_++;</span><br><span class="line"></span><br><span class="line">  SubscriptionPtr parent = parent_.<span class="built_in">lock</span>();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (parent)</span><br><span class="line">  &#123;</span><br><span class="line">    stats_.drops_ += parent-&gt;<span class="built_in">handleMessage</span>(m, ser, nocopy, header_.<span class="built_in">getValues</span>(), <span class="built_in">shared_from_this</span>());</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+显然到这里，m这个message就已经成功交给了SubscriptionPtr，接下来就是Subscription来调用handleMessage来进行反序列化和进行回调函数的调用了。暂停一下，我们回头看看进程间通信又是如何进行到这一步的。<br>在上面我们进行publication类的publish时，进程内通信直接进行了enqueueMessage，之后并没有结束，我们判断message如果buff不为空，就会让他把信息放入publish_queue_中，这是一个在publication中声明的队列。<br>紧接着我们判断message是否进行了序列化，如果进行序列化，显然就要进行进程间通信，就调用poll_manager_的单例，使用getPollSet()函数获得PollSet对象，并调用signal()函数，这个函数是用来搞pipe的，具体细节我不太领会，需要在学习一些Unix网络编程的知识。<br>我们看一下message 放入了publis_queue_后是如何发送给其他进程间的subscriber的。我们可以通过SourceTrail这个工具清楚看出，另一个使用了了publis_queue_的函数正是publication中的processPublishQueue函数。这个函数是由TopicManager类的processPublishQueues函数调用的，TopicManager类的processPublishQueues函数就是一个循环，会把当前节点的所有publication，调用processPublishQueue函数，进行处理，发布信息。具体内容如下：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">··········</span><br><span class="line">  <span class="comment">// 处理publish队列</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">TopicManager::processPublishQueues</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  boost::<span class="function">recursive_mutex::scoped_lock <span class="title">lock</span><span class="params">(advertised_topics_mutex_)</span></span>;</span><br><span class="line">  <span class="comment">// 遍历已发布节点，对每个publication调用processPublishQueue函数。</span></span><br><span class="line">  V_Publication::iterator it = advertised_topics_.<span class="built_in">begin</span>();</span><br><span class="line">  V_Publication::iterator end = advertised_topics_.<span class="built_in">end</span>();</span><br><span class="line">  <span class="keyword">for</span> (; it != end; ++it)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">const</span> PublicationPtr&amp; pub = *it;</span><br><span class="line">    pub-&gt;<span class="built_in">processPublishQueue</span>();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">··········</span><br></pre></td></tr></table></figure>
+而它的调用，则是在topicManager的start函数中就使用了【注意是使用而不是调用】，topicmanager的实例的初始化就是由start函数进行的，而它的start也正是在整个节点进行初始化时，由init()函数调用的ros::start()调用的。我们到topicManager的start函数中去看，看到了processPublishQueue()是如何进行使用的：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 让poll_manager单例监听processPublishQueues函数</span></span><br><span class="line"> poll_manager_-&gt;<span class="built_in">addPollThreadListener</span>(boost::<span class="built_in">bind</span>(&amp;TopicManager::processPublishQueues, <span class="keyword">this</span>));</span><br></pre></td></tr></table></figure>
+可以看到在这里他是通过pollManager的单例对象来进行使用的，这个函数是一个监听函数，它的内部实现是这个样子的：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">boost::<span class="function">signals2::connection <span class="title">PollManager::addPollThreadListener</span><span class="params">(<span class="keyword">const</span> VoidFunc&amp; func)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  boost::<span class="function">recursive_mutex::scoped_lock <span class="title">lock</span><span class="params">(signal_mutex_)</span></span>;</span><br><span class="line">  <span class="keyword">return</span> poll_signal_.<span class="built_in">connect</span>(func);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+这里的poll_signal_是一个boosts::signal2::signal对象，这个signal2实现了线程安全的信号槽机制，也就是说，我们通过connect（）函数可以将任何一个函数作为参数绑定到signal定义的对象上（这里时poll_signal_),我们可以绑定任意多个函数，作为槽，然后我们可以通过poll_signal_()这个函数，来触发和它绑定的所有函数。这里其实就是将processPublishQueues函数和这个信号进行了绑定，那么这个信号量是在哪里触发的呢？<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">PollManager::threadFunc</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="built_in">disableAllSignalsInThisThread</span>();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">while</span> (!shutting_down_)</span><br><span class="line">  &#123;</span><br><span class="line">    &#123;</span><br><span class="line">      boost::<span class="function">recursive_mutex::scoped_lock <span class="title">lock</span><span class="params">(signal_mutex_)</span></span>;</span><br><span class="line">      <span class="built_in">poll_signal_</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (shutting_down_)</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    poll_set_.<span class="built_in">update</span>(<span class="number">100</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+在这个threadFunc()函数中，我们调用了poll_signal_信号量，从而触发了和他绑定的一系列函数，从SourceTrail工具我们可以看到有若干函数和他绑定。但重要的时，这个threadFunc函数又是在何时调用的呢？<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">PollManager::start</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  shutting_down_ = <span class="literal">false</span>;</span><br><span class="line">  thread_ = boost::<span class="built_in">thread</span>(&amp;PollManager::threadFunc, <span class="keyword">this</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+是在PollManager初始化时候和一个线程绑定了。也就是说我们在初始化Nodehandle之后，就建立了一个线程，线程轮转，就是在进行信号触发，然后执行processPublishQueues函数。<br>我们跟着processPublishQueues函数向下看，我们可以看到publication的processPublishQueues函数是这个样子的：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Publication::processPublishQueue</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  V_SerializedMessage queue;</span><br><span class="line">  &#123;</span><br><span class="line">    boost::<span class="function">mutex::scoped_lock <span class="title">lock</span><span class="params">(publish_queue_mutex_)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (dropped_)</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 把publish_queue_中的信息全部放到queue中取，并清空publish_queue</span></span><br><span class="line">    queue.<span class="built_in">insert</span>(queue.<span class="built_in">end</span>(), publish_queue_.<span class="built_in">begin</span>(), publish_queue_.<span class="built_in">end</span>());</span><br><span class="line">    publish_queue_.<span class="built_in">clear</span>();</span><br><span class="line">  &#125;</span><br><span class="line">    <span class="comment">// 如果queue为空，则返回</span></span><br><span class="line">  <span class="keyword">if</span> (queue.<span class="built_in">empty</span>())</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">    <span class="comment">// 把queue中的所有消息，入队</span></span><br><span class="line">  V_SerializedMessage::iterator it = queue.<span class="built_in">begin</span>();</span><br><span class="line">  V_SerializedMessage::iterator end = queue.<span class="built_in">end</span>();</span><br><span class="line">  <span class="keyword">for</span> (; it != end; ++it)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">enqueueMessage</span>(*it);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+这里同样有一个enqueueMessage，这个是由publication本身实现的<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">Publication::enqueueMessage</span><span class="params">(<span class="keyword">const</span> SerializedMessage&amp; m)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  boost::<span class="function">mutex::scoped_lock <span class="title">lock</span><span class="params">(subscriber_links_mutex_)</span></span>;</span><br><span class="line">  <span class="comment">// 如果publication已经drop了。返回false</span></span><br><span class="line">  <span class="keyword">if</span> (dropped_)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">ROS_ASSERT</span>(m.buf);</span><br><span class="line">  <span class="comment">//自增序列</span></span><br><span class="line">  <span class="keyword">uint32_t</span> seq = <span class="built_in">incrementSequence</span>();</span><br><span class="line">  <span class="keyword">if</span> (has_header_)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="comment">// If we have a header, we know it&#x27;s immediately after the message length</span></span><br><span class="line">    <span class="comment">// Deserialize it, write the sequence, and then serialize it again.</span></span><br><span class="line">    <span class="keyword">namespace</span> ser = ros::serialization;</span><br><span class="line">    std_msgs::Header header;</span><br><span class="line">    <span class="function">ser::IStream <span class="title">istream</span><span class="params">(m.buf.get() + <span class="number">4</span>, m.num_bytes - <span class="number">4</span>)</span></span>;</span><br><span class="line">    ser::<span class="built_in">deserialize</span>(istream, header);</span><br><span class="line">    header.seq = seq;</span><br><span class="line">    <span class="function">ser::OStream <span class="title">ostream</span><span class="params">(m.buf.get() + <span class="number">4</span>, m.num_bytes - <span class="number">4</span>)</span></span>;</span><br><span class="line">    ser::<span class="built_in">serialize</span>(ostream, header);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 遍历subscriberLinks，分别将message放入subscriberlink队列</span></span><br><span class="line">  <span class="keyword">for</span>(V_SubscriberLink::iterator i = subscriber_links_.<span class="built_in">begin</span>();</span><br><span class="line">      i != subscriber_links_.<span class="built_in">end</span>(); ++i)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">const</span> SubscriberLinkPtr&amp; sub_link = (*i);</span><br><span class="line">    sub_link-&gt;<span class="built_in">enqueueMessage</span>(m, <span class="literal">true</span>, <span class="literal">false</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 如果有latch属性，把m赋值给last_message</span></span><br><span class="line">  <span class="keyword">if</span> (latch_)</span><br><span class="line">  &#123;</span><br><span class="line">    last_message_ = m;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+这里虽然同样有一个subscriberLink指针调用了enqueueMessage函数，但是实际上确实transportSubcriberLink对象进行调用的。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">TransportSubscriberLink::enqueueMessage</span><span class="params">(<span class="keyword">const</span> SerializedMessage&amp; m, <span class="keyword">bool</span> ser, <span class="keyword">bool</span> nocopy)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  (<span class="keyword">void</span>)nocopy;</span><br><span class="line">  <span class="comment">// 如过ser为0,说明是进程内通信，说明不符，直接返回</span></span><br><span class="line">  <span class="keyword">if</span> (!ser)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  &#123;</span><br><span class="line">    boost::<span class="function">mutex::scoped_lock <span class="title">lock</span><span class="params">(outbox_mutex_)</span></span>;</span><br><span class="line">    <span class="comment">// 得到publication的最大队列</span></span><br><span class="line">    <span class="keyword">int</span> max_queue = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span> (PublicationPtr parent = parent_.<span class="built_in">lock</span>())</span><br><span class="line">    &#123;</span><br><span class="line">      max_queue = parent-&gt;<span class="built_in">getMaxQueue</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">ROS_DEBUG_NAMED</span>(<span class="string">&quot;superdebug&quot;</span>, <span class="string">&quot;TransportSubscriberLink on topic [%s] to caller [%s], queueing message (queue size [%d])&quot;</span>, topic_.<span class="built_in">c_str</span>(), destination_caller_id_.<span class="built_in">c_str</span>(), (<span class="keyword">int</span>)outbox_.<span class="built_in">size</span>());</span><br><span class="line">    <span class="comment">// 看队列满了没有 outbox_是一个存放序列化信息的队列，如果满了，就会把队列最前面的信息pop掉，并更新queue_full_标志</span></span><br><span class="line">    <span class="keyword">if</span> (max_queue &gt; <span class="number">0</span> &amp;&amp; (<span class="keyword">int</span>)outbox_.<span class="built_in">size</span>() &gt;= max_queue)</span><br><span class="line">    &#123;   <span class="comment">// </span></span><br><span class="line">      <span class="keyword">if</span> (!queue_full_)</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="built_in">ROS_DEBUG</span>(<span class="string">&quot;Outgoing queue full for topic [%s].  &quot;</span></span><br><span class="line">               <span class="string">&quot;Discarding oldest message&quot;</span>,</span><br><span class="line">               topic_.<span class="built_in">c_str</span>());</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      outbox_.<span class="built_in">pop</span>(); <span class="comment">// toss out the oldest thing in the queue to make room for us</span></span><br><span class="line">      queue_full_ = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span>    <span class="comment">// 没有满就继续标志false</span></span><br><span class="line">    &#123;</span><br><span class="line">      queue_full_ = <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 放入消息</span></span><br><span class="line">    outbox_.<span class="built_in">push</span>(m);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 先不立即写入，因为需要去函数里设置一些标志</span></span><br><span class="line">  <span class="built_in">startMessageWrite</span>(<span class="literal">false</span>);</span><br><span class="line">  <span class="comment">// 更新一些状态信息</span></span><br><span class="line">  stats_.messages_sent_++;</span><br><span class="line">  stats_.bytes_sent_ += m.num_bytes;</span><br><span class="line">  stats_.message_data_sent_ += m.num_bytes;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+在这里主要利用outbox_队列来维护要发的信息，queue_full_来标志队列满了没有。然后startMessageWrite函数来执行具体往connection中写数据的过程<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 开始向connection中写信息</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">TransportSubscriberLink::startMessageWrite</span><span class="params">(<span class="keyword">bool</span> immediate_write)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  boost::shared_array&lt;<span class="keyword">uint8_t</span>&gt; dummy;</span><br><span class="line">  <span class="function">SerializedMessage <span class="title">m</span><span class="params">(dummy, (<span class="keyword">uint32_t</span>)<span class="number">0</span>)</span></span>;</span><br><span class="line"></span><br><span class="line">  &#123;</span><br><span class="line">    boost::<span class="function">mutex::scoped_lock <span class="title">lock</span><span class="params">(outbox_mutex_)</span></span>;</span><br><span class="line">    <span class="keyword">if</span> (writing_message_ || !header_written_)</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 如果outbox不为空，就获得信息，并且把writing_message标志置为true，然后pop掉outbox队列中的信息</span></span><br><span class="line">    <span class="keyword">if</span> (!outbox_.<span class="built_in">empty</span>())</span><br><span class="line">    &#123;</span><br><span class="line">      writing_message_ = <span class="literal">true</span>;</span><br><span class="line">      m = outbox_.<span class="built_in">front</span>();</span><br><span class="line">      outbox_.<span class="built_in">pop</span>();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// connection具体过程。</span></span><br><span class="line">  <span class="keyword">if</span> (m.num_bytes &gt; <span class="number">0</span>)</span><br><span class="line">  &#123;</span><br><span class="line">    connection_-&gt;<span class="built_in">write</span>(m.buf, m.num_bytes, boost::<span class="built_in">bind</span>(&amp;TransportSubscriberLink::onMessageWritten, <span class="keyword">this</span>, _1), immediate_write);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+
+        
+            <div id="toc-article">
+                
+  <div class="widget-wrap" id="toc-wrap">
+    <h3 class="widget-title"><i class="fa fa-toc"></i> 文章目录</h3>
+    <div class="widget">
+      
+    </div>
+  </div>
+
+
+            </div>
+        
+        
+          <blockquote id="copyright">
+              <p>原文链接: <a href="https://zijian.wang/2020/10/18/ROS源代码之Publish底层实现/">https://zijian.wang/2020/10/18/ROS源代码之Publish底层实现/</a></p>
+              <p>版权声明: 转载请注明出处.</p>
+          </blockquote>
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+    <div class="article-reward">
+        <a id="reward-btn" href="javascript:;">打赏</a>
+        <div id="reward-content">
+            <h6 class="reward-tit">“感谢你的支持，我会继续努力！”</h6>
+            <div>
+                <div class="reward-code">
+                    <img class="type-code" src="/css/images/wechat.jpg">
+                    <img class="er-code" src="/css/images/wechat-pay.jpg">
+                </div>
+                <div class="reward-code">
+                    <img class="type-code" src="/css/images/alipay.jpg">
+                    <img class="er-code" src="/css/images/alipay-pay.jpg">
+                </div>
+            </div>
+            <p class="reward-desc">扫码打赏，感谢支持</p>
+        </div>
+    </div>
+
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" rel="tag">源码阅读</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%A0%94%E7%A9%B6%E6%96%B9%E5%90%91/" rel="tag">研究方向</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+        
+<nav id="article-nav">
+  
+    <a href="/2020/11/04/%E3%80%8AC++%20Primer%20%E7%AC%AC%E4%BA%94%E7%89%88%E3%80%8B%E9%98%85%E8%AF%BB%E8%BF%87%E7%A8%8B%E6%9F%A5%E6%BC%8F%E8%A1%A5%E7%BC%BA%20Chapter2/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">newer</strong>
+      <div class="article-nav-title">
+        
+          《C++ Primer 第五版》阅读过程查漏补缺 Chapter2
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/06/30/%E5%B5%8C%E5%85%A5%E5%BC%8FRTOS%E5%A4%8D%E4%B9%A0/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">older</strong>
+      <div class="article-nav-title">嵌入式实时操作系统课程知识点复习</div>
+    </a>
+  
+</nav>
+
+      
+      
+        
+
+
+
+
+
+
+  <div id="SOHUCS" sid="2020/10/18/ROS源代码之Publish底层实现/"></div>
+
+
+      
+    </footer>
+  </div>
+</article>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-posts"></i> 最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2022/03/17/XRCE-DDS%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%88epromisa%E5%AE%9E%E7%8E%B0%EF%BC%89/">XRCE-DDS源码阅读（epromisa实现）</a>
+          </li>
+        
+          <li>
+            <a href="/2021/12/30/%E5%AF%B9MQTT%E7%9A%84%E5%BD%A2%E5%BC%8F%E5%8C%96%E5%88%86%E6%9E%90%E4%B8%8E%E5%BB%BA%E6%A8%A1/">对MQTT的形式化分析和建模</a>
+          </li>
+        
+          <li>
+            <a href="/2021/12/13/git%E5%AD%A6%E4%B9%A0/">git学习</a>
+          </li>
+        
+          <li>
+            <a href="/2021/12/01/%E5%AF%B9ROS2%E7%9A%84DDS%E7%9A%84%E5%BD%A2%E5%BC%8F%E5%8C%96%E5%88%86%E6%9E%90/">对ROS2的DDS的形式化分析</a>
+          </li>
+        
+          <li>
+            <a href="/2021/10/19/%E6%97%B6%E9%97%B4%E8%87%AA%E5%8A%A8%E6%9C%BA/">时间自动机</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/C/" style="font-size: 15px;">C++</a> <a href="/tags/DDS/" style="font-size: 15px;">DDS</a> <a href="/tags/Leetcode/" style="font-size: 20px;">Leetcode</a> <a href="/tags/ROS/" style="font-size: 10px;">ROS</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/hash/" style="font-size: 13.75px;">hash</a> <a href="/tags/%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE/" style="font-size: 11.25px;">二分查找</a> <a href="/tags/%E5%89%8D%E7%BC%80%E5%92%8C/" style="font-size: 10px;">前缀和</a> <a href="/tags/%E5%89%91%E6%8C%87offer/" style="font-size: 18.75px;">剑指offer</a> <a href="/tags/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" style="font-size: 12.5px;">动态规划</a> <a href="/tags/%E5%8D%8F%E8%AE%AE%E9%98%85%E8%AF%BB/" style="font-size: 12.5px;">协议阅读</a> <a href="/tags/%E5%8F%8C%E6%8C%87%E9%92%88/" style="font-size: 11.25px;">双指针</a> <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8FRTOS/" style="font-size: 10px;">嵌入式RTOS</a> <a href="/tags/%E5%B7%A5%E5%85%B7/" style="font-size: 11.25px;">工具</a> <a href="/tags/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/" style="font-size: 10px;">工具使用</a> <a href="/tags/%E5%BD%A2%E5%BC%8F%E5%8C%96/" style="font-size: 10px;">形式化</a> <a href="/tags/%E5%BD%A2%E5%BC%8F%E5%8C%96%E9%AA%8C%E8%AF%81/" style="font-size: 11.25px;">形式化验证</a> <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%EF%BC%8C%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" style="font-size: 10px;">操作系统，环境配置</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" style="font-size: 12.5px;">数据库</a> <a href="/tags/%E6%95%B0%E7%BB%84/" style="font-size: 13.75px;">数组</a> <a href="/tags/%E6%A8%A1%E5%9E%8B%E6%A3%80%E6%B5%8B/" style="font-size: 11.25px;">模型检测</a> <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" style="font-size: 11.25px;">源码阅读</a> <a href="/tags/%E7%9F%A9%E9%98%B5/" style="font-size: 13.75px;">矩阵</a> <a href="/tags/%E7%A0%94%E7%A9%B6%E6%96%B9%E5%90%91/" style="font-size: 16.25px;">研究方向</a> <a href="/tags/%E7%A7%91%E7%A0%94%E5%91%A8%E8%AE%B0/" style="font-size: 10px;">科研周记</a> <a href="/tags/%E7%AE%97%E6%B3%95%E9%A2%98/" style="font-size: 20px;">算法题</a> <a href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" style="font-size: 10px;">计算机网络</a> <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/" style="font-size: 11.25px;">论文阅读</a> <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB%EF%BC%8CROS2/" style="font-size: 10px;">论文阅读，ROS2</a> <a href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" style="font-size: 17.5px;">读书笔记</a> <a href="/tags/%E8%B4%AA%E5%BF%83/" style="font-size: 10px;">贪心</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-classify"></i> 分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/C-%E8%A7%86%E9%A2%91%E8%AF%BE/">C++视频课</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Leetcode%E5%88%B7%E9%A2%98/">Leetcode刷题</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ROS/">ROS</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ROS2%E4%B8%8EMicro-ROS/">ROS2与Micro-ROS</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E3%80%8AC-Primer%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/">《C++ Primer》阅读笔记</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%88%B7%E9%A2%98%E8%AE%B0%E5%BD%95/">刷题记录</a><span class="category-list-count">14</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%89%91%E6%8C%87offer/">剑指offer</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%B7%A5%E5%85%B7%E5%AD%A6%E4%B9%A0/">工具学习</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AD%A6%E4%B9%A0/">数据库学习</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%A7%91%E7%A0%94%E5%91%A8%E8%AE%B0/">科研周记</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E5%AD%A6%E4%B9%A0/">计算机网络学习</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">论文阅读</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">读书笔记</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/">软件安装</a><span class="category-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-archive"></i> 归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">2022年03月</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">2021年12月</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">2021年10月</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">2021年09月</a><span class="archive-list-count">17</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">2021年07月</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">2021年06月</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">2021年05月</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">2021年04月</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">2021年01月</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">2020年11月</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">2020年10月</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">2018年06月</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">2018年03月</a><span class="archive-list-count">4</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/C/" rel="tag">C++</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DDS/" rel="tag">DDS</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a><span class="tag-list-count">43</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ROS/" rel="tag">ROS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hash/" rel="tag">hash</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE/" rel="tag">二分查找</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%89%8D%E7%BC%80%E5%92%8C/" rel="tag">前缀和</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%89%91%E6%8C%87offer/" rel="tag">剑指offer</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" rel="tag">动态规划</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8D%8F%E8%AE%AE%E9%98%85%E8%AF%BB/" rel="tag">协议阅读</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8C%E6%8C%87%E9%92%88/" rel="tag">双指针</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8FRTOS/" rel="tag">嵌入式RTOS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B7%A5%E5%85%B7/" rel="tag">工具</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/" rel="tag">工具使用</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BD%A2%E5%BC%8F%E5%8C%96/" rel="tag">形式化</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BD%A2%E5%BC%8F%E5%8C%96%E9%AA%8C%E8%AF%81/" rel="tag">形式化验证</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%EF%BC%8C%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" rel="tag">操作系统，环境配置</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E7%BB%84/" rel="tag">数组</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%A8%A1%E5%9E%8B%E6%A3%80%E6%B5%8B/" rel="tag">模型检测</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" rel="tag">源码阅读</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%9F%A9%E9%98%B5/" rel="tag">矩阵</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A0%94%E7%A9%B6%E6%96%B9%E5%90%91/" rel="tag">研究方向</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A7%91%E7%A0%94%E5%91%A8%E8%AE%B0/" rel="tag">科研周记</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95%E9%A2%98/" rel="tag">算法题</a><span class="tag-list-count">43</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag">计算机网络</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/" rel="tag">论文阅读</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB%EF%BC%8CROS2/" rel="tag">论文阅读，ROS2</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag">读书笔记</a><span class="tag-list-count">11</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%B4%AA%E5%BF%83/" rel="tag">贪心</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-link"></i> 友情链接</h3>
+    <div class="widget">
+      <ul>
+      
+        <li>
+          <a target="_blank" rel="noopener" href="https://www.guanyuqian.com/">G-Blog（关师兄的博客）</a>
+        </li>
+      
+        <li>
+          <a target="_blank" rel="noopener" href="https://imvector.github.io/">峰哥的博客</a>
+        </li>
+      
+        <li>
+          <a target="_blank" rel="noopener" href="https://amyzhoucc.github.io/">豆豆龙（zcc师姐的博客）</a>
+        </li>
+      
+        <li>
+          <a target="_blank" rel="noopener" href="https://mchen0607.github.io/">闽哥的博客</a>
+        </li>
+      
+      </ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+        
+      </div>
+      <a id="totop" href="#top"></a>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      <p>
+        <a href="/sitemap.xml">网站地图</a>
+        <span> | </span><a href="/about/">联系博主</a>
+      </p>
+      
+        <p>
+          <i class="fa fa-visitors"></i>
+          <i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>
+          ，
+          <i class="fa fa-views"></i>
+          <i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>
+        </p>
+      
+      <p>
+        <span>Copyright &copy; 2022 Eric Wang.</span>
+        <span>Theme by <a href="https://github.com/chaooo/hexo-theme-BlueLake/" target="_blank">BlueLake.</a></span>
+        
+            <span>Count by <a href="http://busuanzi.ibruce.info/" target="_blank">busuanzi.</a></span>
+        
+        <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo.</a></span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+<script src="/js/search.json.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+  
+<script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+  
+<script src="/localshare/js/social-share.js"></script>
+
+  
+<script src="/localshare/js/qrcode.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <script>
+    window._config = { showScore: true };
+    (function(){
+      var appid = 'cyvoLETLk';
+      var conf = '9be4582e027b7ddeb93c7cb6571009a5';
+      var width = window.innerWidth || document.documentElement.clientWidth;
+      var nodes =document.getElementsByTagName("head")[0]||document.head||document.documentElement;
+      if (/(Android|iPhone|iPad|iPod|iOS)/i.test(navigator.userAgent) && width < 750) {
+          window.document.write('<script id="changyan_mobile_js" charset="utf-8" type="text/javascript" src="https://changyan.sohu.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf + '"><\/script>');
+      }
+      else {
+        var loadJs=function(d,a){
+          var b=document.createElement("script");b.setAttribute("type","text/javascript");
+          b.setAttribute("charset","UTF-8");
+          b.setAttribute("src",d);
+          if(typeof a==="function"){if(window.attachEvent){b.onreadystatechange=function(){var e=b.readyState;if(e==="loaded"||e==="complete"){b.onreadystatechange=null;a()}}}else{b.onload=a}}
+          nodes.appendChild(b)
+        };
+        loadJs("https://changyan.sohu.com/upload/changyan.js",function(){window.changyan.api.config({appid:appid,conf:conf})});
+      }
+      var loadCss = function(cssString){
+        var style=document.createElement("style");
+        style.setAttribute("type", "text/css");
+        if(style.styleSheet){// IE
+            style.styleSheet.cssText = cssString;
+        } else {// w3c
+            var cssText = document.createTextNode(cssString);
+            style.appendChild(cssText);
+        }
+        nodes.appendChild(style);
+      }
+    })();
+    function removeElement(_element){
+         var _parentElement = _element.parentNode;
+         if(_parentElement){
+                _parentElement.removeChild(_element);
+         }
+    }
+    var removeAD = document.createElement("div");
+    removeAD.id = 'removeAD';
+    var adInterval1 = setInterval(function() {
+      if(document.querySelector("#feedAv")){
+        document.querySelector("[node-type=cmt-list]").appendChild(removeAD);
+        document.querySelector("#removeAD").appendChild(document.querySelector("#feedAv"));
+        //- removeElement(document.querySelectorAll("#feedAv")[0]);
+        var feedAv = document.querySelector("#feedAv").children;
+        for( item of feedAv){
+          item.style.display = 'none'
+        }
+        document.querySelector("#removeAD").style.display="none"
+        clearInterval(adInterval1);
+      }
+    },1000);
+    var adInterval2 = setInterval(function() {
+      if(document.querySelector("#pop_ad")){
+        removeElement(document.querySelector("#pop_ad"));
+        clearInterval(adInterval2);
+      }
+    }, 1000);
+  </script>
+  
+<script src="https://assets.changyan.sohu.com/upload/plugins/plugins.count.js"></script>
+
+
+
+
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+  <script src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML" async type="text/javascript"></script>
+
+  </div>
+</body>
+</html>

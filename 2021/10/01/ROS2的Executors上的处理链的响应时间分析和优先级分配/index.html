@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>ROS2 Executors上的处理链的响应时间分析和优先级分配 | 妄越</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+    <meta name="description" content="学海无涯，记在路上">
+  
+  
+    <meta name="keywords" content="技术博客">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="妄越" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/logo.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+    
+<link rel="stylesheet" href="/localshare/css/share.css">
+
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">妄越</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">平生蹉跎少年志，雨落樱花又一年</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/."><i class="fa fa-home"></i> 首页</a>
+        
+          <a class="main-nav-link" href="/archives/"><i class="fa fa-archive"></i> 归档</a>
+        
+          <a class="main-nav-link" href="/about/"><i class="fa fa-user"></i> 关于</a>
+        
+      </nav>
+    </div>
+    <div id="search-form">
+      <div id="result-mask" class="hide"></div>
+      <label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label>
+      <div id="result-wrap" class="hide">
+        <div id="search-result"></div>
+      </div>
+      <div class="hide">
+        <template id="search-tpl">
+          <div class="item">
+            <a href="/{path}" title="{title}">
+              <div class="title">{title}</div>
+              <div class="time">{date}</div>
+              <div class="tags">{tags}</div>
+            </a>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-ROS2的Executors上的处理链的响应时间分析和优先级分配" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      ROS2 Executors上的处理链的响应时间分析和优先级分配
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-10-01T12:09:30.000Z" itemprop="datePublished">2021年10月01日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">论文阅读</a>
+  </div>
+
+      
+        <span class="article-views">
+  <i class="fa fa-views"></i>
+  <i id="busuanzi_container_page_pv">
+      <i id="busuanzi_value_page_pv"></i>
+  </i>
+</span>
+
+      
+      
+<a href="/2021/10/01/ROS2%E7%9A%84Executors%E4%B8%8A%E7%9A%84%E5%A4%84%E7%90%86%E9%93%BE%E7%9A%84%E5%93%8D%E5%BA%94%E6%97%B6%E9%97%B4%E5%88%86%E6%9E%90%E5%92%8C%E4%BC%98%E5%85%88%E7%BA%A7%E5%88%86%E9%85%8D/#comments" class="article-comment-link">
+  
+    
+    
+    
+    
+    
+      <i id="changyan_count_unit" data-xid="/2021/10/01/ROS2%E7%9A%84Executors%E4%B8%8A%E7%9A%84%E5%A4%84%E7%90%86%E9%93%BE%E7%9A%84%E5%93%8D%E5%BA%94%E6%97%B6%E9%97%B4%E5%88%86%E6%9E%90%E5%92%8C%E4%BC%98%E5%85%88%E7%BA%A7%E5%88%86%E9%85%8D/"></i>
+    
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h2><p>ROS（机器人操作系统）是近年来最受欢迎的机器人软件开发框架。安全有关领域的机器人软件往往受制于硬实时的约束，所以设计者必须形式化建模和分析他们的时间行为，来保证运行时实施约束始终兑现。这篇论文研究了ROS2中的处理链（<em>processing chain</em>）的实时调度和分析，ROS2就是ROS主要考虑了实时能力的第二个版本。首先，论文研究了ROS2 Executors上的处理链的响应时间分析。论文展示了这个问题唯一存在的结果就是<strong>共同考虑乐观和悲观</strong>，并且开发了新的技术来定位这些问题，显著地提升了分析精度。然后，论文揭示了一个执行器（Executor）上的一个处理链的响应时间仅仅取决于他的最后的调度实体（<em>callback</em>）,这个实体以非常少的设计代价为设计者提供了很有用的指导，不仅提升了响应时间的边界，也提升了系统实际的最差情况/平均响应时间。最后，论文使用随机生成的工作量和一个在真实ROS2平台上的样例研究来评估和证明了研究的结果。</p>
+<span id="more"></span>
+<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><ul>
+<li>ROS是当今最受欢迎的机器人软件开放框架，它的主要理念是通过促进软件的模块化和可组合行来推动机器人软件的开发。主要的缺点就是因此导致的缺乏实时能力。这也限制了ROS的广泛传播</li>
+<li>ROS2是2017年基于ROS推出的二代版本。ROS2继承了ROS的成功的概念并做了一定的发展，然后最主要考虑的就是对强的实时能力的支持，比如ROS集成了DDS作为进程间实时数据交换通信的中间件，且可以基于实时操作系统上，而不是仅仅在Linux上进行运行，从而可以支持实时安全资源在控制导向代码路径上的预配置。</li>
+<li>虽然ROS2的架构提供了好的基础，但是其本身对硬实时的支持依然不够显著。对于硬实时系统，设计者必须验证系统时间性质，以及保证时间约束在运行时所有场景都能得到保证。《Response-Time Analysis of ROS 2 Processing Chains Under Reservation-Based Scheduling》这篇论文在ROS2中的处理链的分析和形式化建模方面进行了开创性的工作。在特定情况下，那篇论文对ROS2执行器（ROS2中多路复用计算任务的一个核心组件）的工作量结构（workload structure）和调度策略进行了建模，并且发明了用来对ROS2执行器处理链响应时间限制上界的技术。这篇论文揭示了ROS2执行器的调度行为是完全不同于过去实时调度研究，并且需要新的分析技术。这篇论文的高层次视角和特殊的成果已经在ROS社区引起了直接的影响，并潜在的触发了实时调度和ROS社区之间的更近的交互来支持分析ROS2硬实时保证。</li>
+<li>除了它的重要性，引文中的工作有一些问题：<ul>
+<li>引文中ROS2执行器处理链（引文中被称作subchains）的响应时间边界既是乐观的（边界可能比实际最坏情况更小）也是悲观的（边界通常不必要大于实际的最坏情况）。我们将会讨论在第四节这些问题的细节。</li>
+</ul>
+</li>
+<li>本文有两大贡献<ul>
+<li>通过为ROS2执行器的处理链开发新的响应时间分析工具解决了上述引文的问题。新的分析工具通过深度探索ROS执行器内部的调度行为，显著地提升了分析精度。随机生成的工作负载的实验评估表明本文新的响应时间边界始终优于引文，并且具有明显的差距。</li>
+<li>本文研究了回调优先级分配是如何影响ROS2执行器处理链的响应时间的，就作者们所了解，之前的工作还没有解决过这一问题。本文揭示了处理链的响应时间仅仅取决于处理链中最后一次回调的优先级：分配给对最后一个回调的优先级越高，处理链的潜在响应时间就会越短。这个性质将会帮助ROS2应用开发者来提升系统的反应能力，不仅仅是对硬实时系统的响应时间上界，也包括软实时和通常系统的实际最坏和平均响应时间，且仅仅消耗很少或者不需要额外的设计开销。我们使用随机生成的工作负载和一个实际基于ROS2机器人软件系统的样例研究模拟实验来证明我们的发现的作用。</li>
+</ul>
+</li>
+</ul>
+<h2 id="相关工作"><a href="#相关工作" class="headerlink" title="相关工作"></a>相关工作</h2><p>学术界意识到ROS中缺乏实时能力，着手在这方面进行提升。有的在ROS调度和数据交换中加入优先级机制，有的为了更好的实时表现在实时操作系统上运行实时节点。有的发明了实时调度框架，有的提出了关于透明的CPU/GPU协调机制的实时ROS扩展。然而这些研究仅仅提升了实时系统的能力，但是并不能保证任何分析实时保证。对于ROS2，有两篇论文实验评估了在不同潜在条件的实时操作系统和不同DDS实现下的ROS2，但是都基于测量而没有考虑形式化建模和分析。</p>
+<p>据文章所知道的，唯一对ROS2执行器的时间行为进行形式化建模和分析的工作就是《Response-Time Analysis of ROS 2 Processing Chains Under Reservation-Based Scheduling》。然而，正如同上文所提到的，引文中对处理链的响应时间分析既是乐观的，也是悲观的。</p>
+<p>基于链的任务模型时序分析的实时调度研究已经存在很多工作，根据任务的激活方式可以分为两类，一类被称作<em>触发链（trigger chains）</em>，也就是一个前驱任务触发后继任务的释放；另一类被称为<em>数据链（data chains）</em>,也就是任务独立的被触发，也因此可能导致<em>过采样或欠采样</em>。广义上讲，ROS2执行器上的处理链在本文考虑属于触发链类。然而，ROS2执行器的调度行为是非常不同于先前的研究的，且不存在已有的分析技术可以应用在我们的问题。</p>
+<h2 id="系统建模"><a href="#系统建模" class="headerlink" title="系统建模"></a>系统建模</h2><p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20210927161257599.png" alt="image-20210927161257599"></p>
+<p>图1(a)展示了ROS2的架构。ROS2应用通常包括的组件有独立的互相之间通过发布订阅机制进行通信的<em>节点（node）</em>。节点会就<em>话题（topic）</em>发布<em>信息（message）</em>，这些信息会广播给所有订阅了话题的节点。节点对到来的信息作出回应的方式就是通过<em>回调（callback）</em>来处理每条信息。为了部署ROS应用，独立的节点分布在各个主机上，并被映射到操作系统进程中。ROS2客户端库中的<em>执行器（Executors）</em>协调操作系统进程中的节点的回调执行。ROS2提供了两种内置的执行器，一种是顺序的，以单线程执行回调；另一种是并行的，在多线程之间分配挂起回调的处理。本文主要致力于单执行器上一个链的响应时间边界的计算。尽管如此，和引文相同，本文可以通过组合性能分析（CPA）方法轻松地将结果扩展到跨多个执行器的链的端到端响应时间分析。</p>
+<h3 id="A-工作负载模型"><a href="#A-工作负载模型" class="headerlink" title="A. 工作负载模型"></a>A. 工作负载模型</h3><p>我们在一个ROS2的执行器上考虑一个系统$\Gamma$，该系统包括了一系列独立的<em>处理链</em>（或者短的<em>链</em>），$\Gamma = {C,C’,C’’\dots}$。每一个系统$\Gamma $中的链$C$（$C\in \Gamma$）都包含了一个回调有序序列，即$C={C<em>{tm},C_1,\dots,C</em>{|C|}}$。$C<em>{tm}$是一个<em>定时器（timer）</em>回调，后面跟着的是<em>常规（regular）</em>回调$C_1,\cdots,C</em>{|C|}$，其中$|C|$表示链$C$中常规回调的数量。最后的常规回调$C<em>{|C|}$被链的<em>槽（sink）</em>回调调用。除了明确指定，本文惯例使用$C={C</em>{tm},C<em>1,\dots,C</em>{|C|}}$来表示目前正在分析的链，叫做<em>分析链（analyzed chain）</em>，使用$C’={C’<em>{tm},C’_1,\dots,C’</em>{||C’||}}$来表示任意其他链，叫做<em>干扰链（interfering chain）</em>，也就是和<em>C</em>竞争资源的链。本文使用$e(C)$表示链$C$完整的WCET（最坏情况执行时间）:</p>
+<script type="math/tex; mode=display">
+e(C) = e(C_{tm})+\sum_{z=1}^{||C||}e(C_z) \nonumber</script><p>其中$e(C<em>{tm})$是定时器回调$C</em>{tm}$的WCET，$e(C_z)$是第$z$个常规回调WCET，其中$1&lt;=z&lt;=|C|$。</p>
+<p>一个链会在每次它的定时器回调收到一个外部事件时发布<em>链实例（chain instances）</em>。我们使用$C^i$表示链$C$的第$i$个实例，也就包含了对应的<em>回调实例</em>$C^i={C^i<em>{tm},C^i_1,\dots,C^i</em>{|C|}}$。当$C^i<em>{tm}$完成了执行后，$C^i</em>{tm}$会产生一个消息来触发$C^i_1$，然后以此类推触发$C^i_2、C^i_3\dots$。链$C$的发布模式（即外部事件到其定时器回调的到达模式）以<em>到达曲线（arrival curve）</em>$\alpha_C(\Delta)$表示，该曲线限制了在$\Delta$长度内的任意时间间隔中链$C$释放的链实例的数量。本文使用</p>
+<script type="math/tex; mode=display">
+\bar{\alpha_C}(x) = inf\{\Delta : \alpha_C(\Delta)\ge x\}   \nonumber</script><p>来表示$\alpha<em>C(\Delta)$的伪逆函数（pseudo-inverse function），即，链C的$x$个被释放的连续实例的任何时间间隔的长度下界为$\bar{\alpha</em>{C}}$。</p>
+<p>本文的模型允许$e(C_{tm})=0$，也就是说链$C$可以没有定时器回调。这是为了建模一种情况，即应用程序只有端到端处理链的一部分被分配到了考虑的执行器，如图1-(b)所示。</p>
+<p>链实例$C^i={C^i<em>{tm},C^i_1,\dots,C^i</em>{|C|}}$的<em>响应时间（response time）</em>指的是它的发布时间和它的槽回调实例$C^i_{|C|}$的完成时间之间的时间。链的<em>最坏情况的响应时间</em>指的是所有的实例的响应时间中的最大值。本文的目标就是为系统$\Gamma$中的每个链C的最坏情况响应时间计算出一个安全的上界。</p>
+<h3 id="B-资源模型"><a href="#B-资源模型" class="headerlink" title="B. 资源模型"></a>B. 资源模型</h3><p>和引文一样，本文假定$\Gamma$在ROS2中的一个<em>单线程执行器</em>上执行，它的资源预留通过<em>供给边界函数（supply bound function）</em>$sbf(\Delta)$标识，这个函数为执行器的可用处理链的数量规定了下界。本文使用</p>
+<script type="math/tex; mode=display">
+\bar{sbf(x)} = sup\{\Delta : sbf(\Delta)<x\} \nonumber</script><p>来表示$sbf(\Delta)$的伪逆函数，即，$\bar{sbf(x)}$是提供$x$个处理时间单位的任意时间间隔的长度上界。</p>
+<h3 id="C-调度模型"><a href="#C-调度模型" class="headerlink" title="C. 调度模型"></a>C. 调度模型</h3><p>执行器包括一个就绪集合$\Omega$，该集合记录了将被执行的<em>就绪（ready）</em>回调实例。当一个回调实例完成时，它将从$\Omega$中被删去。一个定时器回调一旦被一个外部事件触发，就会立即实例成为<em>就绪</em>状态，并且被放到$\Omega$中。相同的定时器回调的多个实例，可以在同一时刻退出$\Omega$</p>
+<p>一个<em>常规</em>回调实例$C^i_z$当且仅当下述两个条件全都满足时才会成为<em>就绪</em>状态：</p>
+<ul>
+<li>给$C^i<em>z$的输入信息可用，即，前驱回调实例$C^i</em>{z-1}$（或者当$z=1$时的$C^i_{tm}$）完成时</li>
+<li>相同回调的所有更早的实例，比如$C^{i-1}_z,C^{i-2}_z,\dots$，都已经完成了。因此，在同一时间内，相同回调最多只有一个实例处于就绪状态。</li>
+</ul>
+<p>一个常规回调实例不会在他成为就绪状态时立刻放入$\Omega$中，而是所有当前就绪的常规实例在$\Omega$为空时的那一个时间点统一被加到$\Omega$中，这个时间点被称为<em>polling time</em>。</p>
+<p>两个<em>polling time</em>的时间间隔被称为<em>处理窗口（processing window）</em>。执行器选择$\Omega$中的回调实例（包括定时器回调和常规回调实例）在当前的处理窗口中进行逐个非抢占的执行。在处理窗口中的就绪回调实例的执行顺序取决于他们的优先级。每个回调拥有一个固定且独一无二的优先级，并且它的实例会继承这个优先级。定时器回调比常规回调拥有更高的优先级。本文使用$hp(C_z)$来表示比回调$C_z$更高优先级的回调集合。</p>
+<h3 id="D-一个说明样例"><a href="#D-一个说明样例" class="headerlink" title="D. 一个说明样例"></a>D. 一个说明样例</h3><p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20210928164449134.png" alt="image-20210928164449134"></p>
+<p>图2-（a）中的两个链$C$和$C’$在一个执行器上进行执行。圆点上方的数字代表了回调的优先级：数字越小，优先级越大。两条链的到达曲线$\alpha<em>C(\Delta)$和$\alpha</em>{C’}(\Delta)$以及执行器的供给边界函数$sbf(\Delta)$如图2-(b)所示。假定$C$和$C’$的第一条链实例分别在时刻0和时刻7时释放，回调函数的WCET是$e(C<em>{tm})=2$，$e(C_1)=2$，$e(C_2)=2$，$e(C_3)=4$，$e(C’</em>{tm})=2$，$e(C’_2)=4$，$e(C’_3)=2$。图2-(d)展示了执行序列，其中时间区间$[8,10],[18,20]以及[28,30]$上的灰色块代表了处理资源不可获取。图2-(c)展示了$\Omega$在一些关键时间节点（也就是就绪回调实例被放入的时刻）的内容</p>
+<h2 id="对引文分析的讨论"><a href="#对引文分析的讨论" class="headerlink" title="对引文分析的讨论"></a>对引文分析的讨论</h2><p>引文中，链$C$的响应时间边界是通过找到满足$R$的最小值来计算的（引文中的引理8）：</p>
+<script type="math/tex; mode=display">
+sbf(R) = \sum_{C'\in \Gamma}\alpha_{C'}(R-e(C_{||C||})+1)\cdot e(C'))</script><p>需要注意的是在上面的公式中，$e(C_{|C|})$是所分析的链$C$的最后一个常规回调的WCET（最坏情况执行时间）。</p>
+<p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20210929154554532.png" alt="image-20210929154554532"></p>
+<p>本文首先使用图3中的示例来展示上述计算响应时间边界的方法可能是过于乐观的（即使系统只包含一个链）。本文使$sbf(\Delta)=\Delta，e(C_{tm})=2，e(C_1)=2，e(C_2)=8$，链$C$的到达曲线将如图3所示。接着本文使用这个样例的参数，实例化了公式1：</p>
+<script type="math/tex; mode=display">
+sbf(R) = \alpha_C(R-7)\cdot12 \nonumber</script><p>其中$R=12$是最小解。然而我们可以再图3中看到链$C$的第2条第3条实例分别是22和24，比获得的边界12要大上很多。</p>
+<p>简单讨论下引文中的边界为什么太乐观了。公式（1）的右值计算了一个链实例从发布到它的槽回调开始执行期间的整个发布的工作负载（因为回调是非抢占地执行，所以这之后发布的工作负载就无法干扰链实例）。由于$sbf(R)$表示提供足够的资源来处理这些工作负载的时间的长度，所以公式（1）的解似乎可以安全的限定响应时间。然而，由（1）中的右值表示的工作负载仅仅包含了那些在链发布时间<em>之后</em>发布的工作负载，但是一个链实例事实上可能会被在它发布时间<em>之前</em>发布的工作负载所影响（也就是所谓的“carry-in”）。在本文的实例中，第二条链实例受到了相同链的第一个实例的“carry-in”影响，同时第三条链实例也受到了第二条实例的“carry-in”影响（通常情况下一个链实例也会受到其他链的carry-in的影响）。因此，公式（1）中的右值低估（underestimate）了由分析的链实例导致的所有影响，因为它没有计算“carry-in”。</p>
+<p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20210929163926466.png" alt="image-20210929163926466"></p>
+<p>已经展示了公式（1）的右值可能低估干扰，接下来本文展示了它还可能导致高估（overestimation）。图4中的样例的参数除了链的到达曲线之外，其他和图3相同。根据求解公式（1）获得的边界为36，然而实时上的最坏情况响应时间为28。现在讨论一下悲观产生的原因。直觉上来看，公式（1）的右值计算了在分析的链实例的槽回调实例开始之前的每一条发布的链实例的所有工作负载。然而，事实上一些回调实例可能会在分析的链实例的槽回调实例之后执行，也因此并没有产生影响。在图4中，第二条链实例拥有最坏情况响应时间，我们可以看到第三条链实例的槽回调实例事实上并没有影响第二条链的实例。尽管在这个样例中过量计算并不是非常大，仍然通常情况下可能会导致显著地悲观，后文第7节的实验中会展示出来。</p>
+<h2 id="响应时间分析"><a href="#响应时间分析" class="headerlink" title="响应时间分析"></a>响应时间分析</h2><h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>如果至少有一个就绪回调实例还没有被完成（既包括正在执行的，也包括还在就绪集合$\Omega$中的，或者已经就绪但是还未加入到就绪集合$\Omega$中的），那么我们就说执行器是<em>忙碌的（busy）</em>。如果执行器在时间$a$之前是不忙碌的，在时间$b$之后也是不忙碌的，但是在$[a,b]$之间的每个时间点都始终忙碌，则时间区间$[a,b]$是一个<em>忙碌区间（busy period）</em>。</p>
+<p>本文致力于分析在任意一个忙碌区间中的链$C$。特定情况下，本文专注于分析在忙碌区间中释放的链$C$的第$i$个实例，也就是$C^i$。本文称$C$为<em>被分析链（analyzed chain）</em>,$C^i$称为<em>被分析的链实例（analyzed chain instance）</em>。除了链$C$以外的所有其他链被称为<em>干扰链（interfering chains）</em>,他们的链实例被称为<em>干扰链实例（interfering chain instances）</em>。不失一般性的，本文令时间点0位忙碌区间的起始时间，本文定义三个重要的时间节点</p>
+<ul>
+<li>$t_1:$链$C^i$的释放时间</li>
+<li>$t_2:$链$C^i_1$开始执行</li>
+<li>$t<em>3:$链$C</em>{|C|}^i$开始执行</li>
+</ul>
+<p>本文的目标是为了找到$t<em>3-t_1$的一个上界，我们可以通过考虑执行$C^i</em>{|C|}$的时间来计算$C^i$的响应时间边界（因为回调是非抢占式执行）。接下来重点介绍计算$t_3-t_1$的一些关键点。</p>
+<p>首先，我们推导处忙碌区间的长度的上限，从而找到位置索引$i$的上界（$C^i$是被考虑的忙碌区间的任意$C$实例）。因此，如果$i$是每一步的一个未知值，列举$i$在上界之下的所有值，并最终得到这些值中的最大值。</p>
+<p>为了得到$t_3-t_1$的上界，我们应该找到$t_1$的下界和$t_3$的上界。$t_1$的下界很简单，根据$\bar{\alpha_C}(i)$是$C$发布$i$个实例中一个时间区间长度的下界可以得到。</p>
+<p>为了求得$t_3$的上界，我们将求解整个工作负载在$[0,t_3]$之中执行的上界。整个工作负载由被分析的链$C$本身和干扰链组成，需要分别求解上界。</p>
+<p>相较引文而言，本文分析更加精细的关键意见如下所示。在ROS2的执行器上，一个链是以一种“管道（pipeline）”的方式进行执行的。因此对于被分析链实例$C^i$之后的链实例（既包括被分析链$C$或者干扰链$C’$）来说，只有它们在$C^i_{|C|}$之前的那部分工作负载能被执行，剩余部分会在计算被$C^i$造成的干扰时被排除。（然而在引文中，所有的工作负载都被记作$C^i$的干扰）。</p>
+<p>接下来，本文首先介绍了关于链的“pipeline”风格执行模式（在章节V-B中），然后求解包括被分析链本身（章节V-C）和$C^i$的干扰链（章节V-D）的整个工作负载，最终将它们放在一起并且表示完整的响应分析过程（章节V-E）。</p>
+<h3 id="性质"><a href="#性质" class="headerlink" title="性质"></a>性质</h3><p>本文使用$pw_n$来表示认为的繁忙时期中第$n$个进程窗口。</p>
+<p><strong>引理 1：</strong> <em>在一个进程窗口中，最多有一个常规回调的实例。</em></p>
+<p><em>证明：</em>同一时间最多只有一个常规回调的实例是就绪的。因此$\Omega$在进程窗口的开始时包含了最多一个常规回调的实例。此外，由于仅仅在进程窗口边界处向$\Omega$添加新元素，所以引理得证。</p>
+<p><strong>引理 2</strong> <em>设$C$是任意一种链（包括分析链也包括干扰链）。假设$C^k_1$（$C^k$的第一个常规回调）</em>在运行窗口$pw<em>n$中执行，然后对常规回调实例$C^l_1$执行的的更早的运行窗口是$pw</em>{n+l-k}$</p>
+<p><em>证明：</em>由引理1可以直接得出。</p>
+<p><strong>引理 3</strong> <em>在一个执行窗口中，最多只有一个链实例的常规回调实例执行</em></p>
+<p><em>证明：</em>当一个常规回调实例完成时，它的后继最早可以在当前执行窗口的末尾（因此无法执行）可以被加入$\Omega$</p>
+<p><strong>引理 4</strong> 一个链实例的常规回调实例在连续的运行窗口中一个接一个执行</p>
+<p><em>证明：</em> 反证法证明，假设引理被回调实例$C<em>x^i$第一次违背，即$C^i_x$没有在紧接着$C^i</em>{x-1}$执行（表述为$pw<em>n$）后的运行窗口中执行。在$pw_n$的末尾，$C^i_x$的输入信息就绪，所以对于$C^i_x$不在$pw</em>{n+1}$中执行的唯一原因就是一个同一个回调的更早的实例$C^j<em>x$在$pw</em>{n+1}$中执行了。由于$C^i<em>x$是第一个违背了引理的回调实例，$C^j</em>{x-1}$必须在$pw<em>n$中执行。因此，我们可以发现同一个回调的两个实例$C^i</em>{x-1}$和$C^i_{x-1}$都在$pw_n$中执行，这显然和引理1是相违背的。</p>
+<p>通过引理4我们知道了被分析链实例$C^i$的常规回调实例们一旦开始，必须在$|C|$个连续处理窗口中完成，因此，当计算$[t_1,t_3]$期间的其他链实例的工作负载时，我们可以使用这条性质来排除它们的工作负载中必须在$|C|$连续处理窗口之后执行的部分。这就是本文的分析比引文更为精确的关键。</p>
+<h3 id="被分析链的工作负载边界"><a href="#被分析链的工作负载边界" class="headerlink" title="被分析链的工作负载边界"></a>被分析链的工作负载边界</h3><p>下述引理将会对在$[0,t_3]$中执行的被分析链$C$的总工作负载给出一个上界。</p>
+<p><strong>引理 5</strong> <em>在$[0,t_3]$中执行的被分析链$C$的工作负载的上界用$\mathcal{W}(t_3)$表示：</em></p>
+<script type="math/tex; mode=display">
+\mathcal{W}(t_3) = e(C)\cdot i-e(C_{|||C|})+\mathcal{M}(t_3) \\
+{其中}\ \ \ \ \mathcal{M}(t_3) =  \sum_{j=i+1}^{\alpha_C(t_3)}(e(C_{tm})+e(C_{\mu})\cdot \varepsilon+\sum_{z=1}^{\mu-1}e(C_z)) \\
+\mu = ||C||-(j-i)    \\
+\varepsilon = 
+\begin{cases}
+1,&C_{\mu}\in hp(C_{||C||}) \\
+0,& otherwise
+\end{cases}</script><p><em>证明：</em> 处理链$C$在$[0,t<em>3]$的工作负载分为两部分：(i)  链实例$C^i$本身和链$C$在释放实例$C^i$之前的实例的工作负载。(ii) 链$C$在实例$C^i$之后释放的实例的工作负载。首先，对第一部分进行求解上界。$C^i$本身在$t_3$时刻前执行的工作负载最多为$e(C)-e(C</em>{|C|})$。链$C$在实例$C^i$之前释放的实例数量为$i-1$，所以它们的工作负载最多为$e(C)\cdot (i-1)$。将它们加在一起，第一部分的上界由$e(C)\cdot i-e(C_{|C|})$表示。然后，对第二部分进行求解上界。</p>
+<p>假设实例$C^i$的第一个常规回调实例在$pw<em>n$窗口内执行。通过引理4，我们知道$C^i$的常规回调会在$|C|$个连续处理窗口$pw_n,\cdots,pw</em>{n+|C|-1}$中执行。通常情况下，它的槽回调实例$C^i<em>{|C|}$就是在窗口$pw</em>{n+|C|-1}$中执行。</p>
+<p>设$C^j$是链$C$在实例$C^i$之后释放的一个实例$(j&gt;i)$。那么$C^j$的时间回调实例的工作负载可以用$e(C<em>{tm})$简单的进行表示。设$pw_m$是回调实例$C^j_1$的执行处理窗口。我们的目标是分析$C^j$在$pw_m,\cdots,pw</em>{n+|C|-1}$窗口内执行的工作负载（注意$t<em>3$是在$pw</em>{n+|C|-1}$中的），这部分工作负载包括两部分：</p>
+<p>(1) 窗口$pw<em>{n+|C|-1}$之前执行的工作负载：当$m\geq n + |C|-1$时，窗口$pw</em>{n+|C|-1}$之前执行的工作负载为0。当$m&lt;n + |C|-1$，根据引理3，一 个处理窗口中，实例$C^j$最多1个常规回调实例执行。因此，实例$C^j$在窗口$pw<em>m,\cdots,pw</em>{n+|C|-1}$中的常规回调实例的整个工作负载最多为$\sum^{n+|C|-1-m}_{z=1}e(C_z)$</p>
+<p>(2) 窗口$pw<em>{n+|C|-1}$内，$t_3$之前执行的工作负载：当$m&gt; n + |C|-1$时，窗口$pw</em>{n+|C|-1}<script type="math/tex">中执行的工作负载为0，当</script>m\leq n + |C|-1$时， 由于$C^j$的常规回调实例在连续处理窗口中的执行从$pw<em>m$开始，那么$C^j$在窗口$pw</em>{n+|C|-1}$中执行的回调实例执行是$C^j<em>{n+|C|-m}$，该实例当且仅当拥有比$C^i</em>{|C|}$更高的优先级时会在$t<em>3$之前执行。因此，本文表示$t_3$之前的工作负载为$e(C</em>{n+|C|-m})\cdot \varepsilon$，其中当$C<em>{n+|C|-m}\in hp(C</em>{|C|})$时，$\varepsilon=1$，其他情况下$\varepsilon=0$</p>
+<p>总结来说，$C^j$在$[0,t_3]$时间段中执行的常规回调实例的总的工作负载的上界可以表述为：</p>
+<script type="math/tex; mode=display">
+e(C_{n+\|C\|-m})\cdot \varepsilon + \sum^{n+\|C\|-1-m}_{z=1}e(C_z)</script><p>我们可以观察到公式(3)相对于m是非增的（从公式（3）第二部分直觉上来看，如果$m$增加，一些回调会执行。尽管他们中的一个被计入公式(3)的第一部分，整体的值不会变的更大，无论$\varepsilon$等于1还是0）因此，公式(3)的最大值出现在$m=n+j-i$（通过引理2确认$m\geq n+j-i$）,因此使用$m=n+j-i$重写公式：</p>
+<script type="math/tex; mode=display">
+e(C_{n+\|C\|-(n+j-i)})\cdot \varepsilon + \sum^{n+\|C\|-1-(n+j-i)}_{z=1}e(C_z) \\
+=e(C_{\mu})\cdot \varepsilon+\sum^{\mu-1}_{z=1}e(C_Z)\ \ \ \ (\mu表示\|C\|-(j-i)) \nonumber</script><p>至此，我们已经证明了$C^j$在$[0,t_3]$中的完整工作负载的上界，即</p>
+<script type="math/tex; mode=display">
+e(C_{tm})+e(C_{\mu})\cdot \varepsilon + \sum^{\mu-1}_{z=1}e(C_z)</script><p>注意当$\mu\leq1$时，$\sum^{\mu-1}<em>{z=1}e(C_z)=0$，$\mu&lt;1$时$e(C</em>{\mu})\cdot \varepsilon=0$，分别跟分析处理窗口$pw_{n+|C|-1}$之前与之中的执行工作负载的情况$m\geq n+|C|-1$和$m&gt;n+|C|-1$相对应。由于$C$在$[0,t_3]$中$C$所释放的实例的数量最多$\alpha_C(t_3)$，那么将上述公式(4)中的每个$j\in[i+1,\alpha_C(t_3)]$中的每个$C^j$的上界相加，就证明了第二部分的工作负载是可以用$\mathcal{M}(t_3)$来表示上界。</p>
+<h3 id="干扰链的工作负载边界"><a href="#干扰链的工作负载边界" class="headerlink" title="干扰链的工作负载边界"></a>干扰链的工作负载边界</h3><p>本文使用$\gamma’$表示一个干扰链$C’$在$[0,t_2]$期间内释放的实例数量（即在被分析链实例$C^i$开始执行的第一个常规回调实例）。下面的引理对一个干扰链$C’$在$[0,t_3]$时间内的工作负载给出了一个上界$\mathcal{W’}(\gamma’,t_3)$。需要注意的是$\mathcal{W’}(\gamma’,t_3)$不仅仅以来与$t_3$，也依赖于$\gamma’$。在下述引理中，我们可以将$\gamma’$看作一个已知的变量。后面我们通过引理7和8来找到$\gamma’$的值。</p>
+<p><strong>引理 6</strong> <em>一个干扰链$C’$在$[0,t_3]$时间内的工作负载的上界可以用$\mathcal{W’}(\gamma’,t_3)$表示：</em></p>
+<script type="math/tex; mode=display">
+\mathcal{W'}(\gamma',t_3)= \gamma' \cdot e(C')+\mathcal{M'}(\gamma',t_3) \\
+其中
+\mathcal{M'}(\gamma',t_3) = \sum^{\alpha_{C'}(t_3)}_{j=\gamma'+1}(e(C'_{tm})+e(C'_{\mu'})\cdot \varepsilon'+\sum^{min(\mu'-1,\|C'\|)}_{z=1}e(C'_z)) \\
+\mu'=\|C\|-(j-\gamma') \\
+\varepsilon' = 
+\begin{cases}
+1,& C'_{\mu'} \in hp(C_{\|C\|})\land \|C'\|>\mu'-1 \\
+0,& 其他
+\end{cases}</script><p>引理 6 的证明在附录中给出。 证明思路与引理 5 类似。 它们的不同在两个方面 (i) 干扰链的常规回调次数可能与被分析链不同（而在引理 5 中，被分析链实例和对干扰有贡献的实例来自同一链，因此具有相同数量的常规回调） (ii) 来自干扰链的实例和被分析的链实例之间的释放顺序可能与其常规回调实例执行的顺序不同（而在引理 5 中，两个被考虑的链实例来自同一链，它们的释放顺序和开始执行它们的常规回调实例的顺序是一致的）。</p>
+<p>接下来我们要固定$\gamma’$的值。引理7将展示$\mathcal{W’}(\gamma’,t_3)$相对于$\gamma’$是非减的，引理8将说明$\gamma’$的值的上界。因此我们可以通过设置$\gamma’$的上界得到$\mathcal{W’}(\gamma’,t_3)$的上界。</p>
+<p><strong>引理 7</strong> <em>$\mathcal{W’}(\gamma’,t_3)$是一个对$\gamma’$的非减函数</em></p>
+<p><em>证明：</em>首先使用$x=j-\gamma’$重写$\mathcal{W’}(\gamma’,t_3)$：</p>
+<script type="math/tex; mode=display">
+\mathcal{W'}(\gamma',t_3)=\sum^{\alpha_{C'}(t_3)-\gamma'}_{x=1}(e(C'_{tm})+e(C'_{\mu'})\cdot \varepsilon'+\sum^{min(\mu'-1,\|C'\|)}_{z=1}e(C'_z)) \\
+\mu'=\|C\|-x \\
+\varepsilon' = 
+\begin{cases}
+1,& C'_{\mu'} \in hp(C_{\|C\|})\land \|C'\|>\mu'-1 \\
+0,& 其他
+\end{cases} \nonumber</script><p>更进一步定义</p>
+<script type="math/tex; mode=display">
+\xi(x)=e(C'_{tm})+e(C'_{\mu'})\cdot\varepsilon'+\sum^{min(\mu'-1,\|C'\|)}_{z=1}e(C'_z) \nonumber</script><p>通过定义$\xi(x)$，我们能观察到$\xi(x)\leq e(C’)$(直觉上看，$\xi(x)$表示$t_3$时刻前干扰链$C’^{\gamma’+x}$执行的回调实例的工作负载，也就无法大于完整链的所有WCET)。</p>
+<p>给定任意$\gamma’_1\leq \gamma’_2$，我们可以得到</p>
+<script type="math/tex; mode=display">
+\mathcal{W'}(\gamma'_2,t_3)-\mathcal{W'}(\gamma'_1,t_3) \\
+=\gamma'_2\cdot e(C')+\sum^{\alpha_{C'}(t_3)-\gamma'_2}_{x=1}\xi(x)-(\gamma'_1\cdot e(C')+\sum^{\alpha_{C'}(t_3)-\gamma'_1}_{x=1}) \\
+= (\gamma'_2-\gamma'_1)\cdot e(C')-(\sum^{\alpha_{C'}(t_3)-\gamma'_2}_{x=1}-\sum^{\alpha_{C'}(t_3)-\gamma'_1}_{x=1}) \\
+=(\gamma'_2-\gamma'_1)\cdot e(C')-\sum^{\alpha_{C'}(t_3)-\gamma'_2}_{x=\alpha_{C'}(t_3)-\gamma'_2+1}\xi(x) \\
+\geq(\gamma'_2-\gamma'_1)\cdot e(C')-(\gamma'_2-\gamma'_1)\cdot e(C') \ \ \ \ \  (\because\xi(x)\leq e(C')) \\ 
+=0 \nonumber</script><p>这样就证明了。</p>
+<p><strong>引理 8</strong> <em>$t_2$是满足下列公式的最小正值的上界：</em></p>
+<script type="math/tex; mode=display">
+\chi(\delta) = sbf(\delta) \\
+
+
+where \chi(\delta) = \alpha_C(\delta)e(C_{tm})+(i-1)\sum^{\|C\|}_{z=1}e(C_Z)+\sum_{C' \in \Gamma \backslash \{C\}}\alpha_{C'}(\delta)e(C')</script><p><em>证明：</em>通过反证法证明，假设$t<em>*$是公式(6)的最小解，且$t</em><em>&lt;t<em>2$，那么在$[0,t</em></em>]$窗口中，执行的工作负载包括三部分：</p>
+<ul>
+<li>被分析链$C$在$[0,t<em>*]$窗口内释放的定时回调实例的工作负载。该窗口内释放的数量最多为$\alpha_C(t</em><em>)$，所以他们的工作负载上界为$\alpha<em>{C}(t</em></em>)e(C_{tm})$</li>
+<li>被分析链$C$在$[0,t<em>*]$窗口内成为就绪状态的常规回调实例。由于$C^i$的第一个常规回调在$t_2$时刻开始执行，且$t</em><em>&lt;t<em>2$，所以在$[0,t</em></em>]$之间就绪的常规回调实例都属于$C^i$之前的链实例。这些链实例的数量最多为$i-1$个，所以对应的工作负载的上界就是$(i-1)\sum^{|C|}_{z=1}e(C_z)$</li>
+<li>干扰链在$[0,t<em>*]$窗口内释放的实例的的工作负载。对于每一个干扰链$C’$，在$[0,t</em><em>]$中释放的实例的数量最多为$\alpha<em>{C’}(t</em></em>)$。因此，所有的干扰链在$[0,t<em>*]$窗口内释放的实例的上界表示为$\sum</em>{C’\in\Gamma\backslash{C}}\alpha<em>{C’}(t</em>*)e(C’)$</li>
+</ul>
+<p>总的来说，在$[0,t<em>*]$窗口内执行的工作负载上界可以用$\chi(t</em><em>)$表示。另一方面，在$[0,t_</em>]$窗口内可用资源最少为$sbf(t<em>*)$。由于$\chi(t</em><em>)=sbf(t_</em>)$，且在$[0,t<em>*]$窗口内可执行的工作负载最多为$sbf(t</em><em>)$，所以所有由$t_</em>$准备好的工作负载都将由$t<em>*$完成。这和$t</em>*$是忙碌期间中的一个时间点的事实相违背（回忆一下我们正在研究忙碌期的链C的第i个实例，且执行器一定在$[0,t_3]$窗口内是忙碌的。</p>
+<p>我们可以重写公式6为$\delta=\bar{sbf}(\chi(\delta))$，并使用众所周知的不动点迭代技术来找到最小的正值解。</p>
+<p>结合引理6、7、8，可以得到引理9：</p>
+<p><strong>引理 9：</strong> <em>一个干扰链$C’$在$[0,t<em>3]$窗口期内执行的工作负载上界表示为$\mathcal{W}’(\alpha</em>{c’}(\bar{t_2}),t3)$，其中$\bar{t_2}$是公式（6）中$\delta$的最小解</em></p>
+<h3 id="响应时间边界的计算"><a href="#响应时间边界的计算" class="headerlink" title="响应时间边界的计算"></a>响应时间边界的计算</h3><p> 到目前为止，本文已经获得了被分析链和每个干扰连的工作负载的上界，并指出了系统在$[0,t_3]$中完整的工作负载。另一方面，$sbf(t_3)$给出了$[0,t_3]$中可获得资源的下届。因此我们可以通过下述引理，得到$t_3$的上界：</p>
+<p><strong>引理10：</strong> <em>$t_3$是满足下述等式的最小正值的上界：</em></p>
+<script type="math/tex; mode=display">
+\mathcal{W}(\delta)+\sum_{C'\in \Gamma \backslash\{C\}}\mathcal{W'}(\alpha_{C'}(\bar{t_2}),\delta)=sbf(\delta)</script><p><em>其中，$t_2$是引理8公式6中的最小解。</em></p>
+<p>形式化证明略。直观的，公式7的左值右值对于$\delta$来说是非减的，且他们的第一个交点给出了一个时间点的上界，该交点表示在被分析链实例不大于可用资源之前，将要被执行就绪的工作负载，所以被分析链实例的槽回调实例可以开始执行。类似于公式（6），公式（7）也可以使用$\bar{sbf}$进行重写，并使用不动点迭代技术来找到它的最小正解。</p>
+<p>最终，被分析链实例$C’$的响应时间边界将由下述引理计算：</p>
+<p><strong>引理 11：</strong> <em>链实例$C^i$的响应时间上界表述为：</em></p>
+<script type="math/tex; mode=display">
+R(C^i) = \bar{sbf}(sbf(\bar{t_3})+e(C_{\|C\|}))-\bar{\alpha_C}(i)</script><p><em>其中，$\bar{t_3}$是引理10中的公式7的最小解。</em></p>
+<p><em>证明：</em>令$t<em>f$代表$C^i</em>{|C|}$的结束时间，那么$C^i$的响应时间就是$t_f-t_i$($t_1$就是$C^i$的释放时间)。</p>
+<p>$[0,t_3]$中完整的工作负载的上界为</p>
+<script type="math/tex; mode=display">
+\mathcal{W}(t_3)+\sum_{C'\in\Gamma\backslash{C}}\mathcal{W'}(\alpha_{C'}(\bar{t_2}),t_3) \nonumber</script><p>由于$t_3\leq\bar{t_3}$，上界也可表述为</p>
+<script type="math/tex; mode=display">
+ \mathcal{W}(\bar{t_3})+\sum_{C'\in\Gamma\backslash{C}}\mathcal{W'}(\alpha_{C'}(\bar{t_2}),\bar{t_3}) \nonumber</script><p>还可以表述为$sbf(\bar{t_3})$，其中$t_3$是公式7中的一个解。</p>
+<p>因此，$[0,t<em>f]$中完整的工作负载上界为$sbf(\bar{t_3})+e(C</em>{|C|})$。因为$\bar{sbf}(x)$规定了完成工作负载$x$时间总和的上界，我们可以得到：</p>
+<script type="math/tex; mode=display">
+t_f\leq\bar{sbf}(sbf(\bar{t_3})+e(C_{\|C\|}))</script><p>另一方面，$\bar{\alpha_C}(i)$限制了被链释放的链$C$的$i$个实例的时间间隔的长度的下界，所以$t_1\geq\bar{\alpha_C}(i)$。结合公式(9)，引理得证。</p>
+<p><strong>引理 12：</strong> <em>令$\bar{\Delta}$作为满足下述等式的$\Delta$的最小正值：</em></p>
+<script type="math/tex; mode=display">
+\sum_{C'\in\Gamma}\alpha_{C'}(\Delta)\cdot e(C')=sbf(\Delta)</script><p><em>那么在忙碌期内，被被分析链$C$释放的实例数量的上界为$\alpha_C(\bar{\Delta})$。</em></p>
+<p>形式化证明略。</p>
+<p>直观的看，公式10的左值给出了一个时间间隔内整个被释放的系统的整个工作负载上界，右值给出了在该时间间隔内整个可获得资源的下界。如果这个时间间隔的整个工作负载没有超过整个可获取的资源，忙碌期一定要结束，因此，$\alpha_C(\bar{\Delta})$给出了链$C$在忙碌期释放的实例数量的上界。类似于公式（6）和公式（7），可以使用$\bar{sbf}$重写公式（10），并且应用不动点迭代技术找到最小正值解。</p>
+<p>最终，通过对$[1,\alpha_C(\bar{\Delta})]$中的每个$i$应用引理11，并取得最大值，我们就可以得到C的最差情况响应时间的上界。</p>
+<p><strong>定理 1：</strong> <em>系统中一个任意的链的最坏响应时间的上界表示为：</em></p>
+<script type="math/tex; mode=display">
+R(C)=max\{R(C^i) | 1\leq i \leq \alpha_C{\bar{\Delta}}\}</script><p><em>其中$\bar{\Delta}$</em>是引理12中公式（10）的最小解。</p>
+<h2 id="优先级分配"><a href="#优先级分配" class="headerlink" title="优先级分配"></a>优先级分配</h2><p>本节中论文研究了优先级分配如何影响一条链的响应时间。本文发现，在工作负载中，被分析链的上界（引理5）和干扰链的上界（引文6），唯一取决于回调优先级的因素是检查和被分析链的实例的槽回调实例$C^i<em>{|C|}$在同一个处理窗口的回调实例是否具有比$C^i</em>{|C|}$更高的优先级（这取决于公式2中的$\varepsilon$以及公式5中的$\varepsilon’$）。因此，定理1中的响应时间边界仅仅被被分析链的槽回调函数的优先级所影响：优先级越高，潜在响应时间边界越低，但是不取决于其他回调的相对的优先级。下面，本文将展示上属性值不仅适用于我们的响应时间边界，也适用于实际的系统行为。</p>
+<p><strong>引理 13：</strong> <em>在每个处理器窗口中，执行的不同优先级分配下回调实例集合是完全相同的。</em></p>
+<p><em>证明：</em>本文考虑了系统的一个随机释放序列，在所给序列中，每个链实例的释放时间和每个回调实例的实际执行时间是固定的。每个繁忙时段的长度在不同优先级分配下不会改变，因此我们将我们的注意力限制在任意一个繁忙时间段。首先看繁忙时段的第一个处理窗口$pw_1$：只有$pw_1$中定的时器回调实例在$pw_1$中执行，且它们都在$pw_1$的末未结束，所以在$pw_1$中执行的回调实例在不同的优先级分配下是相同的（在$pw_1$末尾的轮训点处被加入到就续集$\Omega$的就绪回调实例在不同优先级分配下也是相同的。）接下来我们证明该引理在其他繁忙时段的处理器窗口中也是成立的。</p>
+<p>使用反证法证明，假定在一些处理器窗口中执行的回调实例在两种优先级分配$\Phi$和%$\Phi’$下是不同的。使用$pw_n$和$pw_n’$来分别代表在优先级分配$\Phi$和%$\Phi’$下所考虑的繁忙时段的第$n$个处理窗口。</p>
+<p>让$pw_m$作为第一个与其对应的$pw_m’$具有这种不同的处理器窗口。我们假设$C^i_z$表示最早的（释放时段内）导致这种差别的回调实例，不失一般性的，我们假定$C^i_z$在$pw_m$窗口中执行，而没有在$pw_m’$中执行（当然这同样可以证明相反的情况）。我们首先展示$C^i_z$不是一个常规回调实例。一个常规回调实例$C^i_z$当且仅当满足下述两条条件时，才在$pw_m$中执行：</p>
+<ul>
+<li>前驱$C^i<em>{z-1}$已经在窗口$pw</em>{m-1}$的末尾完成</li>
+<li>所有同一个回调$C<em>z$以前的实例都已经在$pw</em>{m-1}$的末尾完成。</li>
+</ul>
+<p>由于$pw<em>m$是被执行回调实例集合中第一个不同于对应的$pw_m’$的执行窗口，$C^i</em>{z-1}$和所有$C<em>{z}$的前面的实例都在$pw</em>{m-1}’$的结尾完成了，所以$C^i<em>z$也会在$pw_m’$中执行。因此$C^i_z$不能使常规回调实例，所以他一定是一个定时器回调实例（所以下面我们称呼$C^i_z$为$C^i</em>{tm}$）。我们将会展示这也是矛盾的。</p>
+<p>证明略</p>
+<p><strong>定理 2：</strong> <em>链实例的响应时间只受其接收器回调的优先级影响（优先级越高，潜在响应时间越短），而不依赖于系统中其他回调的相对优先级顺序。</em></p>
+<p>证明略。</p>
+<p>定理 2 表明，从响应时间上限（对于硬实时系统）以及实际最坏情况和平均响应时间（对于软实时系统和一般系统）的角度来看，提升槽回调的优先级总是有益的。 在 ROS2 中，回调的优先级由两个级别决定：</p>
+<p> (1) 回调类型：不同的回调类型具有不同的优先级。 正如我们的模型中所定义的，定时器回调比任何常规回调具有更高的优先级。 实际上，常规回调进一步分为三种类型：<em>订阅者（subscriber）</em>、<em>服务（service）</em>和<em>客户端（timer）</em>。 总的来说，四种回调类型的优先级顺序是</p>
+<script type="math/tex; mode=display">
+timer \succ subscriber \succ service \succ client</script><p>其中$\succ$代表拥有更高的优先级。</p>
+<p>(2) 注册顺序：同类型回调的优先顺序取决于它们注册到执行器的顺序：越早注册，优先级越高。</p>
+<p>由于上面提到的优先级层次结构，并不总是可以将槽回调的优先级提升到最高。 尽管如此，开发者可以通过在相同类型的回调中尽早注册来在相同的回调类型中授予尽可能高的优先级，这在实践中基本上是一个无成本的优化选项。 还可以通过修改应用程序设计来执行更积极的优化。 例如，由于三种常规回调类型的主要区别在于触发执行的方式，因此在某些应用程序中可以更改回调的类型（将槽回调提升为更高优先级的类型，或者将其他类型的回调降级为低优先级类型的回调）。 对需要修改应用程序的优化机会的得失进行彻底调查超出了本文的范围，将在我们未来的工作中考虑。</p>
+<h2 id="评估"><a href="#评估" class="headerlink" title="评估"></a>评估</h2><p>在本节中，我们首先对随机生成的工作负载进行实验，以实证评估我们提出的响应时间分析技术的性能改进以及通过提升接收器回调优先级对我们的最坏情况响应时间限制的影响，并使用案例研究来证明优先级优化对观察到的最坏情况和平均情况响应时间的好处。</p>
+<h3 id="实验评估"><a href="#实验评估" class="headerlink" title="实验评估"></a>实验评估</h3><p>本文对执行器的$sbf(\Delta)$使用TDMA模型：$sbf(\Delta)=(\lfloor\Delta’/c \rfloor\cdot s+min(\Delta’mod \ c,s))\cdot b$，其中$\Delta’=max(\Delta-C+s,0)$。在实验中，我们设$c=10,s=8,b=1$。用下述方法随机初始化系统$\Gamma$：系统的总利用率在$[0.1, 0.8]$中随机选择，链的数量在$[2, 5]$中随机选择，每条链的第一个回调有 1/3 的概率是定时器回调。 每个链$C$的到达曲线按照$PJD$模型生成：$\alpha_C(\Delta) = min(\lceil (\Delta+J)/P\rceil,\lceil \Delta/D \rceil)$，其中$P,J,D$分别在$[60, 100], [0, 2P ] 和[1, P − 1]$中随机选择。然后我们将系统的总利用率分配给各个链。 第一条链的利用率是从 $[0.02, 2U/3] $中随机选择的，其中 $U $是系统的总利用率。然后我们通过减去第一条链的利用率来更新剩余的总利用率$ U$。 然后我们从$ [0.02, 2U/3] $中随机选择第二条链的利用率，并通过减去其利用率再次更新$ U$。重复这个过程，直到只剩下一条链，然后我们将所有剩余的利用率分配给它。 接下来，我们通过与上述类似的过程将每个链的利用率分配给其各个回调。回调获取其利用率的顺序对应于它们在链中的优先顺序，并且在每个分配中最多分配剩余利用率的 1/2。 每个回调的 WCET 是通过将其利用率乘以相应链的周期$P$（四舍五入到最接近的整数）来计算的。 系统中所有回调的优先级顺序是随机决定的，受定时器回调（链的第一个回调）比任何常规回调具有更高优先级的约束。我们产生10000个系统，对于每个系统，我们比较通过以下方法得到的响应时间估计：</p>
+<ul>
+<li>$\mathrm{OUR}$：由定理 1 得到的响应时间界限。</li>
+<li>$\mathrm{OUR}*$：与$\mathrm{OUR}$相同，但将接收器回调的优先级提升为该链所有常规回调中的最高优先级（通过将其优先级与该链中最高优先级的常规回调切换）</li>
+<li>$\mathrm{EX}$：通过引文中的分析获得的响应时间界限。</li>
+<li>$\mathrm{SIM}$：系统模拟中观察到的最大响应时间，假设所有链同时释放第一个实例，每个链尽快释放实例，每个回调实例执行到 WCET。 模拟持续到繁忙时段结束。 $\mathrm{SIM}$ 的结果是实际最坏情况响应时间的下限，但仍为评估我们方法的精度提供了有用的信息。</li>
+<li>$\mathrm{SIM}^<em>$：与 $\mathrm{SIM}$ 相同，但使用与$\mathrm{OUR}</em>$相同的方法将接收器回调的优先级提升为该链的所有常规回调中的最高优先级</li>
+</ul>
+<p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20211018113151892.png" alt="image-20211018113151892"></p>
+<p>图 5 显示了按不同参数（x 轴）分组的实验结果。 每张图中，五条曲线是上述五种方法得到的平均响应时间估计值（左边y轴对应的数值）。曲线上的每个结果是所有生成系统的所有链的平均响应时间估计，该特定参数落在对应于每个 x 轴的范围内（5-(d) 和 (e) 除外，其中 x 轴值是离散的）。例如，图5-(a)中x轴上的值0.3表示利用范围$[0.25,0.35)$。 在图 5-(d) 到 (f) 中，结果仅包括总利用率在$ [0.55, 0.65] $范围内的系统。这是因为根据这些数字的 x 轴进行分组与系统总利用率具有很强的相关性。例如，具有更多链的系统通常具有更高的总利用率。 因此，我们只评估固定利用率范围内的系统，以更好地揭示关于这些参数的结果趋势。在每个图中，我们还报告了由 $\mathrm{EX}$ 获得的至少一个链的响应时间估计小于$\mathrm{SIM}$的系统的比率，由直方图表示（对应于右 y 轴的值）。在这些情况下， $\mathrm{EX}$  的结果一定是不安全的，因为$\mathrm{SIM}$给出了实际最坏情况响应时间的下限。从图 5 中的结果我们可以看到，我们的新分析方法在不同的参数设置下始终以显着的优势优于$\mathrm{EX}$  。 通过提高接收器回调的优先级，获得的响应时间界限得到改善（平均提高 5% - 8%）。</p>
+<h3 id="样例评估"><a href="#样例评估" class="headerlink" title="样例评估"></a>样例评估</h3><p>该案例研究由部署在 ROS2 的 Eloquent Elusor 版本（2019 年 11 月 22 日发布）中的单线程执行器上的三个处理链组成，运行在具有内核 5.4.0-48-generic 的 Ubuntu 18.04.5桌面版本上，使用 Intel i7-9700F CPU@3.00 GHz 和 16 GB 总内存（一个内核用于运行此 ROS2 执行器）。</p>
+<p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20211018114101978.png" alt="image-20211018114101978"></p>
+<p><em>进程内通信</em>用于在每个链上的回调之间发布/订阅消息。 每个链都以一个由系统计时器触发的计时器回调开始，并且具有固定的周期。 表 I 给出了链和回调的简要说明。 ACET 和 WCET 列是 10,000 次运行中每个回调的平均和最坏情况观察执行时间。</p>
+<p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20211018114310758.png" alt="image-20211018114310758"></p>
+<p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20211018114332069.png" alt="image-20211018114332069"></p>
+<p>表 II 报告了在不同优先级分配下每个链的平均和最坏情况观察响应时间，如表 III 所示。 在每个优先级分配下，我们运行系统 20 分钟。 “I”是默认的优先级分配，“II”在 C 中切换两个非接收器常规回调的优先级。我们可以看到，这种优先级调整不会导致平均/最坏情况观察到的响应时间发生显着变化。 在优先级分配“III”中，我们将每个链中接收器回调的优先级切换为该链中最高优先级的常规回调，这导致平均和最坏情况观察响应时间的明显改善。</p>
+<p>我们在案例研究中观察到的一个有趣现象是，尽管在我们的模型（也是引文中的模型）中，如果某个消息在处理窗口中产生，则必须在处理窗口结束时在轮询点（polling point）考虑，现实中并非总是如此。由于 ROS 中的信息传播延迟，在某些情况下，消息实际上无法在该处理窗口的末尾赶上轮询点。 当信息跨不同内核传播时，这种延迟更为显着。 由于这种行为偏离了我们假设的模型，我们有意将其排除在上述实验之外。为此，一方面，我们不仅在单个核上运行所考虑的执行器，还将整个 ROS2 堆栈运行，以避免核间信息传播，另一方面，我们分析了实验的执行日志（ 周期和抖动设置略有不同），并确保报告的结果不包含此类不需要的行为。虽然在本文中我们没有进一步深入研究这一现象，但为了使本文的理论成果在实践中适用，确实需要认真解决这个问题。 例如，本文提出的分析技术可以通过考虑在最坏情况下丢失最近的轮询点导致的额外延迟来扩展。 实际上，由于这种行为可能会增加平均情况和最坏情况的端到端处理延迟，并使系统在时序上更加不可预测，我们认为应该努力改进 ROS 架构以消除这种行为，最少对于实时应用程序来说。 我们将对该问题的进一步调查留给我们未来的工作。</p>
+<h2 id="总结与未来工作"><a href="#总结与未来工作" class="headerlink" title="总结与未来工作"></a>总结与未来工作</h2><p>我们为 ROS2 单线程执行器上的处理链开发了响应时间分析技术，不仅修复了引文中的乐观结果，而且显着提高了精度。我们还证明了一个处理链在一个执行器上的响应时间只取决于它的最后一个回调，通过它设计者可以优化优先级分配，不仅可以提高响应时间上限，还可以提高系统的实际最坏情况和平均响应时间。我们的最终目标是为基于 ROS 的机器人软件系统提供分析时序保证。 这篇论文是朝着这个目标迈出的一小步，但仍然受到许多限制。 下一步，我们会将我们的工作扩展到更通用和更复杂的设置，例如多线程执行器，将每个执行器的分析与通过 DDS 通信引起的延迟的建模和分析相结合，以及改进 ROS 架构以获得更好的时间可预测性效果。（例如，为了避免第 VII-B 部分末尾所述的问题）。</p>
+<p>引文：《Response-time analysis of ros 2 processing chains under reservation-based scheduling,》</p>
+
+        
+            <div id="toc-article">
+                
+  <div class="widget-wrap" id="toc-wrap">
+    <h3 class="widget-title"><i class="fa fa-toc"></i> 文章目录</h3>
+    <div class="widget">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%91%98%E8%A6%81"><span class="toc-text">摘要</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D"><span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E5%B7%A5%E4%BD%9C"><span class="toc-text">相关工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%B3%BB%E7%BB%9F%E5%BB%BA%E6%A8%A1"><span class="toc-text">系统建模</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#A-%E5%B7%A5%E4%BD%9C%E8%B4%9F%E8%BD%BD%E6%A8%A1%E5%9E%8B"><span class="toc-text">A. 工作负载模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#B-%E8%B5%84%E6%BA%90%E6%A8%A1%E5%9E%8B"><span class="toc-text">B. 资源模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#C-%E8%B0%83%E5%BA%A6%E6%A8%A1%E5%9E%8B"><span class="toc-text">C. 调度模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#D-%E4%B8%80%E4%B8%AA%E8%AF%B4%E6%98%8E%E6%A0%B7%E4%BE%8B"><span class="toc-text">D. 一个说明样例</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AF%B9%E5%BC%95%E6%96%87%E5%88%86%E6%9E%90%E7%9A%84%E8%AE%A8%E8%AE%BA"><span class="toc-text">对引文分析的讨论</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%93%8D%E5%BA%94%E6%97%B6%E9%97%B4%E5%88%86%E6%9E%90"><span class="toc-text">响应时间分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0"><span class="toc-text">概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%A7%E8%B4%A8"><span class="toc-text">性质</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A2%AB%E5%88%86%E6%9E%90%E9%93%BE%E7%9A%84%E5%B7%A5%E4%BD%9C%E8%B4%9F%E8%BD%BD%E8%BE%B9%E7%95%8C"><span class="toc-text">被分析链的工作负载边界</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B9%B2%E6%89%B0%E9%93%BE%E7%9A%84%E5%B7%A5%E4%BD%9C%E8%B4%9F%E8%BD%BD%E8%BE%B9%E7%95%8C"><span class="toc-text">干扰链的工作负载边界</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%93%8D%E5%BA%94%E6%97%B6%E9%97%B4%E8%BE%B9%E7%95%8C%E7%9A%84%E8%AE%A1%E7%AE%97"><span class="toc-text">响应时间边界的计算</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%98%E5%85%88%E7%BA%A7%E5%88%86%E9%85%8D"><span class="toc-text">优先级分配</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%84%E4%BC%B0"><span class="toc-text">评估</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E9%AA%8C%E8%AF%84%E4%BC%B0"><span class="toc-text">实验评估</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B7%E4%BE%8B%E8%AF%84%E4%BC%B0"><span class="toc-text">样例评估</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93%E4%B8%8E%E6%9C%AA%E6%9D%A5%E5%B7%A5%E4%BD%9C"><span class="toc-text">总结与未来工作</span></a></li></ol>
+    </div>
+  </div>
+
+
+            </div>
+        
+        
+          <blockquote id="copyright">
+              <p>原文链接: <a href="https://zijian.wang/2021/10/01/ROS2的Executors上的处理链的响应时间分析和优先级分配/">https://zijian.wang/2021/10/01/ROS2的Executors上的处理链的响应时间分析和优先级分配/</a></p>
+              <p>版权声明: 转载请注明出处.</p>
+          </blockquote>
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+    <div class="article-reward">
+        <a id="reward-btn" href="javascript:;">打赏</a>
+        <div id="reward-content">
+            <h6 class="reward-tit">“感谢你的支持，我会继续努力！”</h6>
+            <div>
+                <div class="reward-code">
+                    <img class="type-code" src="/css/images/wechat.jpg">
+                    <img class="er-code" src="/css/images/wechat-pay.jpg">
+                </div>
+                <div class="reward-code">
+                    <img class="type-code" src="/css/images/alipay.jpg">
+                    <img class="er-code" src="/css/images/alipay-pay.jpg">
+                </div>
+            </div>
+            <p class="reward-desc">扫码打赏，感谢支持</p>
+        </div>
+    </div>
+
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB%EF%BC%8CROS2/" rel="tag">论文阅读，ROS2</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+        
+<nav id="article-nav">
+  
+    <a href="/2021/10/19/%E6%97%B6%E9%97%B4%E8%87%AA%E5%8A%A8%E6%9C%BA/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">newer</strong>
+      <div class="article-nav-title">
+        
+          时间自动机
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2021/09/23/2021-9-22%E5%91%A8%E8%AE%B0/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">older</strong>
+      <div class="article-nav-title">2021-9-22科研周记</div>
+    </a>
+  
+</nav>
+
+      
+      
+        
+
+
+
+
+
+
+  <div id="SOHUCS" sid="2021/10/01/ROS2的Executors上的处理链的响应时间分析和优先级分配/"></div>
+
+
+      
+    </footer>
+  </div>
+</article>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-posts"></i> 最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2022/03/17/XRCE-DDS%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%88epromisa%E5%AE%9E%E7%8E%B0%EF%BC%89/">XRCE-DDS源码阅读（epromisa实现）</a>
+          </li>
+        
+          <li>
+            <a href="/2021/12/30/%E5%AF%B9MQTT%E7%9A%84%E5%BD%A2%E5%BC%8F%E5%8C%96%E5%88%86%E6%9E%90%E4%B8%8E%E5%BB%BA%E6%A8%A1/">对MQTT的形式化分析和建模</a>
+          </li>
+        
+          <li>
+            <a href="/2021/12/13/git%E5%AD%A6%E4%B9%A0/">git学习</a>
+          </li>
+        
+          <li>
+            <a href="/2021/12/01/%E5%AF%B9ROS2%E7%9A%84DDS%E7%9A%84%E5%BD%A2%E5%BC%8F%E5%8C%96%E5%88%86%E6%9E%90/">对ROS2的DDS的形式化分析</a>
+          </li>
+        
+          <li>
+            <a href="/2021/10/19/%E6%97%B6%E9%97%B4%E8%87%AA%E5%8A%A8%E6%9C%BA/">时间自动机</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/C/" style="font-size: 15px;">C++</a> <a href="/tags/DDS/" style="font-size: 15px;">DDS</a> <a href="/tags/Leetcode/" style="font-size: 20px;">Leetcode</a> <a href="/tags/ROS/" style="font-size: 10px;">ROS</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/hash/" style="font-size: 13.75px;">hash</a> <a href="/tags/%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE/" style="font-size: 11.25px;">二分查找</a> <a href="/tags/%E5%89%8D%E7%BC%80%E5%92%8C/" style="font-size: 10px;">前缀和</a> <a href="/tags/%E5%89%91%E6%8C%87offer/" style="font-size: 18.75px;">剑指offer</a> <a href="/tags/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" style="font-size: 12.5px;">动态规划</a> <a href="/tags/%E5%8D%8F%E8%AE%AE%E9%98%85%E8%AF%BB/" style="font-size: 12.5px;">协议阅读</a> <a href="/tags/%E5%8F%8C%E6%8C%87%E9%92%88/" style="font-size: 11.25px;">双指针</a> <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8FRTOS/" style="font-size: 10px;">嵌入式RTOS</a> <a href="/tags/%E5%B7%A5%E5%85%B7/" style="font-size: 11.25px;">工具</a> <a href="/tags/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/" style="font-size: 10px;">工具使用</a> <a href="/tags/%E5%BD%A2%E5%BC%8F%E5%8C%96/" style="font-size: 10px;">形式化</a> <a href="/tags/%E5%BD%A2%E5%BC%8F%E5%8C%96%E9%AA%8C%E8%AF%81/" style="font-size: 11.25px;">形式化验证</a> <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%EF%BC%8C%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" style="font-size: 10px;">操作系统，环境配置</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" style="font-size: 12.5px;">数据库</a> <a href="/tags/%E6%95%B0%E7%BB%84/" style="font-size: 13.75px;">数组</a> <a href="/tags/%E6%A8%A1%E5%9E%8B%E6%A3%80%E6%B5%8B/" style="font-size: 11.25px;">模型检测</a> <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" style="font-size: 11.25px;">源码阅读</a> <a href="/tags/%E7%9F%A9%E9%98%B5/" style="font-size: 13.75px;">矩阵</a> <a href="/tags/%E7%A0%94%E7%A9%B6%E6%96%B9%E5%90%91/" style="font-size: 16.25px;">研究方向</a> <a href="/tags/%E7%A7%91%E7%A0%94%E5%91%A8%E8%AE%B0/" style="font-size: 10px;">科研周记</a> <a href="/tags/%E7%AE%97%E6%B3%95%E9%A2%98/" style="font-size: 20px;">算法题</a> <a href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" style="font-size: 10px;">计算机网络</a> <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/" style="font-size: 11.25px;">论文阅读</a> <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB%EF%BC%8CROS2/" style="font-size: 10px;">论文阅读，ROS2</a> <a href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" style="font-size: 17.5px;">读书笔记</a> <a href="/tags/%E8%B4%AA%E5%BF%83/" style="font-size: 10px;">贪心</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-classify"></i> 分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/C-%E8%A7%86%E9%A2%91%E8%AF%BE/">C++视频课</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Leetcode%E5%88%B7%E9%A2%98/">Leetcode刷题</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ROS/">ROS</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ROS2%E4%B8%8EMicro-ROS/">ROS2与Micro-ROS</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E3%80%8AC-Primer%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/">《C++ Primer》阅读笔记</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%88%B7%E9%A2%98%E8%AE%B0%E5%BD%95/">刷题记录</a><span class="category-list-count">14</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%89%91%E6%8C%87offer/">剑指offer</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%B7%A5%E5%85%B7%E5%AD%A6%E4%B9%A0/">工具学习</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AD%A6%E4%B9%A0/">数据库学习</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%A7%91%E7%A0%94%E5%91%A8%E8%AE%B0/">科研周记</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E5%AD%A6%E4%B9%A0/">计算机网络学习</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">论文阅读</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">读书笔记</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/">软件安装</a><span class="category-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-archive"></i> 归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">2022年03月</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">2021年12月</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">2021年10月</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">2021年09月</a><span class="archive-list-count">17</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">2021年07月</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">2021年06月</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">2021年05月</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">2021年04月</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">2021年01月</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">2020年11月</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">2020年10月</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">2018年06月</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">2018年03月</a><span class="archive-list-count">4</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/C/" rel="tag">C++</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DDS/" rel="tag">DDS</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a><span class="tag-list-count">43</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ROS/" rel="tag">ROS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hash/" rel="tag">hash</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE/" rel="tag">二分查找</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%89%8D%E7%BC%80%E5%92%8C/" rel="tag">前缀和</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%89%91%E6%8C%87offer/" rel="tag">剑指offer</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" rel="tag">动态规划</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8D%8F%E8%AE%AE%E9%98%85%E8%AF%BB/" rel="tag">协议阅读</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8C%E6%8C%87%E9%92%88/" rel="tag">双指针</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8FRTOS/" rel="tag">嵌入式RTOS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B7%A5%E5%85%B7/" rel="tag">工具</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/" rel="tag">工具使用</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BD%A2%E5%BC%8F%E5%8C%96/" rel="tag">形式化</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BD%A2%E5%BC%8F%E5%8C%96%E9%AA%8C%E8%AF%81/" rel="tag">形式化验证</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%EF%BC%8C%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" rel="tag">操作系统，环境配置</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E7%BB%84/" rel="tag">数组</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%A8%A1%E5%9E%8B%E6%A3%80%E6%B5%8B/" rel="tag">模型检测</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" rel="tag">源码阅读</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%9F%A9%E9%98%B5/" rel="tag">矩阵</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A0%94%E7%A9%B6%E6%96%B9%E5%90%91/" rel="tag">研究方向</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A7%91%E7%A0%94%E5%91%A8%E8%AE%B0/" rel="tag">科研周记</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95%E9%A2%98/" rel="tag">算法题</a><span class="tag-list-count">43</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag">计算机网络</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/" rel="tag">论文阅读</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB%EF%BC%8CROS2/" rel="tag">论文阅读，ROS2</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag">读书笔记</a><span class="tag-list-count">11</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%B4%AA%E5%BF%83/" rel="tag">贪心</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-link"></i> 友情链接</h3>
+    <div class="widget">
+      <ul>
+      
+        <li>
+          <a target="_blank" rel="noopener" href="https://www.guanyuqian.com/">G-Blog（关师兄的博客）</a>
+        </li>
+      
+        <li>
+          <a target="_blank" rel="noopener" href="https://imvector.github.io/">峰哥的博客</a>
+        </li>
+      
+        <li>
+          <a target="_blank" rel="noopener" href="https://amyzhoucc.github.io/">豆豆龙（zcc师姐的博客）</a>
+        </li>
+      
+        <li>
+          <a target="_blank" rel="noopener" href="https://mchen0607.github.io/">闽哥的博客</a>
+        </li>
+      
+      </ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+        
+      </div>
+      <a id="totop" href="#top"></a>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      <p>
+        <a href="/sitemap.xml">网站地图</a>
+        <span> | </span><a href="/about/">联系博主</a>
+      </p>
+      
+        <p>
+          <i class="fa fa-visitors"></i>
+          <i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>
+          ，
+          <i class="fa fa-views"></i>
+          <i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>
+        </p>
+      
+      <p>
+        <span>Copyright &copy; 2022 Eric Wang.</span>
+        <span>Theme by <a href="https://github.com/chaooo/hexo-theme-BlueLake/" target="_blank">BlueLake.</a></span>
+        
+            <span>Count by <a href="http://busuanzi.ibruce.info/" target="_blank">busuanzi.</a></span>
+        
+        <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo.</a></span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+<script src="/js/search.json.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+  
+<script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+  
+<script src="/localshare/js/social-share.js"></script>
+
+  
+<script src="/localshare/js/qrcode.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <script>
+    window._config = { showScore: true };
+    (function(){
+      var appid = 'cyvoLETLk';
+      var conf = '9be4582e027b7ddeb93c7cb6571009a5';
+      var width = window.innerWidth || document.documentElement.clientWidth;
+      var nodes =document.getElementsByTagName("head")[0]||document.head||document.documentElement;
+      if (/(Android|iPhone|iPad|iPod|iOS)/i.test(navigator.userAgent) && width < 750) {
+          window.document.write('<script id="changyan_mobile_js" charset="utf-8" type="text/javascript" src="https://changyan.sohu.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf + '"><\/script>');
+      }
+      else {
+        var loadJs=function(d,a){
+          var b=document.createElement("script");b.setAttribute("type","text/javascript");
+          b.setAttribute("charset","UTF-8");
+          b.setAttribute("src",d);
+          if(typeof a==="function"){if(window.attachEvent){b.onreadystatechange=function(){var e=b.readyState;if(e==="loaded"||e==="complete"){b.onreadystatechange=null;a()}}}else{b.onload=a}}
+          nodes.appendChild(b)
+        };
+        loadJs("https://changyan.sohu.com/upload/changyan.js",function(){window.changyan.api.config({appid:appid,conf:conf})});
+      }
+      var loadCss = function(cssString){
+        var style=document.createElement("style");
+        style.setAttribute("type", "text/css");
+        if(style.styleSheet){// IE
+            style.styleSheet.cssText = cssString;
+        } else {// w3c
+            var cssText = document.createTextNode(cssString);
+            style.appendChild(cssText);
+        }
+        nodes.appendChild(style);
+      }
+    })();
+    function removeElement(_element){
+         var _parentElement = _element.parentNode;
+         if(_parentElement){
+                _parentElement.removeChild(_element);
+         }
+    }
+    var removeAD = document.createElement("div");
+    removeAD.id = 'removeAD';
+    var adInterval1 = setInterval(function() {
+      if(document.querySelector("#feedAv")){
+        document.querySelector("[node-type=cmt-list]").appendChild(removeAD);
+        document.querySelector("#removeAD").appendChild(document.querySelector("#feedAv"));
+        //- removeElement(document.querySelectorAll("#feedAv")[0]);
+        var feedAv = document.querySelector("#feedAv").children;
+        for( item of feedAv){
+          item.style.display = 'none'
+        }
+        document.querySelector("#removeAD").style.display="none"
+        clearInterval(adInterval1);
+      }
+    },1000);
+    var adInterval2 = setInterval(function() {
+      if(document.querySelector("#pop_ad")){
+        removeElement(document.querySelector("#pop_ad"));
+        clearInterval(adInterval2);
+      }
+    }, 1000);
+  </script>
+  
+<script src="https://assets.changyan.sohu.com/upload/plugins/plugins.count.js"></script>
+
+
+
+
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+  <script src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML" async type="text/javascript"></script>
+
+  </div>
+</body>
+</html>

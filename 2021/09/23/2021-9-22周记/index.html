@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>2021-9-22科研周记 | 妄越</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+    <meta name="description" content="学海无涯，记在路上">
+  
+  
+    <meta name="keywords" content="技术博客">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="妄越" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/logo.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+    
+<link rel="stylesheet" href="/localshare/css/share.css">
+
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">妄越</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">平生蹉跎少年志，雨落樱花又一年</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/."><i class="fa fa-home"></i> 首页</a>
+        
+          <a class="main-nav-link" href="/archives/"><i class="fa fa-archive"></i> 归档</a>
+        
+          <a class="main-nav-link" href="/about/"><i class="fa fa-user"></i> 关于</a>
+        
+      </nav>
+    </div>
+    <div id="search-form">
+      <div id="result-mask" class="hide"></div>
+      <label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label>
+      <div id="result-wrap" class="hide">
+        <div id="search-result"></div>
+      </div>
+      <div class="hide">
+        <template id="search-tpl">
+          <div class="item">
+            <a href="/{path}" title="{title}">
+              <div class="title">{title}</div>
+              <div class="time">{date}</div>
+              <div class="tags">{tags}</div>
+            </a>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-2021-9-22周记" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      2021-9-22科研周记
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-09-23T02:20:22.000Z" itemprop="datePublished">2021年09月23日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/%E7%A7%91%E7%A0%94%E5%91%A8%E8%AE%B0/">科研周记</a>
+  </div>
+
+      
+        <span class="article-views">
+  <i class="fa fa-views"></i>
+  <i id="busuanzi_container_page_pv">
+      <i id="busuanzi_value_page_pv"></i>
+  </i>
+</span>
+
+      
+      
+<a href="/2021/09/23/2021-9-22%E5%91%A8%E8%AE%B0/#comments" class="article-comment-link">
+  
+    
+    
+    
+    
+    
+      <i id="changyan_count_unit" data-xid="/2021/09/23/2021-9-22%E5%91%A8%E8%AE%B0/"></i>
+    
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>本周主要阅读了两篇论文，其一是今年2-3月份发表在CCF B类会议DATE上的一篇short paper，题目是《Modeling, implementation, and analysis of XRCE-DDS applications in distributed multi-processor real-time embedded system》。其二是前年11月份发表在CCF C类会议ISPA上的一篇论文《Model checking for the Goal-Feedback-Result Pattern in ROS》。</p>
+<span id="more"></span>
+<h2 id="Modeling-implementation-and-analysis-of-XRCE-DDS-applications-in-distributed-multi-processor-real-time-embedded-system"><a href="#Modeling-implementation-and-analysis-of-XRCE-DDS-applications-in-distributed-multi-processor-real-time-embedded-system" class="headerlink" title="Modeling, implementation, and analysis of XRCE-DDS applications in distributed multi-processor real-time embedded system"></a>Modeling, implementation, and analysis of XRCE-DDS applications in distributed multi-processor real-time embedded system</h2><h3 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h3><p>发布订阅机制是一种最近许多分布式应用中透明通信的设计模式。DDS是一个基于发布订阅机制的机器对机器的通信标准，旨在保证可靠、高效、互操作且实时数据交换。然而，对资源的高需求限制了DDS在低开销嵌入式系统中的使用。XRCE-DDS是一个基于客户-代理的标准，来使资源受限的小型嵌入式系统连接到DDS全局数据空间中。当前XRCE-DDS实现受限于主机操作系统，目标仅限于单处理器模块，并且缺乏性能分析方法。在这篇论文中，作者在CompSOC平台上实现了XRCE-DDS标准的裸机实现，来作为一个片上多处理器系统（MPSoC）上的一个实例。提出的框架包括一个硬实时XRCE-DDS的Client端和一个软实时XRCE-DDS的Agent端。一个场景感知数据流（SADF）模型被提出来，来捕捉在不同执行场景中系统的动态行为。作者通过使用经过实验验证的马尔可夫模型捕获概率场景切换来分析吞吐量的长期预期值。</p>
+<h3 id="主要贡献"><a href="#主要贡献" class="headerlink" title="主要贡献"></a>主要贡献</h3><ul>
+<li>在ZYNQ板上的CompSOC平台中实现了XRCE-DDS的裸机实现。客户端在硬实时的RISC-V处理器上实现，Agent跑在软实时的Arm处理器上。多个RISC-V处理器并行运行，每个处理器运行了多个客户端。<img src="https://gitee.com/zijian98/images/raw/master/img/PYNQ-Z2%20Xlinix%20ZYNQ%E6%9D%BF%E4%B8%8AXRCE-DDS%E7%9A%84%E5%AE%9E%E7%8E%B0.png" alt="PYNQ-Z2 Xlinix ZYNQ板上XRCE-DDS的实现"></li>
+<li>使用SADF表示了XRCE-DDS应用的概率模型。提出一个马尔可夫模型来分析长期预期吞吐量</li>
+</ul>
+<p><img src="https://gitee.com/zijian98/images/raw/master/img/Publisher%E7%AB%AF%E7%9A%84SADF%E6%A8%A1%E5%9E%8B.png" alt="Publisher端的SADF模型"></p>
+<p>​                                                                                                                        Publisher端的SADF模型</p>
+<p>​    Program这个actor代表的是一个实时程序，使用到了XRCE-DDS的两个接口，也就是Pub_Req和Pub_Res这两个用来publish消息的接口，这里抽象为两个actor。Agent位于Arm处理器上，通过非实时的网络和Client进行通讯，所以消息传输会发生丢失、延迟等概率行为。因此也就设计了多个不同的执行场景。</p>
+<p>​    途中a和b代表的分别是信道上message的生产和消费速率，此处可以理解a为agent向DDS域成功发送的message。</p>
+<ul>
+<li>场景p1代表时限内Agent成功publish了消息到DDS中</li>
+<li>场景p2代表虽然经过很长时间（但未超时），但是Agent还是成功publish了消息到DDS中。</li>
+<li>场景p3代表超时了，仍然未收到Agent发来的成功response，此时相当于未成功生产，所以a值为0。此时Pub_Res会让实时程序继续工作。</li>
+</ul>
+<p><img src="https://gitee.com/zijian98/images/raw/master/img/Subscriber%E7%AB%AF%E7%9A%84SADF%E6%A8%A1%E5%9E%8B.png" alt="Subscriber端的SADF模型"></p>
+<p>​                                                                                                                        Subscriber端的SADF模型</p>
+<p>​    这个模型和Publisher其实非常类似。但是可能的场景有4个，同时需要关注的信道有3个，DDS和Agent之间的非实时网络，Sub_Res和实时程序之间的可忍受的失败消息传递信道，以及多次可忍受失败导致的Sub_Res向实施程序下达重启的信道。</p>
+<ul>
+<li>场景S1代表正常情况下快速的收到了DDS的消息</li>
+<li>场景S2代表经过很长时间（但未超时），Client收到DDS消息</li>
+<li>场景S3代表可忍受的消息传递失败，会先让程序继续工作，等待XRCE-DDS的历史变量和流运行完成，将已经收到的消息传递完（因为此时ef都还有消息在传递）。</li>
+<li>场景S4代表n次可忍受的消息失败后，就不可忍受了，且此时历史消息已经都结束，那么就下达重启命令 </li>
+</ul>
+<p><img src="https://gitee.com/zijian98/images/raw/master/img/applications%E7%9A%84SADF%E6%A8%A1%E5%9E%8B.png" alt="applications的SADF模型"></p>
+<p>​                                                                                                                                应用的SADF模型</p>
+<p>​    将上述两个模型进行结合，再加上实验中的具体数据，得到DDS域进行的时间场景D1,D2和D3，并得到他们的概率。同事在DDS域中的信息丢失与否也被两个场景进行建模为L1,L2。这样单个发布订阅者就存在了24个场景。</p>
+<p><img src="https://gitee.com/zijian98/images/raw/master/img/%E9%A9%AC%E5%B0%94%E5%8F%AF%E5%A4%AB%E6%A8%A1%E5%9E%8B.png" alt="马尔可夫模型"></p>
+<p>​                                                                                                                马尔可夫模型的SADF模型</p>
+<p>​    通过两千万次迭代实验，得到上图的两个马尔可夫模型，然后结合上面对场景D和场景L的值，就可以得到24个大场景中两两转移的概率。从而可以计算预期吞吐量。</p>
+<ul>
+<li>在CompSOC平台上的一个网络，进行实验分析了XRCE-DDS的应用</li>
+</ul>
+<h3 id="思考"><a href="#思考" class="headerlink" title="思考"></a>思考</h3><ul>
+<li>首先这篇论文是对XRCE-DDS的建模分析，但是其本质却是立足于完整的DDS发布订阅机制来进行考量的，而不是针对XRCE-DDS的协议最核心的C-S机制进行建模分析。我觉得这一点是可以考虑学习的。但是还没想好跟ROS1相联系，毕竟ROS1没使用DDS</li>
+<li>论文的贡献既然实现了对XRCE-DDS协议的一种实现，且是基于多处理器、嵌入式系统的一个实现，我觉得是一个比较大、比较新的工作量。不过说实话如果不是网络问题一直下载不下来，我觉得我们可能也已经走在这一步的路上了。</li>
+<li>这个文章的概率其实解释的都挺笼统，大部分都说是从实验得来，那可能实验就是这样的吧，如果想要进行概率模型检测，无论是模拟还是实际的实验都需要进行统计。</li>
+</ul>
+<h2 id="Model-checking-for-the-Goal-Feedback-Result-Pattern-in-ROS"><a href="#Model-checking-for-the-Goal-Feedback-Result-Pattern-in-ROS" class="headerlink" title="Model checking for the Goal-Feedback-Result Pattern in ROS"></a>Model checking for the Goal-Feedback-Result Pattern in ROS</h2><h3 id="摘要-1"><a href="#摘要-1" class="headerlink" title="摘要"></a>摘要</h3><p>目标-回馈-结果模式广泛运用于基于机器人操作系统的多任务进程和分布式控制系统的通讯中。随着越来越多的传感器设备和应用在服务机器人中被部署，保证ROS中的GFR通信结构的正确性和可靠性越来越重要。ROS中的GFR通信和任务调度的形式化分析和验证在本文中通过模型检测实现。为了对通信进程和调度策略进行建模，本文设计了客户端进程、服务端进程和调度器的时间自动机。无死锁、可调度和可响应性质使用CTL语言进行了形式化描述，并使用自动模型检测工具进行了自动验证。GFR模式的形式化模型分析和验证提供了一种精化设计模型，并且对避免基于机器人系统应用GFR早期设计阶段的细微错误或者bug很有帮助。</p>
+<h3 id="主要贡献-1"><a href="#主要贡献-1" class="headerlink" title="主要贡献"></a>主要贡献</h3><p>模型检测被用于带调度的GFR通信机制的形式化分析和验证。建立了时间自动机来描述通信进程和调度策略。并使用CTL语言描述了无死锁、可调度和可响应等性质，然后使用了UPPAAL进行了自动检测。</p>
+<p>关于调度这方面，主要是实现了EDF（最早截止时间）的调度算法。</p>
+<p>建立的模型主要构成为三个模块——client、scheduler和server</p>
+<p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20210922194818853.png" alt="image-20210922194818853"></p>
+<ul>
+<li>client可以发布目标（goal），也可以取消正在进行的任务 </li>
+<li>scheduler用来维护一个任务队列，同时负责抢占相关</li>
+<li>server用来执行client所布置的、由scheduler交给的goal，并根据时间触发向client汇报执行情况（feedback），当最后任务完成\终止\取消后，目标（goal）有结果之后，向client发送result消息。</li>
+</ul>
+<p>三者自动机分别如下所示</p>
+<p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20210922195500014.png" alt="image-20210922195500014"></p>
+<ul>
+<li>idle状态就是起始状态，信号goal[id]表示触发的要scheduler调度的任务，数组result[id]=0,ggoal[id]=1,getback[id]=0表示了目标id的结果、feedback等的初始化。</li>
+<li>router状态是一个路由状态，此处在等待其他信号的到来，如果scheduler发送了dealit[id]表明要处理任务了，则进入connect这个中间状态再转入active状态，如果scheduler发送了wait[id]信号，则说明任务队列前面还有任务，就需要进入waitit状态进行等待。如果说收到了server发来的finish[id]信号，说明任务已经完成了， 可以回到idle状态了。或者如果收到server发来的canceled[id]信号，说明此时任务已经取消了，同样回到idle状态。</li>
+<li>waitit状态需要等待任务队列前面的任务顺利完成或取消后，自己就会有dealit[it]信号通知转入connect中间状态，不停留，直接转到active状态。</li>
+<li>active状态存在三种可能的路径<ul>
+<li>收到了server的信号，任务已经finish了，那就回到idle状态</li>
+<li>向server发出信号cancel[id]，通知server任务取消。回到router状态。</li>
+<li>来了一个优先级更高的任务由scheduler调度到前面，把自己抢占了，也就是收到了bepreemptedp[id]信号，进入preempted状态等待重新被启用。</li>
+</ul>
+</li>
+<li>preempted状态会等待dealit[id]信号的到来，然后回到active状态。</li>
+<li>同时，为了模拟feedback，在goal发出后，未被抢占的三个状态——router、waitit和active状态都会定时发送feedback[id]信号，来得到server执行过程中的信息。getback[id]赋值为1表示等待得到回馈。</li>
+</ul>
+<p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20210922200929291.png" alt="image-20210922200929291"></p>
+<ul>
+<li>idle状态就是起始状态，最开始时Sstatus[front()]为0，当收到scheduler发来的dealit[front()]信号时，将时间t进行初始化，进入deal状态。或者当Sstatus[front()]为2时，说明是在deal状态中被抢占的任务，当收到scheduler发来的dealit[front()]信号时，则不需要对时间初始化，而是需要将Sstatus[front()]初始化，进入deal状态。</li>
+<li>deal状态负责处理任务，在这个阶段设计三个概念，最快执行时间、截止时间（DL）和执行时间（ET）。当任务完成后，t超过了DL，则将结果result[front()]赋值为2，表示超市完成，并进入名为outtime的临时状态，然后进入router状态；或者当任务完成时，t大于了执行时间，但是没超过截止时间DL，那么就将result[front()]赋值为3，表示时限内完成任务，进入router状态。同时在此状态还有一种转移情况是当收到scheduler发来的抢占信号bepreempted[e]，就需要将Sstatus[e]赋值为2，表示被强占，进入preempted的临时状态，candeal赋值为1表示下次可以进行下个任务的处理，最后回到idle状态。最后还有一种情况，就是在执行过程中，client不想要再继续执行，向scheduler发送了cancel信号，scheduler就会发来getfinish[front()]信号，此时deal状态就会将result[front()]赋值为1，表示取消任务，然后进入一个临时状态，紧接着进入finised状态</li>
+<li>router状态可以理解是一个中间状态，但是很奇怪论文没有给出它的转移guard（可能是抽象掉了），总之它也可以响应scheduler的getfinish[front()]信号，取消放弃任务，将result[front()]赋值为1,进入临界状态然后直接进入finished状态。同时他也会被优先级更高的任务进行抢占，响应抢占信号bepreempted[e]，将Sstatus[e]赋值为1，然后当下一次dealit信号来临时直接转移回router状态。而除此之外的正常情况，他会在这一状态和客户端建立联系，然后进入connect的临时状态，然后顺利进入finished状态。</li>
+<li>finished状态是任务已经不再执行的一个状态，一般包含三种任务，一种是被取消掉的，一种是超时完成的，一种是正常完成的，该状态会等待finish[front()]信号，然后回到idle状态。</li>
+<li>同client状态对应，在deal状态、router状态以及finished状态，都会对client中的feedback信号进行接受，但是具体处理细节不太相同 ，ideal状态会将feedback[e]被赋值为1表示此时任务还在处理中，然后getback[e]赋值为0表示已进行回馈；router状态会将feedback[e]被赋值为2表示此时任务已处理完成，等待路由的建立，然后getback[e]赋值为0表示已进行回馈；finish状态则会将feedback[e]被赋值为3表示此时任务已结束，然后getback[e]赋值为0表示已进行回馈。</li>
+</ul>
+<p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20210922205103174.png" alt="image-20210922205103174"></p>
+<ul>
+<li>idle状态就是起始状态。如果此时任务队列长度len为0，当client的goal[e]信号到达时，就会将任务e放入任务队列，并将任务e的截止日期赋值给x,并进入一个瞬时状态，然后发出dealit[front()]信号通知server对任务队列队首进行处理；如果队列长度不为0，那么该状态会马上向server发送dealit[front()]信号通知它来处理队首任务。</li>
+<li>select状态是最关键的状态。<ul>
+<li>收到client发来的goal[e]信号，如果该事件的截止日期比x要小，那就要把x更新为该事件的截止日期上限，并进入preempted的瞬时状态，因为该事件显然应该具有更高优先级；然后将此时的队首进行抢占，即向server发送bepreempted[front()]!消息，且将队首任务出队，进入下个瞬时状态，发送dealit[front()]!让server进行下一个队首任务的处理，如果此时candeal为1则赋值为0表示不可以处理下个任务（这里应该是和server做的一个同步操作），然后回到select状态。</li>
+<li>如果收到goal[e]信号，新入队的任务的DL比x要大，说明它的优先级不强，放入队尾，向client发出wait[tail()]信号。回到select状态。</li>
+<li>如果收到cancel[e]信号，则进入getcancel状态，如果此时dealcancel为0，发送canceled[e]给client，表示已经取消了任务，并出队任务，且将任务e的result改为1表示取消任务，回到select状态。如果dealcancel为1，则需要向server发送getfinish[front()]信号，将dealcancel改为0。进入新状态后，如果收到server的finish[front()]，说明该任务已经取消，则出队队首元素，回到idle状态。</li>
+<li>如果收到server的finish[e]，说明该任务已经结束，如果该任务就是队首元素，那么出队队首元素，并进入idle状态。</li>
+</ul>
+</li>
+</ul>
+<h3 id="思考-1"><a href="#思考-1" class="headerlink" title="思考"></a>思考</h3><p>这篇论文跟之前我和师兄做的工作有所关联，都是对ROS进行的建模、验证，区别在于我们将建模的对象放在了发布-订阅机制上，而本文则是将研究重心放在了所谓的GFR机制上，这个GFR机制其实就是ROS1中的action通信。是基于pub/sub和client/service机制的ROS独有机制。根据论文的网址，我们看到确实在相关的库的介绍中，甚至是存在有specification的。</p>
+<p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20210923092328320.png" alt="image-20210923092328320"></p>
+<p>那这确实感觉是一个非常不错的切入点。</p>
+<p>这篇论文的建模感觉确实抽象层次挺高，忽略了大部分细节，集中注意力在client、server和scheduler这三个地方，我觉得对scheduler部分的抽象是本文的一个亮点，尤其是将调度器如何执行了EFD调度算法这一部分建立的蛮有新意。但是有一些没有特别看懂，就是被强占的任务的后续处理没看的很明白，因为有一些执行的函数在论文中没有讲。</p>
+<h2 id="总结思考"><a href="#总结思考" class="headerlink" title="总结思考"></a>总结思考</h2><h3 id="如何对前后工作进行联系"><a href="#如何对前后工作进行联系" class="headerlink" title="如何对前后工作进行联系"></a>如何对前后工作进行联系</h3><p>关于之前的，能不能接着我们之前对ROS1验证的思路往下走，看能不能走到我们的MicroROS上，我缕了一下两者的关系，大概是这样的：</p>
+<p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20210923102801073.png" alt="image-20210923102801073"></p>
+<p>ROS1和ROS2作为一二代，互成竞品</p>
+<p>ROS1中最常用的和嵌入式部分进行通信的是rosserial包（官方实现有arduino等）。</p>
+<p>而到了ROS2中和ROS2进行通信的就是MicroROS了。</p>
+<p>要么参考第一篇论文，考虑像它那样，放弃对client-server的模式的底层建模，转而考虑对整体的的建模。然后再想办法加别的工作量。</p>
+<p>要么就是围绕ROS2再做一些工作，从而可以过渡到MicroROS上来。问题就是其他人已经做过了对ROS2中DDS的建模了，那可能就还要调研一下到底做什么东西。</p>
+<h3 id="建模思路和工作量努力方向的拓展"><a href="#建模思路和工作量努力方向的拓展" class="headerlink" title="建模思路和工作量努力方向的拓展"></a>建模思路和工作量努力方向的拓展</h3><p>之前的建模思路主要集中在最直接最底层最简单的机制进行建模，然后根据specification和代码细节丰富模型。但实际上太过追求往底层靠进行抽象的话，感觉会忽略掉更具有代表性的独特的机制，就比如ROS1中我们一直在深挖pub/sub机制，但好像往上面一层的action相较而言更具有创新点以及更具有对ROS应用的代表性。</p>
+<p>感觉自己可以考虑再跳出来，不考虑实现细节，实现底层，而是协议或者系统最具代表性的层次来抽象建模。</p>
+<p>然后就是感觉仅仅靠阅读源码、建立模型，工作量无法支撑好的文章，还是得想办法做模拟、做实现；甚至考虑多环境、多处理器、多平台的实现。同时考虑到第二篇论文对scheduler的建模是一个亮点，再加上XRCE-DDS的Agent端中的Agent类同样继承了一个Scheduler类（不过是FCFS的比较简单的调度），这方面能不能提炼出什么值得深挖实现，然后进行建模的东西呢？</p>
+
+        
+            <div id="toc-article">
+                
+  <div class="widget-wrap" id="toc-wrap">
+    <h3 class="widget-title"><i class="fa fa-toc"></i> 文章目录</h3>
+    <div class="widget">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Modeling-implementation-and-analysis-of-XRCE-DDS-applications-in-distributed-multi-processor-real-time-embedded-system"><span class="toc-text">Modeling, implementation, and analysis of XRCE-DDS applications in distributed multi-processor real-time embedded system</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%91%98%E8%A6%81"><span class="toc-text">摘要</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BB%E8%A6%81%E8%B4%A1%E7%8C%AE"><span class="toc-text">主要贡献</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%9D%E8%80%83"><span class="toc-text">思考</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Model-checking-for-the-Goal-Feedback-Result-Pattern-in-ROS"><span class="toc-text">Model checking for the Goal-Feedback-Result Pattern in ROS</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%91%98%E8%A6%81-1"><span class="toc-text">摘要</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BB%E8%A6%81%E8%B4%A1%E7%8C%AE-1"><span class="toc-text">主要贡献</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%9D%E8%80%83-1"><span class="toc-text">思考</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93%E6%80%9D%E8%80%83"><span class="toc-text">总结思考</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E5%AF%B9%E5%89%8D%E5%90%8E%E5%B7%A5%E4%BD%9C%E8%BF%9B%E8%A1%8C%E8%81%94%E7%B3%BB"><span class="toc-text">如何对前后工作进行联系</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BB%BA%E6%A8%A1%E6%80%9D%E8%B7%AF%E5%92%8C%E5%B7%A5%E4%BD%9C%E9%87%8F%E5%8A%AA%E5%8A%9B%E6%96%B9%E5%90%91%E7%9A%84%E6%8B%93%E5%B1%95"><span class="toc-text">建模思路和工作量努力方向的拓展</span></a></li></ol></li></ol>
+    </div>
+  </div>
+
+
+            </div>
+        
+        
+          <blockquote id="copyright">
+              <p>原文链接: <a href="https://zijian.wang/2021/09/23/2021-9-22周记/">https://zijian.wang/2021/09/23/2021-9-22周记/</a></p>
+              <p>版权声明: 转载请注明出处.</p>
+          </blockquote>
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+    <div class="article-reward">
+        <a id="reward-btn" href="javascript:;">打赏</a>
+        <div id="reward-content">
+            <h6 class="reward-tit">“感谢你的支持，我会继续努力！”</h6>
+            <div>
+                <div class="reward-code">
+                    <img class="type-code" src="/css/images/wechat.jpg">
+                    <img class="er-code" src="/css/images/wechat-pay.jpg">
+                </div>
+                <div class="reward-code">
+                    <img class="type-code" src="/css/images/alipay.jpg">
+                    <img class="er-code" src="/css/images/alipay-pay.jpg">
+                </div>
+            </div>
+            <p class="reward-desc">扫码打赏，感谢支持</p>
+        </div>
+    </div>
+
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ROS/" rel="tag">ROS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%BD%A2%E5%BC%8F%E5%8C%96/" rel="tag">形式化</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%A7%91%E7%A0%94%E5%91%A8%E8%AE%B0/" rel="tag">科研周记</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+        
+<nav id="article-nav">
+  
+    <a href="/2021/10/01/ROS2%E7%9A%84Executors%E4%B8%8A%E7%9A%84%E5%A4%84%E7%90%86%E9%93%BE%E7%9A%84%E5%93%8D%E5%BA%94%E6%97%B6%E9%97%B4%E5%88%86%E6%9E%90%E5%92%8C%E4%BC%98%E5%85%88%E7%BA%A7%E5%88%86%E9%85%8D/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">newer</strong>
+      <div class="article-nav-title">
+        
+          ROS2 Executors上的处理链的响应时间分析和优先级分配
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2021/09/17/238.%20%E9%99%A4%E8%87%AA%E8%BA%AB%E4%BB%A5%E5%A4%96%E6%95%B0%E7%BB%84%E7%9A%84%E4%B9%98%E7%A7%AF%EF%BC%88%E6%95%B0%E7%BB%84%EF%BC%89/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">older</strong>
+      <div class="article-nav-title">238. 除自身以外数组的乘积</div>
+    </a>
+  
+</nav>
+
+      
+      
+        
+
+
+
+
+
+
+  <div id="SOHUCS" sid="2021/09/23/2021-9-22周记/"></div>
+
+
+      
+    </footer>
+  </div>
+</article>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-posts"></i> 最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2022/03/17/XRCE-DDS%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%88epromisa%E5%AE%9E%E7%8E%B0%EF%BC%89/">XRCE-DDS源码阅读（epromisa实现）</a>
+          </li>
+        
+          <li>
+            <a href="/2021/12/30/%E5%AF%B9MQTT%E7%9A%84%E5%BD%A2%E5%BC%8F%E5%8C%96%E5%88%86%E6%9E%90%E4%B8%8E%E5%BB%BA%E6%A8%A1/">对MQTT的形式化分析和建模</a>
+          </li>
+        
+          <li>
+            <a href="/2021/12/13/git%E5%AD%A6%E4%B9%A0/">git学习</a>
+          </li>
+        
+          <li>
+            <a href="/2021/12/01/%E5%AF%B9ROS2%E7%9A%84DDS%E7%9A%84%E5%BD%A2%E5%BC%8F%E5%8C%96%E5%88%86%E6%9E%90/">对ROS2的DDS的形式化分析</a>
+          </li>
+        
+          <li>
+            <a href="/2021/10/19/%E6%97%B6%E9%97%B4%E8%87%AA%E5%8A%A8%E6%9C%BA/">时间自动机</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/C/" style="font-size: 15px;">C++</a> <a href="/tags/DDS/" style="font-size: 15px;">DDS</a> <a href="/tags/Leetcode/" style="font-size: 20px;">Leetcode</a> <a href="/tags/ROS/" style="font-size: 10px;">ROS</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/hash/" style="font-size: 13.75px;">hash</a> <a href="/tags/%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE/" style="font-size: 11.25px;">二分查找</a> <a href="/tags/%E5%89%8D%E7%BC%80%E5%92%8C/" style="font-size: 10px;">前缀和</a> <a href="/tags/%E5%89%91%E6%8C%87offer/" style="font-size: 18.75px;">剑指offer</a> <a href="/tags/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" style="font-size: 12.5px;">动态规划</a> <a href="/tags/%E5%8D%8F%E8%AE%AE%E9%98%85%E8%AF%BB/" style="font-size: 12.5px;">协议阅读</a> <a href="/tags/%E5%8F%8C%E6%8C%87%E9%92%88/" style="font-size: 11.25px;">双指针</a> <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8FRTOS/" style="font-size: 10px;">嵌入式RTOS</a> <a href="/tags/%E5%B7%A5%E5%85%B7/" style="font-size: 11.25px;">工具</a> <a href="/tags/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/" style="font-size: 10px;">工具使用</a> <a href="/tags/%E5%BD%A2%E5%BC%8F%E5%8C%96/" style="font-size: 10px;">形式化</a> <a href="/tags/%E5%BD%A2%E5%BC%8F%E5%8C%96%E9%AA%8C%E8%AF%81/" style="font-size: 11.25px;">形式化验证</a> <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%EF%BC%8C%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" style="font-size: 10px;">操作系统，环境配置</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" style="font-size: 12.5px;">数据库</a> <a href="/tags/%E6%95%B0%E7%BB%84/" style="font-size: 13.75px;">数组</a> <a href="/tags/%E6%A8%A1%E5%9E%8B%E6%A3%80%E6%B5%8B/" style="font-size: 11.25px;">模型检测</a> <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" style="font-size: 11.25px;">源码阅读</a> <a href="/tags/%E7%9F%A9%E9%98%B5/" style="font-size: 13.75px;">矩阵</a> <a href="/tags/%E7%A0%94%E7%A9%B6%E6%96%B9%E5%90%91/" style="font-size: 16.25px;">研究方向</a> <a href="/tags/%E7%A7%91%E7%A0%94%E5%91%A8%E8%AE%B0/" style="font-size: 10px;">科研周记</a> <a href="/tags/%E7%AE%97%E6%B3%95%E9%A2%98/" style="font-size: 20px;">算法题</a> <a href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" style="font-size: 10px;">计算机网络</a> <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/" style="font-size: 11.25px;">论文阅读</a> <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB%EF%BC%8CROS2/" style="font-size: 10px;">论文阅读，ROS2</a> <a href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" style="font-size: 17.5px;">读书笔记</a> <a href="/tags/%E8%B4%AA%E5%BF%83/" style="font-size: 10px;">贪心</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-classify"></i> 分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/C-%E8%A7%86%E9%A2%91%E8%AF%BE/">C++视频课</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Leetcode%E5%88%B7%E9%A2%98/">Leetcode刷题</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ROS/">ROS</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ROS2%E4%B8%8EMicro-ROS/">ROS2与Micro-ROS</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E3%80%8AC-Primer%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/">《C++ Primer》阅读笔记</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%88%B7%E9%A2%98%E8%AE%B0%E5%BD%95/">刷题记录</a><span class="category-list-count">14</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%89%91%E6%8C%87offer/">剑指offer</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%B7%A5%E5%85%B7%E5%AD%A6%E4%B9%A0/">工具学习</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AD%A6%E4%B9%A0/">数据库学习</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%A7%91%E7%A0%94%E5%91%A8%E8%AE%B0/">科研周记</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E5%AD%A6%E4%B9%A0/">计算机网络学习</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">论文阅读</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">读书笔记</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/">软件安装</a><span class="category-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-archive"></i> 归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">2022年03月</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">2021年12月</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">2021年10月</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">2021年09月</a><span class="archive-list-count">17</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">2021年07月</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">2021年06月</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">2021年05月</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">2021年04月</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">2021年01月</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">2020年11月</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">2020年10月</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">2018年06月</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">2018年03月</a><span class="archive-list-count">4</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/C/" rel="tag">C++</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DDS/" rel="tag">DDS</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a><span class="tag-list-count">43</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ROS/" rel="tag">ROS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hash/" rel="tag">hash</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE/" rel="tag">二分查找</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%89%8D%E7%BC%80%E5%92%8C/" rel="tag">前缀和</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%89%91%E6%8C%87offer/" rel="tag">剑指offer</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" rel="tag">动态规划</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8D%8F%E8%AE%AE%E9%98%85%E8%AF%BB/" rel="tag">协议阅读</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8C%E6%8C%87%E9%92%88/" rel="tag">双指针</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8FRTOS/" rel="tag">嵌入式RTOS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B7%A5%E5%85%B7/" rel="tag">工具</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/" rel="tag">工具使用</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BD%A2%E5%BC%8F%E5%8C%96/" rel="tag">形式化</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BD%A2%E5%BC%8F%E5%8C%96%E9%AA%8C%E8%AF%81/" rel="tag">形式化验证</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%EF%BC%8C%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" rel="tag">操作系统，环境配置</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E7%BB%84/" rel="tag">数组</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%A8%A1%E5%9E%8B%E6%A3%80%E6%B5%8B/" rel="tag">模型检测</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" rel="tag">源码阅读</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%9F%A9%E9%98%B5/" rel="tag">矩阵</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A0%94%E7%A9%B6%E6%96%B9%E5%90%91/" rel="tag">研究方向</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A7%91%E7%A0%94%E5%91%A8%E8%AE%B0/" rel="tag">科研周记</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95%E9%A2%98/" rel="tag">算法题</a><span class="tag-list-count">43</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag">计算机网络</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/" rel="tag">论文阅读</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB%EF%BC%8CROS2/" rel="tag">论文阅读，ROS2</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag">读书笔记</a><span class="tag-list-count">11</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%B4%AA%E5%BF%83/" rel="tag">贪心</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-link"></i> 友情链接</h3>
+    <div class="widget">
+      <ul>
+      
+        <li>
+          <a target="_blank" rel="noopener" href="https://www.guanyuqian.com/">G-Blog（关师兄的博客）</a>
+        </li>
+      
+        <li>
+          <a target="_blank" rel="noopener" href="https://imvector.github.io/">峰哥的博客</a>
+        </li>
+      
+        <li>
+          <a target="_blank" rel="noopener" href="https://amyzhoucc.github.io/">豆豆龙（zcc师姐的博客）</a>
+        </li>
+      
+        <li>
+          <a target="_blank" rel="noopener" href="https://mchen0607.github.io/">闽哥的博客</a>
+        </li>
+      
+      </ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+        
+      </div>
+      <a id="totop" href="#top"></a>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      <p>
+        <a href="/sitemap.xml">网站地图</a>
+        <span> | </span><a href="/about/">联系博主</a>
+      </p>
+      
+        <p>
+          <i class="fa fa-visitors"></i>
+          <i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>
+          ，
+          <i class="fa fa-views"></i>
+          <i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>
+        </p>
+      
+      <p>
+        <span>Copyright &copy; 2022 Eric Wang.</span>
+        <span>Theme by <a href="https://github.com/chaooo/hexo-theme-BlueLake/" target="_blank">BlueLake.</a></span>
+        
+            <span>Count by <a href="http://busuanzi.ibruce.info/" target="_blank">busuanzi.</a></span>
+        
+        <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo.</a></span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+<script src="/js/search.json.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+  
+<script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+  
+<script src="/localshare/js/social-share.js"></script>
+
+  
+<script src="/localshare/js/qrcode.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <script>
+    window._config = { showScore: true };
+    (function(){
+      var appid = 'cyvoLETLk';
+      var conf = '9be4582e027b7ddeb93c7cb6571009a5';
+      var width = window.innerWidth || document.documentElement.clientWidth;
+      var nodes =document.getElementsByTagName("head")[0]||document.head||document.documentElement;
+      if (/(Android|iPhone|iPad|iPod|iOS)/i.test(navigator.userAgent) && width < 750) {
+          window.document.write('<script id="changyan_mobile_js" charset="utf-8" type="text/javascript" src="https://changyan.sohu.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf + '"><\/script>');
+      }
+      else {
+        var loadJs=function(d,a){
+          var b=document.createElement("script");b.setAttribute("type","text/javascript");
+          b.setAttribute("charset","UTF-8");
+          b.setAttribute("src",d);
+          if(typeof a==="function"){if(window.attachEvent){b.onreadystatechange=function(){var e=b.readyState;if(e==="loaded"||e==="complete"){b.onreadystatechange=null;a()}}}else{b.onload=a}}
+          nodes.appendChild(b)
+        };
+        loadJs("https://changyan.sohu.com/upload/changyan.js",function(){window.changyan.api.config({appid:appid,conf:conf})});
+      }
+      var loadCss = function(cssString){
+        var style=document.createElement("style");
+        style.setAttribute("type", "text/css");
+        if(style.styleSheet){// IE
+            style.styleSheet.cssText = cssString;
+        } else {// w3c
+            var cssText = document.createTextNode(cssString);
+            style.appendChild(cssText);
+        }
+        nodes.appendChild(style);
+      }
+    })();
+    function removeElement(_element){
+         var _parentElement = _element.parentNode;
+         if(_parentElement){
+                _parentElement.removeChild(_element);
+         }
+    }
+    var removeAD = document.createElement("div");
+    removeAD.id = 'removeAD';
+    var adInterval1 = setInterval(function() {
+      if(document.querySelector("#feedAv")){
+        document.querySelector("[node-type=cmt-list]").appendChild(removeAD);
+        document.querySelector("#removeAD").appendChild(document.querySelector("#feedAv"));
+        //- removeElement(document.querySelectorAll("#feedAv")[0]);
+        var feedAv = document.querySelector("#feedAv").children;
+        for( item of feedAv){
+          item.style.display = 'none'
+        }
+        document.querySelector("#removeAD").style.display="none"
+        clearInterval(adInterval1);
+      }
+    },1000);
+    var adInterval2 = setInterval(function() {
+      if(document.querySelector("#pop_ad")){
+        removeElement(document.querySelector("#pop_ad"));
+        clearInterval(adInterval2);
+      }
+    }, 1000);
+  </script>
+  
+<script src="https://assets.changyan.sohu.com/upload/plugins/plugins.count.js"></script>
+
+
+
+
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+  <script src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML" async type="text/javascript"></script>
+
+  </div>
+</body>
+</html>

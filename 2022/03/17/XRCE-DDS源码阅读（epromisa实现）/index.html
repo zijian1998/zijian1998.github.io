@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>XRCE-DDS源码阅读（epromisa实现） | 妄越</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+    <meta name="description" content="学海无涯，记在路上">
+  
+  
+    <meta name="keywords" content="技术博客">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="妄越" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/logo.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+    
+<link rel="stylesheet" href="/localshare/css/share.css">
+
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">妄越</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">平生蹉跎少年志，雨落樱花又一年</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/."><i class="fa fa-home"></i> 首页</a>
+        
+          <a class="main-nav-link" href="/archives/"><i class="fa fa-archive"></i> 归档</a>
+        
+          <a class="main-nav-link" href="/about/"><i class="fa fa-user"></i> 关于</a>
+        
+      </nav>
+    </div>
+    <div id="search-form">
+      <div id="result-mask" class="hide"></div>
+      <label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label>
+      <div id="result-wrap" class="hide">
+        <div id="search-result"></div>
+      </div>
+      <div class="hide">
+        <template id="search-tpl">
+          <div class="item">
+            <a href="/{path}" title="{title}">
+              <div class="title">{title}</div>
+              <div class="time">{date}</div>
+              <div class="tags">{tags}</div>
+            </a>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-XRCE-DDS源码阅读（epromisa实现）" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      XRCE-DDS源码阅读（epromisa实现）
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2022-03-17T06:18:00.000Z" itemprop="datePublished">2022年03月17日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/ROS2%E4%B8%8EMicro-ROS/">ROS2与Micro-ROS</a>
+  </div>
+
+      
+        <span class="article-views">
+  <i class="fa fa-views"></i>
+  <i id="busuanzi_container_page_pv">
+      <i id="busuanzi_value_page_pv"></i>
+  </i>
+</span>
+
+      
+      
+<a href="/2022/03/17/XRCE-DDS%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%88epromisa%E5%AE%9E%E7%8E%B0%EF%BC%89/#comments" class="article-comment-link">
+  
+    
+    
+    
+    
+    
+      <i id="changyan_count_unit" data-xid="/2022/03/17/XRCE-DDS%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%88epromisa%E5%AE%9E%E7%8E%B0%EF%BC%89/"></i>
+    
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="XRCE-DDS源码阅读（epromisa实现）"><a href="#XRCE-DDS源码阅读（epromisa实现）" class="headerlink" title="XRCE-DDS源码阅读（epromisa实现）"></a>XRCE-DDS源码阅读（epromisa实现）</h1><h2 id="MICRO-XRCE-DDS-CLIENT"><a href="#MICRO-XRCE-DDS-CLIENT" class="headerlink" title="MICRO-XRCE-DDS-CLIENT"></a>MICRO-XRCE-DDS-CLIENT</h2><h3 id="源码结构"><a href="#源码结构" class="headerlink" title="源码结构"></a>源码结构</h3><p>忽略编译后生成的build文件和其他cmake配置文件，可以得到从GitHub上下载的源码目录如下所示：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line">.</span><br><span class="line">├── CMakeLists.txt</span><br><span class="line">├── colcon.pkg</span><br><span class="line">├── CONTRIBUTING.md</span><br><span class="line">├── CTestConfig.cmake</span><br><span class="line">├── Dockerfile</span><br><span class="line">├── docs</span><br><span class="line">│   ├── Client.png</span><br><span class="line">│   └── General.png</span><br><span class="line">├── examples</span><br><span class="line">│   ├── ContinuousFragment</span><br><span class="line">│   ├── CustomTransports</span><br><span class="line">│   ├── Deployment</span><br><span class="line">│   ├── Discovery</span><br><span class="line">│   ├── Discovery_try</span><br><span class="line">│   ├── MultiSessionHelloWorld</span><br><span class="line">│   ├── PingAgent</span><br><span class="line">│   ├── PublishHelloWorld</span><br><span class="line">│   ├── PublishHelloWorldBestEffort</span><br><span class="line">│   ├── PublishHelloWorldP2P</span><br><span class="line">│   ├── ReplyAdder</span><br><span class="line">│   ├── RequestAdder</span><br><span class="line">│   ├── ShapesDemo</span><br><span class="line">│   ├── SubscribeHelloWorld</span><br><span class="line">│   ├── SubscribeHelloWorldBestEffort</span><br><span class="line">│   ├── SubscribeHelloWorldP2P</span><br><span class="line">│   ├── TimeSync</span><br><span class="line">│   └── TimeSyncWithCb</span><br><span class="line">├── include</span><br><span class="line">│   └── uxr</span><br><span class="line">├── LICENSE</span><br><span class="line">├── PLATFORM_SUPPORT.md</span><br><span class="line">├── QUALITY.md</span><br><span class="line">├── README.md</span><br><span class="line">├── src</span><br><span class="line">│   └── c</span><br><span class="line">├── test</span><br><span class="line">│   ├── case</span><br><span class="line">│   ├── memory</span><br><span class="line">│   ├── transport</span><br><span class="line">│   └── unitary</span><br><span class="line">├── toolchains</span><br><span class="line">│   ├── CMakeLists.txt</span><br><span class="line">│   ├── nuttx_toolchain.cmake</span><br><span class="line">│   ├── nuttx_toolchain.cmake.in</span><br><span class="line">│   └── raspberrypi_toolchain.cmake</span><br><span class="line">├── tree.txt</span><br><span class="line">└── VERSIONING.md</span><br></pre></td></tr></table></figure>
+<p>其中，显然include和src以及example文件夹下的文件对我们比较重要。example中有大量的示例程序，包括发现、可靠发送/接收消息等等。include中包含了XRCE-DDS定义的所需要的头文件。src下面则包括了最主要的实际实现代码</p>
+<p>其中src的框架如下所示：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line">.</span><br><span class="line">├── c</span><br><span class="line">│   ├── core</span><br><span class="line">│   │   ├── log</span><br><span class="line">│   │   │   ├── log.c</span><br><span class="line">│   │   │   └── log_internal.h</span><br><span class="line">│   │   ├── serialization</span><br><span class="line">│   │   │   ├── xrce_header.c</span><br><span class="line">│   │   │   ├── xrce_header_internal.h</span><br><span class="line">│   │   │   ├── xrce_subheader.c</span><br><span class="line">│   │   │   ├── xrce_subheader_internal.h</span><br><span class="line">│   │   │   └── xrce_types.c</span><br><span class="line">│   │   └── session</span><br><span class="line">│   │       ├── common_create_entities.c</span><br><span class="line">│   │       ├── common_create_entities_internal.h</span><br><span class="line">│   │       ├── create_entities_ref.c</span><br><span class="line">│   │       ├── create_entities_xml.c</span><br><span class="line">│   │       ├── object_id.c</span><br><span class="line">│   │       ├── read_access.c</span><br><span class="line">│   │       ├── session.c</span><br><span class="line">│   │       ├── session_info.c</span><br><span class="line">│   │       ├── session_info_internal.h</span><br><span class="line">│   │       ├── session_internal.h</span><br><span class="line">│   │       ├── stream</span><br><span class="line">│   │       │   ├── common_reliable_stream_internal.h</span><br><span class="line">│   │       │   ├── input_best_effort_stream.c</span><br><span class="line">│   │       │   ├── input_best_effort_stream_internal.h</span><br><span class="line">│   │       │   ├── input_reliable_stream.c</span><br><span class="line">│   │       │   ├── input_reliable_stream_internal.h</span><br><span class="line">│   │       │   ├── output_best_effort_stream.c</span><br><span class="line">│   │       │   ├── output_best_effort_stream_internal.h</span><br><span class="line">│   │       │   ├── output_reliable_stream.c</span><br><span class="line">│   │       │   ├── output_reliable_stream_internal.h</span><br><span class="line">│   │       │   ├── seq_num.c</span><br><span class="line">│   │       │   ├── seq_num_internal.h</span><br><span class="line">│   │       │   ├── stream_id.c</span><br><span class="line">│   │       │   ├── stream_storage.c</span><br><span class="line">│   │       │   └── stream_storage_internal.h</span><br><span class="line">│   │       ├── submessage.c</span><br><span class="line">│   │       ├── submessage_internal.h</span><br><span class="line">│   │       └── write_access.c</span><br><span class="line">│   ├── profile</span><br><span class="line">│   │   ├── discovery</span><br><span class="line">│   │   │   ├── discovery.c</span><br><span class="line">│   │   │   └── transport</span><br><span class="line">│   │   │       ├── udp_transport_datagram_freertos_plus_tcp.c</span><br><span class="line">│   │   │       ├── udp_transport_datagram_internal.h</span><br><span class="line">│   │   │       ├── udp_transport_datagram_posix.c</span><br><span class="line">│   │   │       ├── udp_transport_datagram_posix_nopoll.c</span><br><span class="line">│   │   │       └── udp_transport_datagram_windows.c</span><br><span class="line">│   │   └── transport</span><br><span class="line">│   │       ├── custom</span><br><span class="line">│   │       │   └── custom_transport.c</span><br><span class="line">│   │       ├── ip</span><br><span class="line">│   │       │   ├── ip_freertos_plus_tcp.c</span><br><span class="line">│   │       │   ├── ip_posix.c</span><br><span class="line">│   │       │   ├── ip_windows.c</span><br><span class="line">│   │       │   ├── tcp</span><br><span class="line">│   │       │   │   ├── tcp_transport.c</span><br><span class="line">│   │       │   │   ├── tcp_transport_freertos_plus_tcp.c</span><br><span class="line">│   │       │   │   ├── tcp_transport_internal.h</span><br><span class="line">│   │       │   │   ├── tcp_transport_posix.c</span><br><span class="line">│   │       │   │   └── tcp_transport_windows.c</span><br><span class="line">│   │       │   └── udp</span><br><span class="line">│   │       │       ├── udp_transport.c</span><br><span class="line">│   │       │       ├── udp_transport_freertos_plus_tcp.c</span><br><span class="line">│   │       │       ├── udp_transport_internal.h</span><br><span class="line">│   │       │       ├── udp_transport_posix.c</span><br><span class="line">│   │       │       ├── udp_transport_posix_nopoll.c</span><br><span class="line">│   │       │       └── udp_transport_windows.c</span><br><span class="line">│   │       ├── serial</span><br><span class="line">│   │       │   ├── serial_transport.c</span><br><span class="line">│   │       │   └── serial_transport_posix.c</span><br><span class="line">│   │       └── stream_framing</span><br><span class="line">│   │           ├── stream_framing_protocol.c</span><br><span class="line">│   │           └── stream_framing_protocol.h</span><br><span class="line">│   └── util</span><br><span class="line">│       ├── ping.c</span><br><span class="line">│       ├── time.c</span><br><span class="line">│       └── time_internal.h</span><br></pre></td></tr></table></figure>
+<h2 id="MICRO-XRCE-DDS-AGENT"><a href="#MICRO-XRCE-DDS-AGENT" class="headerlink" title="MICRO-XRCE-DDS-AGENT"></a>MICRO-XRCE-DDS-AGENT</h2><h3 id="相关线程"><a href="#相关线程" class="headerlink" title="相关线程"></a>相关线程</h3><h4 id="agentthread"><a href="#agentthread" class="headerlink" title="agentthread"></a>agent<em>thread</em></h4><p>由Agent_instance单例调用函数创建并启动。</p>
+<p>负责解析命令后启动agent<em>server</em>。</p>
+<p>agent<em>server</em>是一个继承自Server类的子类，可以是多个类型，跟传输方式有关，UDP、TCP等。</p>
+<p>Server类是一个继承Agent和SessoinManager类的子类。</p>
+<p>agent<em>server</em>启动主要负责三件事，一件事初始化server（主要是网络编程，使用poll进行IO复用），一个是初始化input_scheduler设置队列大小和优先级大小，以及初始化output_scheduler。最后一件事是负责初始化五个线程，这五个线程的作用会在下面讲解。</p>
+<h5 id="input-scheduler和output-scheduler"><a href="#input-scheduler和output-scheduler" class="headerlink" title="input_scheduler和output_scheduler"></a>input_scheduler和output_scheduler</h5><p>消息包packet的处理借助于类PacketScheduler，这个类包含了两个map类型的成员变量，一个key是优先级，value是一个队列，存放待处理的packet；另一个key是优先级，value表示队列的大小。这里其实是一个高优先级先调度的模型。</p>
+<h4 id="error-handler-thread"><a href="#error-handler-thread" class="headerlink" title="error_handler_thread"></a>error_handler_thread</h4><p>处理错误的线程 一个条件循环函数</p>
+<h4 id="receiver-loop"><a href="#receiver-loop" class="headerlink" title="receiver_loop"></a>receiver_loop</h4><p>处理接受消息的线程 </p>
+<p>线程启动后从传输中接受input_packet包，然后将接受的消息放入input_scheduler调度器，将不同的消息放入不同优先级的队列。</p>
+<h4 id="sender-loop"><a href="#sender-loop" class="headerlink" title="sender_loop"></a>sender_loop</h4><p>处理发送消息的线程</p>
+<p>从output_scheduler中取出优先级最高的队列的队首元素，通过send_message发送出去。</p>
+<h4 id="processing-loop"><a href="#processing-loop" class="headerlink" title="processing_loop"></a>processing_loop</h4><p>处理调度器中的消息的线程</p>
+<p>从input<em>scheduler中取出优先级最高的队列的队首元素，交给processor</em>来进行处理。</p>
+<p>processor_对象是Processor类的对象。该类统一处理所有的packet消息。会根据input<em>packet消息的sessionid来确定消息要交由root\</em>处理还是根据clientKey来确定消息交给client来处理。</p>
+<p>交由client处理的消息实际是又交给了client自己的session中指定sessionID的队列，根据session的sessionID队列messages_来依次进行处理message。</p>
+<p>处理input<em>message的过程就是不断看是否有下一条submessage，然后读取submessage，根据submessage的类型与内容，和DDS进行交互，如有数据回馈则将数据填充组成output_packet，返回给server\</em>的output_scheduler，最后将交互结果返回给上一层。</p>
+<p>处理过input<em>message后，考虑对于可靠流的消息，要组织acknack子消息。将acknack消息构成一个output_packet，交付server\</em>的output_scheduler</p>
+<p>如果client不存在 还要处理delete子消息的返回。</p>
+<h4 id="heartbeat-loop"><a href="#heartbeat-loop" class="headerlink" title="heartbeat_loop"></a>heartbeat_loop</h4><p>让processor_检查心跳信号，就是构造心跳信号进行发送，完毕后陷入休眠，休眠结束继续检查，不断循环</p>
+
+        
+            <div id="toc-article">
+                
+  <div class="widget-wrap" id="toc-wrap">
+    <h3 class="widget-title"><i class="fa fa-toc"></i> 文章目录</h3>
+    <div class="widget">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#XRCE-DDS%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%88epromisa%E5%AE%9E%E7%8E%B0%EF%BC%89"><span class="toc-text">XRCE-DDS源码阅读（epromisa实现）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#MICRO-XRCE-DDS-CLIENT"><span class="toc-text">MICRO-XRCE-DDS-CLIENT</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BA%90%E7%A0%81%E7%BB%93%E6%9E%84"><span class="toc-text">源码结构</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MICRO-XRCE-DDS-AGENT"><span class="toc-text">MICRO-XRCE-DDS-AGENT</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E7%BA%BF%E7%A8%8B"><span class="toc-text">相关线程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#agentthread"><span class="toc-text">agentthread</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#input-scheduler%E5%92%8Coutput-scheduler"><span class="toc-text">input_scheduler和output_scheduler</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#error-handler-thread"><span class="toc-text">error_handler_thread</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#receiver-loop"><span class="toc-text">receiver_loop</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#sender-loop"><span class="toc-text">sender_loop</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#processing-loop"><span class="toc-text">processing_loop</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#heartbeat-loop"><span class="toc-text">heartbeat_loop</span></a></li></ol></li></ol></li></ol></li></ol>
+    </div>
+  </div>
+
+
+            </div>
+        
+        
+          <blockquote id="copyright">
+              <p>原文链接: <a href="https://zijian.wang/2022/03/17/XRCE-DDS源码阅读（epromisa实现）/">https://zijian.wang/2022/03/17/XRCE-DDS源码阅读（epromisa实现）/</a></p>
+              <p>版权声明: 转载请注明出处.</p>
+          </blockquote>
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+    <div class="article-reward">
+        <a id="reward-btn" href="javascript:;">打赏</a>
+        <div id="reward-content">
+            <h6 class="reward-tit">“感谢你的支持，我会继续努力！”</h6>
+            <div>
+                <div class="reward-code">
+                    <img class="type-code" src="/css/images/wechat.jpg">
+                    <img class="er-code" src="/css/images/wechat-pay.jpg">
+                </div>
+                <div class="reward-code">
+                    <img class="type-code" src="/css/images/alipay.jpg">
+                    <img class="er-code" src="/css/images/alipay-pay.jpg">
+                </div>
+            </div>
+            <p class="reward-desc">扫码打赏，感谢支持</p>
+        </div>
+    </div>
+
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DDS/" rel="tag">DDS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" rel="tag">源码阅读</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%A0%94%E7%A9%B6%E6%96%B9%E5%90%91/" rel="tag">研究方向</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+        
+<nav id="article-nav">
+  
+  
+    <a href="/2021/12/30/%E5%AF%B9MQTT%E7%9A%84%E5%BD%A2%E5%BC%8F%E5%8C%96%E5%88%86%E6%9E%90%E4%B8%8E%E5%BB%BA%E6%A8%A1/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">older</strong>
+      <div class="article-nav-title">对MQTT的形式化分析和建模</div>
+    </a>
+  
+</nav>
+
+      
+      
+        
+
+
+
+
+
+
+  <div id="SOHUCS" sid="2022/03/17/XRCE-DDS源码阅读（epromisa实现）/"></div>
+
+
+      
+    </footer>
+  </div>
+</article>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-posts"></i> 最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2022/03/17/XRCE-DDS%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%88epromisa%E5%AE%9E%E7%8E%B0%EF%BC%89/">XRCE-DDS源码阅读（epromisa实现）</a>
+          </li>
+        
+          <li>
+            <a href="/2021/12/30/%E5%AF%B9MQTT%E7%9A%84%E5%BD%A2%E5%BC%8F%E5%8C%96%E5%88%86%E6%9E%90%E4%B8%8E%E5%BB%BA%E6%A8%A1/">对MQTT的形式化分析和建模</a>
+          </li>
+        
+          <li>
+            <a href="/2021/12/13/git%E5%AD%A6%E4%B9%A0/">git学习</a>
+          </li>
+        
+          <li>
+            <a href="/2021/12/01/%E5%AF%B9ROS2%E7%9A%84DDS%E7%9A%84%E5%BD%A2%E5%BC%8F%E5%8C%96%E5%88%86%E6%9E%90/">对ROS2的DDS的形式化分析</a>
+          </li>
+        
+          <li>
+            <a href="/2021/10/19/%E6%97%B6%E9%97%B4%E8%87%AA%E5%8A%A8%E6%9C%BA/">时间自动机</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/C/" style="font-size: 15px;">C++</a> <a href="/tags/DDS/" style="font-size: 15px;">DDS</a> <a href="/tags/Leetcode/" style="font-size: 20px;">Leetcode</a> <a href="/tags/ROS/" style="font-size: 10px;">ROS</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/hash/" style="font-size: 13.75px;">hash</a> <a href="/tags/%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE/" style="font-size: 11.25px;">二分查找</a> <a href="/tags/%E5%89%8D%E7%BC%80%E5%92%8C/" style="font-size: 10px;">前缀和</a> <a href="/tags/%E5%89%91%E6%8C%87offer/" style="font-size: 18.75px;">剑指offer</a> <a href="/tags/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" style="font-size: 12.5px;">动态规划</a> <a href="/tags/%E5%8D%8F%E8%AE%AE%E9%98%85%E8%AF%BB/" style="font-size: 12.5px;">协议阅读</a> <a href="/tags/%E5%8F%8C%E6%8C%87%E9%92%88/" style="font-size: 11.25px;">双指针</a> <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8FRTOS/" style="font-size: 10px;">嵌入式RTOS</a> <a href="/tags/%E5%B7%A5%E5%85%B7/" style="font-size: 11.25px;">工具</a> <a href="/tags/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/" style="font-size: 10px;">工具使用</a> <a href="/tags/%E5%BD%A2%E5%BC%8F%E5%8C%96/" style="font-size: 10px;">形式化</a> <a href="/tags/%E5%BD%A2%E5%BC%8F%E5%8C%96%E9%AA%8C%E8%AF%81/" style="font-size: 11.25px;">形式化验证</a> <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%EF%BC%8C%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" style="font-size: 10px;">操作系统，环境配置</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" style="font-size: 12.5px;">数据库</a> <a href="/tags/%E6%95%B0%E7%BB%84/" style="font-size: 13.75px;">数组</a> <a href="/tags/%E6%A8%A1%E5%9E%8B%E6%A3%80%E6%B5%8B/" style="font-size: 11.25px;">模型检测</a> <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" style="font-size: 11.25px;">源码阅读</a> <a href="/tags/%E7%9F%A9%E9%98%B5/" style="font-size: 13.75px;">矩阵</a> <a href="/tags/%E7%A0%94%E7%A9%B6%E6%96%B9%E5%90%91/" style="font-size: 16.25px;">研究方向</a> <a href="/tags/%E7%A7%91%E7%A0%94%E5%91%A8%E8%AE%B0/" style="font-size: 10px;">科研周记</a> <a href="/tags/%E7%AE%97%E6%B3%95%E9%A2%98/" style="font-size: 20px;">算法题</a> <a href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" style="font-size: 10px;">计算机网络</a> <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/" style="font-size: 11.25px;">论文阅读</a> <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB%EF%BC%8CROS2/" style="font-size: 10px;">论文阅读，ROS2</a> <a href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" style="font-size: 17.5px;">读书笔记</a> <a href="/tags/%E8%B4%AA%E5%BF%83/" style="font-size: 10px;">贪心</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-classify"></i> 分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/C-%E8%A7%86%E9%A2%91%E8%AF%BE/">C++视频课</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Leetcode%E5%88%B7%E9%A2%98/">Leetcode刷题</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ROS/">ROS</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ROS2%E4%B8%8EMicro-ROS/">ROS2与Micro-ROS</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E3%80%8AC-Primer%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/">《C++ Primer》阅读笔记</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%88%B7%E9%A2%98%E8%AE%B0%E5%BD%95/">刷题记录</a><span class="category-list-count">14</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%89%91%E6%8C%87offer/">剑指offer</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%B7%A5%E5%85%B7%E5%AD%A6%E4%B9%A0/">工具学习</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AD%A6%E4%B9%A0/">数据库学习</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%A7%91%E7%A0%94%E5%91%A8%E8%AE%B0/">科研周记</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E5%AD%A6%E4%B9%A0/">计算机网络学习</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">论文阅读</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">读书笔记</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/">软件安装</a><span class="category-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-archive"></i> 归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">2022年03月</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">2021年12月</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">2021年10月</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">2021年09月</a><span class="archive-list-count">17</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">2021年07月</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">2021年06月</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">2021年05月</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">2021年04月</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">2021年01月</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">2020年11月</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">2020年10月</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">2018年06月</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">2018年03月</a><span class="archive-list-count">4</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/C/" rel="tag">C++</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DDS/" rel="tag">DDS</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a><span class="tag-list-count">43</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ROS/" rel="tag">ROS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hash/" rel="tag">hash</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE/" rel="tag">二分查找</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%89%8D%E7%BC%80%E5%92%8C/" rel="tag">前缀和</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%89%91%E6%8C%87offer/" rel="tag">剑指offer</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" rel="tag">动态规划</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8D%8F%E8%AE%AE%E9%98%85%E8%AF%BB/" rel="tag">协议阅读</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8C%E6%8C%87%E9%92%88/" rel="tag">双指针</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8FRTOS/" rel="tag">嵌入式RTOS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B7%A5%E5%85%B7/" rel="tag">工具</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/" rel="tag">工具使用</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BD%A2%E5%BC%8F%E5%8C%96/" rel="tag">形式化</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BD%A2%E5%BC%8F%E5%8C%96%E9%AA%8C%E8%AF%81/" rel="tag">形式化验证</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%EF%BC%8C%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" rel="tag">操作系统，环境配置</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E7%BB%84/" rel="tag">数组</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%A8%A1%E5%9E%8B%E6%A3%80%E6%B5%8B/" rel="tag">模型检测</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" rel="tag">源码阅读</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%9F%A9%E9%98%B5/" rel="tag">矩阵</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A0%94%E7%A9%B6%E6%96%B9%E5%90%91/" rel="tag">研究方向</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A7%91%E7%A0%94%E5%91%A8%E8%AE%B0/" rel="tag">科研周记</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95%E9%A2%98/" rel="tag">算法题</a><span class="tag-list-count">43</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag">计算机网络</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/" rel="tag">论文阅读</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB%EF%BC%8CROS2/" rel="tag">论文阅读，ROS2</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag">读书笔记</a><span class="tag-list-count">11</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%B4%AA%E5%BF%83/" rel="tag">贪心</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-link"></i> 友情链接</h3>
+    <div class="widget">
+      <ul>
+      
+        <li>
+          <a target="_blank" rel="noopener" href="https://www.guanyuqian.com/">G-Blog（关师兄的博客）</a>
+        </li>
+      
+        <li>
+          <a target="_blank" rel="noopener" href="https://imvector.github.io/">峰哥的博客</a>
+        </li>
+      
+        <li>
+          <a target="_blank" rel="noopener" href="https://amyzhoucc.github.io/">豆豆龙（zcc师姐的博客）</a>
+        </li>
+      
+        <li>
+          <a target="_blank" rel="noopener" href="https://mchen0607.github.io/">闽哥的博客</a>
+        </li>
+      
+      </ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+        
+      </div>
+      <a id="totop" href="#top"></a>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      <p>
+        <a href="/sitemap.xml">网站地图</a>
+        <span> | </span><a href="/about/">联系博主</a>
+      </p>
+      
+        <p>
+          <i class="fa fa-visitors"></i>
+          <i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>
+          ，
+          <i class="fa fa-views"></i>
+          <i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>
+        </p>
+      
+      <p>
+        <span>Copyright &copy; 2022 Eric Wang.</span>
+        <span>Theme by <a href="https://github.com/chaooo/hexo-theme-BlueLake/" target="_blank">BlueLake.</a></span>
+        
+            <span>Count by <a href="http://busuanzi.ibruce.info/" target="_blank">busuanzi.</a></span>
+        
+        <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo.</a></span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+<script src="/js/search.json.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+  
+<script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+  
+<script src="/localshare/js/social-share.js"></script>
+
+  
+<script src="/localshare/js/qrcode.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <script>
+    window._config = { showScore: true };
+    (function(){
+      var appid = 'cyvoLETLk';
+      var conf = '9be4582e027b7ddeb93c7cb6571009a5';
+      var width = window.innerWidth || document.documentElement.clientWidth;
+      var nodes =document.getElementsByTagName("head")[0]||document.head||document.documentElement;
+      if (/(Android|iPhone|iPad|iPod|iOS)/i.test(navigator.userAgent) && width < 750) {
+          window.document.write('<script id="changyan_mobile_js" charset="utf-8" type="text/javascript" src="https://changyan.sohu.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf + '"><\/script>');
+      }
+      else {
+        var loadJs=function(d,a){
+          var b=document.createElement("script");b.setAttribute("type","text/javascript");
+          b.setAttribute("charset","UTF-8");
+          b.setAttribute("src",d);
+          if(typeof a==="function"){if(window.attachEvent){b.onreadystatechange=function(){var e=b.readyState;if(e==="loaded"||e==="complete"){b.onreadystatechange=null;a()}}}else{b.onload=a}}
+          nodes.appendChild(b)
+        };
+        loadJs("https://changyan.sohu.com/upload/changyan.js",function(){window.changyan.api.config({appid:appid,conf:conf})});
+      }
+      var loadCss = function(cssString){
+        var style=document.createElement("style");
+        style.setAttribute("type", "text/css");
+        if(style.styleSheet){// IE
+            style.styleSheet.cssText = cssString;
+        } else {// w3c
+            var cssText = document.createTextNode(cssString);
+            style.appendChild(cssText);
+        }
+        nodes.appendChild(style);
+      }
+    })();
+    function removeElement(_element){
+         var _parentElement = _element.parentNode;
+         if(_parentElement){
+                _parentElement.removeChild(_element);
+         }
+    }
+    var removeAD = document.createElement("div");
+    removeAD.id = 'removeAD';
+    var adInterval1 = setInterval(function() {
+      if(document.querySelector("#feedAv")){
+        document.querySelector("[node-type=cmt-list]").appendChild(removeAD);
+        document.querySelector("#removeAD").appendChild(document.querySelector("#feedAv"));
+        //- removeElement(document.querySelectorAll("#feedAv")[0]);
+        var feedAv = document.querySelector("#feedAv").children;
+        for( item of feedAv){
+          item.style.display = 'none'
+        }
+        document.querySelector("#removeAD").style.display="none"
+        clearInterval(adInterval1);
+      }
+    },1000);
+    var adInterval2 = setInterval(function() {
+      if(document.querySelector("#pop_ad")){
+        removeElement(document.querySelector("#pop_ad"));
+        clearInterval(adInterval2);
+      }
+    }, 1000);
+  </script>
+  
+<script src="https://assets.changyan.sohu.com/upload/plugins/plugins.count.js"></script>
+
+
+
+
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+  <script src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML" async type="text/javascript"></script>
+
+  </div>
+</body>
+</html>

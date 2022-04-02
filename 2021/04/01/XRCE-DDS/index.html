@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>DDS-XRCE协议阅读翻译 | 妄越</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+    <meta name="description" content="学海无涯，记在路上">
+  
+  
+    <meta name="keywords" content="技术博客">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="妄越" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/logo.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+    
+<link rel="stylesheet" href="/localshare/css/share.css">
+
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">妄越</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">平生蹉跎少年志，雨落樱花又一年</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/."><i class="fa fa-home"></i> 首页</a>
+        
+          <a class="main-nav-link" href="/archives/"><i class="fa fa-archive"></i> 归档</a>
+        
+          <a class="main-nav-link" href="/about/"><i class="fa fa-user"></i> 关于</a>
+        
+      </nav>
+    </div>
+    <div id="search-form">
+      <div id="result-mask" class="hide"></div>
+      <label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label>
+      <div id="result-wrap" class="hide">
+        <div id="search-result"></div>
+      </div>
+      <div class="hide">
+        <template id="search-tpl">
+          <div class="item">
+            <a href="/{path}" title="{title}">
+              <div class="title">{title}</div>
+              <div class="time">{date}</div>
+              <div class="tags">{tags}</div>
+            </a>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-XRCE-DDS" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      DDS-XRCE协议阅读翻译
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-04-01T06:18:00.000Z" itemprop="datePublished">2021年04月01日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/ROS2%E4%B8%8EMicro-ROS/">ROS2与Micro-ROS</a>
+  </div>
+
+      
+        <span class="article-views">
+  <i class="fa fa-views"></i>
+  <i id="busuanzi_container_page_pv">
+      <i id="busuanzi_value_page_pv"></i>
+  </i>
+</span>
+
+      
+      
+<a href="/2021/04/01/XRCE-DDS/#comments" class="article-comment-link">
+  
+    
+    
+    
+    
+    
+      <i id="changyan_count_unit" data-xid="/2021/04/01/XRCE-DDS/"></i>
+    
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>最近在研究Micro-ROS的底层通讯机制的时候，了解到使用的是DDS-XRCE协议，所以转而来研究阅读这个协议的相关内容。这部分国内还没有多少人重视，鲜有人对相关部分进行翻译，所以准备将这个协议进行一下翻译理解。</p>
+<span id="more"></span>
+<h1 id="DDS-XRCE"><a href="#DDS-XRCE" class="headerlink" title="DDS-XRCE"></a>DDS-XRCE</h1><h2 id="1-scope"><a href="#1-scope" class="headerlink" title="1 scope"></a>1 scope</h2><p>XRCE协议是一个用于资源受限低能耗设备（作为客户端）和一个Agent（作为服务端）之间的协议。XRCE协议允许设备通过一个中间服务（XRCE Agent）来和一个DDS网络进行通信并且在一个DDS域中发布、订阅话题。<br>（XRCE协议是一个资源受限设备（client）和一个XRCE Agent（server）之间的客户端-服务器协议。协议允许周期性睡眠唤醒的资源受限设备在有限带宽网络上访问DDS全局数据空间）</p>
+<h2 id="4-术语和定义"><a href="#4-术语和定义" class="headerlink" title="4 术语和定义"></a>4 术语和定义</h2><ul>
+<li><strong>DDS</strong><br>数据分发服务，独立于实现语言</li>
+<li><strong>DDS Domain</strong><br>全局数据空间，是主题和类型定义的逻辑范围，每一个域由唯一的域id标识，域之间相互独立，两个DDS应用只有加入相同域才可以通信</li>
+<li><strong>DDS DomainParticipant</strong><br>应用程序用于加入DDS域的DDS实体.采用工厂模式生成实体，一个实体可以加入一个域。</li>
+<li><strong>DDS Global Data Space</strong><br>由通过DDS进行通信的双方以及他们的可见数据组成</li>
+<li><strong>GUID</strong><br>全局唯一标识</li>
+</ul>
+<h2 id="5-符号解释"><a href="#5-符号解释" class="headerlink" title="5 符号解释"></a>5 符号解释</h2><ul>
+<li>DDS<br>数据分发服务</li>
+<li>IDL<br>接口定义语言</li>
+<li>RTPS<br>实时发布订阅</li>
+<li>XRCE<br>极端受限资源环境</li>
+</ul>
+<h2 id="7-XRCE-Object-Model"><a href="#7-XRCE-Object-Model" class="headerlink" title="7 XRCE Object Model"></a>7 XRCE Object Model</h2><h3 id="7-1-General"><a href="#7-1-General" class="headerlink" title="7.1 General"></a>7.1 General</h3><p>如上文所言，DDS-XRCE协议是一种用于XRCE Client 和 XRCE Agent之间的有线协议。XRCE Agent是一个DDS全局数据空间中的DDS参与者。DDS-XRCE协议允许客户端通过XRCE Agent作为一个代理从而可以在DDS全局数据空间中产生和消费数据。</p>
+<p>为了对XRCE Client和XRCE Agent之间的交互关系进行建模，规范定义了XRCE的UML模型，也就是<strong>DDS-XRCE Object Model</strong>，来定义agent需要实现的对象、接口和操作，同时还定义了Agent和DDS规范中的标准DDS Object Model的操作的关联。</p>
+<p>由于目标环境是资源受限设备，DDS-XRCE Object Model并不完全等同于Standard DDS Object Model。它更关注其使能DDS-XRCE客户端以一种有意义的方式参与DDS数据空间的需求。除了标准DDS对象模型中的公开对象外，<em>DDS-XRCE对象模型还定义了管理断开连接的客户端以及启用访问控制和访问权限所需的新对象</em>。</p>
+<p>为了在资源受限设备上运行，XRCE-DDS Object Model主要是在Standard DDS Object Model上做减法，但是它也增加了一些支持远程客户端的特性，如访问控制模型（access control model）和应用程序管理模型（application management model）</p>
+<p>总之尽管更简单，DDS-XRCE Object Model仍为客户端提供了对DDS全局数据空间完整的访问。任何DDS上的DDS Topic都可以使用任何QoS策略被发布或者订阅。</p>
+<h3 id="7-2-XRCE-Client"><a href="#7-2-XRCE-Client" class="headerlink" title="7.2 XRCE Client"></a>7.2 XRCE Client</h3><p>DDS-XRCE客户端（XRCE客户端）向DDS-XRCE对象模型和façade object公开。</p>
+<p>出于以下三种原因，DDS Objectg Model和它的操作没有直接运用在本协议</p>
+<ol>
+<li>DDS Object Model的设计初衷是和本地编程API一起使用，所以包含了很多具有强类型参数的对象和方法以及通过应用程序向中间件注册的侦听器对象的直接回调接口。这种是不适用于资源受限的低功耗客户端，这些客户端需要的是一个没有回调简单接口，并且希望使用文本方式编码的参数</li>
+<li>==<strong>由于可能会使用低功耗模式和深度睡眠来节省电池或失去无线电连接，因此XRCE客户端连接先天性间断的特性。 DDS-XRCE DDS Object Model必须通过引入“session”来克服间歇性连接，“会话”可以存在于设备重复的睡眠-唤醒周期中。</strong>==</li>
+<li><p>xrce客户端可以在任何地方访问dds服务 所以一个来证明验证每个客户端的应用/主体的<strong>访问控制模块</strong>是很有必要的。这个模型控制主体是否可以访问DDS全局数据空间以及每个主体可以执行哪些操作（可以往哪个topic进行发布订阅）</p>
+<p>XRCE-DDS为4种不同需求的客户端提供支持。</p>
+</li>
+</ol>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>设备</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>简单设备</td>
+<td>简单设备可能不需要与XRCE Agent执行任何发现交互，除了（a）由Agent检测到它们的存在，（b）在DDS数据空间中建立，以及（c）能够使用DDS QoS策略发布已知的DDS主题的数据。这样的客户机不需要DDS的任何QoS配置和动态实体创建功能。</td>
+</tr>
+<tr>
+<td>更有能力的设备</td>
+<td>更有能力的设备可能需要发布和订阅已知的主题；然而，XRCE Client可能不希望数据在任意时间由XRCE Agent推送，例如由于网络限制。因此，将数据从作者“推”给读者的DDS模型可能无法很好地工作。本规范通过允许设备从Agent激活/停用“数据推送”来解决此限制</td>
+</tr>
+<tr>
+<td>进一步的客户端</td>
+<td>高级Client可以选择利用DDS概念并创建自己的XRCEAgent资源，这些资源映射到DDS对象。这些Client还可能希望控制DDS对象的Qos。此规范通过公开一组动态创建/更新/删除代理对象的操作来启用这些类型的Client。Agent/Client的这种处理方式与前两种情况形成对比，在前两种情况下，所有资源都是预先知道的，并且在Agent上预先配置好的</td>
+</tr>
+<tr>
+<td>复杂设备</td>
+<td>最后，复杂Client可能需要了解高级概念，例如序列号（或样本id）、时间戳和DDS源。</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="7-3-XRCE-Agent"><a href="#7-3-XRCE-Agent" class="headerlink" title="7.3 XRCE Agent"></a>7.3 XRCE Agent</h3><p>DDS-XRCE Agent的目的就是建立并维护XRCE Client在DDS数据空间的存在。本规范描述了在对象模型上的一系列操作</p>
+<p>一个重要的性质就是简化了和XRCE Agent的互动。Agent表示了一个描述<em>resources</em>的对象模型。在一个高的层次，资源是可以用名称访问的对象，并且具有属性和行为。资源可以用都知道的名字提前定义，或者被XRCE Client动态创建。这些XRCE Agent中的资源比如XRCE Type、XRCE DataWriter、XRCE DataReader。任何被允许与XRCE Agent通信并具有所需访问权限的XRCE Client都可以按名称引用这些资源进行使用，而不用自己再创建这样一个资源。</p>
+<p><strong>DDS-XRCE Object Model的一个重要特性就是Client能够查询Model的能力，而不是像Standard DDS Object Model中的典型行为，后者可以实时更新、推送修改。那样的模型可能不适用于设备经常性断开的目标环境。==该协议使Client能够负责何时数据接收，并且请求XRCE Agent来返回符和一系列约束的数据。如此，一个XRCE Client就不会在断开期间被一个XRCE Agent唤醒，相反，Client会在唤醒后查询XRCE Agent==</strong></p>
+<p>XRCE  Agent不必暴露任何编程API，它使用DDS-XRCE协议和XRCE Client进行标准交互，同时使用DDS-RTPS协议和其他DDS域进行交互。</p>
+<h3 id="7-4-Model-Overview"><a href="#7-4-Model-Overview" class="headerlink" title="7.4 Model Overview"></a>7.4 Model Overview</h3><p>从一个比较高的层面来看，DDS-XRCE Object Model包括五个类：<strong>Root</strong>单例、<strong>ProxyClient</strong>、<strong>Application</strong>、<strong>AccessController</strong>和<strong>DomainParticipant</strong></p>
+<p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20211101160913220.png" alt="image-20211101160913220"></p>
+<h4 id="Root"><a href="#Root" class="headerlink" title="Root"></a>Root</h4><p>Root单例是服务的入口点。它用作由XRCE Agent管理的所有对象的工厂</p>
+<h4 id="ProxyClient"><a href="#ProxyClient" class="headerlink" title="ProxyClient"></a>ProxyClient</h4><p>ProxyClient类对使用XRCE协议与XRCE Agent进行交互的XRCE Client应用程序进行建模。 每个Application对象都与单个XRCE ProxyClient关联，并从分配给XRCE Client的访问权限中获取其访问权限。</p>
+<h4 id="Application"><a href="#Application" class="headerlink" title="Application"></a>Application</h4><p>Application类对与XRCE客户端连接，并管理在一个或多个DDS域上发布和订阅数据所需的DDS对象进行管理的软件应用程序进行建模。 XRCE应用程序可以与零个或多个DomainParticipant对象相关联</p>
+<h4 id="AccessController"><a href="#AccessController" class="headerlink" title="AccessController"></a>AccessController</h4><p>AccessController负责做出有关允许特定XRCE ProxyClient执行的资源和操作的决策。 它包含将客户端与特权相关联的规则，这些规则确定代表客户端执行的应用程序可以加入哪个DDS域，该应用程序可以读取和写入的DDS主题，等等。</p>
+<h4 id="DomainParticipant"><a href="#DomainParticipant" class="headerlink" title="DomainParticipant"></a>DomainParticipant</h4><p>DDS-XRCE DomainParticipant是DDS DomainParticipant的代理，对与DDS域的关联以及应用程序在该域上发布和订阅主题的能力进行建模。</p>
+<h3 id="7-5-XRCE-DDS-Proxy-Objects"><a href="#7-5-XRCE-DDS-Proxy-Objects" class="headerlink" title="7.5 XRCE DDS Proxy Objects"></a>7.5 XRCE DDS Proxy Objects</h3><p>几个DDS-XRCE对象充当相应DDS对象的代理。委派实际的DDS行为和DDS-RTPS协议实现给DDS对象的代理，从而允许Client的应用程序以一级用户的身份参与DDS网络。</p>
+<p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20211101160940205.png" alt="image-20211101160940205"></p>
+<h3 id="7-6-XRCE-Object-Identification"><a href="#7-6-XRCE-Object-Identification" class="headerlink" title="7.6 XRCE Object Identification"></a>7.6 XRCE Object Identification</h3><p>代表特定XRCE客户端的XRCE代理管理的每个XRCE对象都通过ObjectId进行标识，也就是说，ObjectId和ClientKey的范围应该是统一的，在代理中。特定对象的ObjectId值应在XRCE代理上配置或者由XRCE客户端在创建代理时确定。</p>
+<p>两个ObjectId被保留了，分别是无效的对象（OBJECTID_INVALID），值为{0x00,0x00}，以及XRCE ProxyClient对象（OBJECTID_CLIENT），值为{0xFF,0xFF}。</p>
+<p>对象也可以被字符串resourceName所标识，这个名称的格式由资源决定，并且提供了一种使用配置文件或其他在代理上配置资源的方式。</p>
+<h3 id="7-7-对XRCE-Object上的操作进行建模所用到的数据类型"><a href="#7-7-对XRCE-Object上的操作进行建模所用到的数据类型" class="headerlink" title="7.7 对XRCE Object上的操作进行建模所用到的数据类型"></a>7.7 对XRCE Object上的操作进行建模所用到的数据类型</h3><p>XRCE object上的操作接收参数，这些参数的格式由一套IDL数据类型进行描述。这些IDL描述不仅在XRCE Object操作的描述上被使用，也同样用来定义clilent和agent之间信息交换的有线表示。</p>
+<p>数据类型的IDL定义在Annex A IDL Types中明确。当把这些类型序列化为二进制表示时，编码应该遵循在《DDS-XTYPES》中的规则</p>
+<h4 id="7-7-1-Data-and-Samples"><a href="#7-7-1-Data-and-Samples" class="headerlink" title="7.7.1 Data and Samples"></a>7.7.1 Data and Samples</h4><p>当XRCE Agent发送数据给XRCE Client时，他会使用1-5种可能的格式，这些格式根据是否数据仅仅自己单独发送还是伴随着元数据如时间戳、序列号等等发送而有所不同。</p>
+<p>当然这些可以合并为一个形如联合（union）类型，但这样做会给序列化带来更大的开销，在带宽受限的环境下，这种开销是不希望有的。</p>
+<p>5种可能的描述为：SampleData, Sample, SampleDataSeq, SampleSeq和SamplePackedData 。它们分别是变量FORMAT_DATA,<br>FORMAT_DATA_SEQ, FORMAT_SAMPLE, FORMAT_SAMPLE_SEQ和FORMAT_PACKED的格式。</p>
+<p>所有这些表示形式都使用[DDS-XTYPES]中定义的XCDR表示形式对数据进行序列化。 例如，SampleData的定义由IDL给出：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@extensibility(FINAL)</span><br><span class="line">    struct SampleData &#123;</span><br><span class="line">    XCDRSerializedBuffer serialized_data;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>在这个结构中，<code>XCDRSerializedBuffer</code>结构表示了通过序列化使用DDS-XTYPES条款7.4中定义的XCDR版本2规则发送的特定于应用程序的数据类型而得到的字节。</p>
+<p>其他的格式可能包含有其他信息，但是他们都依赖于SampleData来保存序列化特定于应用程序的数据。比如数据格式FORMAT_SAMPLE使用了Sample的定义如下所示：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">@bit_bound(8)</span><br><span class="line">bitmask SampleInfoFlags &#123;	</span><br><span class="line">    @position(0) INSTANCE_STATE_UNREGISTERED,	// </span><br><span class="line">    @position(1) INSTANCE_STATE_DISPOSED,		// </span><br><span class="line">    @position(2) VIEW_STATE_NEW,				// </span><br><span class="line">    @position(3) SAMPLE_STATE_READ,				//</span><br><span class="line">&#125;; </span><br><span class="line">@extensibility(FINAL)</span><br><span class="line">struct SampleInfo &#123;</span><br><span class="line">    SampleInfoFlags state; //结合了SampleState, InstanceState, ViewState</span><br><span class="line">    unsigned long sequence_number;</span><br><span class="line">    unsigned long session_time_offset; // 上限到53天的毫秒计时</span><br><span class="line">&#125;;</span><br><span class="line">@extensibility(FINAL)</span><br><span class="line">struct Sample &#123;</span><br><span class="line">    SampleInfo info;</span><br><span class="line">    SampleData data;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>包含示例信息的最紧凑的DataFormat是FORMAT_PACKED。 此格式使用以下定义的IDL类型PackedSamples：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">typedef unsigned short DeciSecond; // 1/10 秒</span><br><span class="line">@extensibility(FINAL)</span><br><span class="line">struct SampleInfoDelta &#123;</span><br><span class="line">    SampleInfoFlags state; // 结合了 SampleState, InstanceState, ViewState</span><br><span class="line">    octet seq_number_delta;</span><br><span class="line">    DeciSecond timestamp_delta; // 1/10秒为单位</span><br><span class="line">&#125;;</span><br><span class="line">@extensibility(FINAL)</span><br><span class="line">struct SampleDelta &#123;</span><br><span class="line">    SampleInfoDelta info_delta;</span><br><span class="line">    SampleData data;</span><br><span class="line">&#125;;</span><br><span class="line">@extensibility(FINAL)</span><br><span class="line">struct PackedSamples &#123;</span><br><span class="line">    SampleInfo info_base;</span><br><span class="line">    sequence&lt;SampleDelta&gt; sample_delta_seq;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h4 id="7-7-2-DataRepresentation"><a href="#7-7-2-DataRepresentation" class="headerlink" title="7.7.2 DataRepresentation"></a>7.7.2 DataRepresentation</h4><p>DataRepresentation类型用于保存data samples的值以及附加sample信息，例如序列号或时间戳。 XRCE ProxyClient的write操作使用它。</p>
+<p>DataRepresentation定义为由DataFormat区分的联合。 根据区分符，它选择第7.7.1节中定义的格式之一。</p>
+<p>下表1中介绍了DataFormat的可能值和所得表示形式</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>DataFormat</th>
+<th>选择的DataRepresentatoin</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FORMAT_DATA</td>
+<td>包含单个sample的信息，没有附加sample信息</td>
+</tr>
+<tr>
+<td>FORMAT_DATA_SEQ</td>
+<td>包含一系列data sample。 每个data sample仅包含data，而没有附加sample信息</td>
+</tr>
+<tr>
+<td>FORMAT_SAMPLE</td>
+<td>包含单个sample的信息，也包含附加sample的信息（SampleInfo）。SampleInfo包含相应DDS Sample的DDS InstanceState，SampleState和ViewState。 它还包含样本序列号和时间戳。 <strong>时间戳表示为相对于创建会话时建立的会话时间戳的偏移量</strong>。 会话时间戳对应于CLIENT_Representation中的client_timestamp属性；</td>
+</tr>
+<tr>
+<td>FORMAT_SAMPLE_SEQ</td>
+<td>包含一系列的samples，每个data sample包含了data和附加的sample信息</td>
+</tr>
+<tr>
+<td>FORMAT_PACKED</td>
+<td>包含一系列样本，每个样本同时包含数据和其他样本信息，但使用的样本比SampleSeq更为紧凑。<br />此表示仅限于序列号（相距不超过256个）和时间戳（100分钟）接近的样本。 它还使用较低分辨率（1/10秒）的时间戳。<br />PackedSamples类型包含一个公共的SampleInfo（info_base）和一个SampleDelta序列。 每个SampleDelta包含一个SampleData以及一个关联的SampleInfoDelta（info_delta）<br />每个样本的SampleInfo应通过将公共info_base与对应于该sample的info_delta相结合来计算。 所得的SampleInfo（resulting_info）定义为：<br />$resulting_info.state := info_delta.state<script type="math/tex">resulting\_info.sequence\_number := info\_base.sequence\_number + info\_delta.seq\_number\_delta</script>resulting_info.session_time_offset := info_base.session_time_offset + info_delta.timestamp_delta$</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>DataRepresentation类型被定义为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">@extensibility(FINAL)</span><br><span class="line">union DataRepresentation switch(DataFormat) &#123;</span><br><span class="line">    case FORMAT_DATA:</span><br><span class="line">    	SampleData data;</span><br><span class="line">    case FORMAT_SAMPLE:</span><br><span class="line">    	Sample sample;</span><br><span class="line">    case FORMAT_DATA_SEQ:</span><br><span class="line">    	SampleDataSeq data_seq;</span><br><span class="line">    case FORMAT_SAMPLE_SEQ:</span><br><span class="line">    	SampleSeq sample_seq;</span><br><span class="line">    case FORMAT_PACKED_SAMPLES:</span><br><span class="line">    	PackedSamples packed_samples;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>@@@</p>
+<h4 id="7-7-4-ObjectId"><a href="#7-7-4-ObjectId" class="headerlink" title="7.7.4 ObjectId"></a>7.7.4 ObjectId</h4><p>XRCE ObjectId用于保存XRCE对象的唯一标识。 每个ObjectId的作用域都是XRCE客户端和代理对。 因此，由代理管理的ObjectId值仅对于每个XRCE客户端都是唯一的。 XRCE客户端通常连接到单个XRCE代理。 在这种情况下，<strong>XRCE客户端</strong>可以将ObjectId视为全局唯一。</p>
+<p>ObjectId在A IDL类型中定义为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">typedef  octet ObjectId [2];</span><br></pre></td></tr></table></figure>
+<h4 id="7-7-5-ObjectKind"><a href="#7-7-5-ObjectKind" class="headerlink" title="7.7.5 ObjectKind"></a>7.7.5 ObjectKind</h4><p>XRCE ObjectKind用于枚举和标识XRCE Object的类型。 XRCE对象分为14种。 可能的种类在A IDL类型中定义为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">typedef octet ObjectKind;</span><br><span class="line"></span><br><span class="line">const ObjectKind OBJK_INVALID = 0x00;</span><br><span class="line">const ObjectKind OBJK_PARTICIPANT = 0x01;</span><br><span class="line">const ObjectKind OBJK_TOPIC = 0x02;</span><br><span class="line">const ObjectKind OBJK_PUBLISHER = 0x03;</span><br><span class="line">const ObjectKind OBJK_SUBSCRIBER = 0x04;</span><br><span class="line">const ObjectKind OBJK_DATAWRITER = 0x05;</span><br><span class="line">const ObjectKind OBJK_DATAREADER = 0x06;</span><br><span class="line">const ObjectKind OBJK_TYPE = 0x0A;</span><br><span class="line">const ObjectKind OBJK_QOSPROFILE = 0x0B;</span><br><span class="line">const ObjectKind OBJK_APPLICATION = 0x0C;</span><br><span class="line">const ObjectKind OBJK_AGENT = 0x0D;</span><br><span class="line">const ObjectKind OBJK_CLIENT = 0x0E;</span><br></pre></td></tr></table></figure>
+<h4 id="7-7-6-ObjectIdPrefix"><a href="#7-7-6-ObjectIdPrefix" class="headerlink" title="7.7.6 ObjectIdPrefix"></a>7.7.6 ObjectIdPrefix</h4><p>ObjectIdPrefix用于保存特定ObjectKind的XRCE对象的唯一标识。 对象的ObjectId由来自ObjectIdPrefix的12位和来自ObjectKind的4位组成。</p>
+<p>ObjectIdPrefix在A IDL Types中定义为:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">typedef octet ObjectIdPrefix [2];</span><br></pre></td></tr></table></figure>
+<p>假设XRCE对象具有<strong><em>objectid_prefix，object_kind和object_id</em></strong>，则满足下列关系：</p>
+<script type="math/tex; mode=display">
+object\_id[0] = objectid\_prefix[0]</script><script type="math/tex; mode=display">
+object\_id[1] = (objectid\_prefix[1] \& 0xF0) + object\_kind</script><h4 id="7-7-7-ResultStaus"><a href="#7-7-7-ResultStaus" class="headerlink" title="7.7.7 ResultStaus"></a>7.7.7 ResultStaus</h4><p>ResultStatus用于保存XRCE对象操作的返回值。它包括了包括了表示操作（operations）成功或者失败、以及失败原因的StatusValue。还包括了一个针对不同操作特殊定制的状态，用于返回供应商和一些特殊的定制消息。</p>
+<p>StatusValue和ResultStatus在附录A中定义为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">@bit_bound(8)</span><br><span class="line">enum StatusValue &#123;</span><br><span class="line">    @value(0x00) STATUS_OK,</span><br><span class="line">    @value(0x01) STATUS_OK_MATCHED,</span><br><span class="line">    @value(0x80) STATUS_ERR_DDS_ERROR,</span><br><span class="line">    @value(0x81) STATUS_ERR_MISMATCH,</span><br><span class="line">    @value(0x82) STATUS_ERR_ALREADY_EXISTS,</span><br><span class="line">    @value(0x83) STATUS_ERR_DENIED,</span><br><span class="line">    @value(0x84) STATUS_ERR_UNKNOWN_REFERENCE,</span><br><span class="line">    @value(0x85) STATUS_ERR_INVALID_DATA,</span><br><span class="line">    @value(0x86) STATUS_ERR_INCOMPATIBLE,</span><br><span class="line">    @value(0x87) STATUS_ERR_RESOURCES</span><br><span class="line">&#125;;</span><br><span class="line">struct ResultStatus &#123;</span><br><span class="line">    StatusValue status;</span><br><span class="line">    octet implementation_status;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>特殊定制的StatusValue解释如下：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>StatusValue</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>STATUS_OK</td>
+<td>表示操作的执行成功了</td>
+</tr>
+<tr>
+<td>STATUS_OK_MATCHED</td>
+<td>表示针对一个resource的create或者update操作执行成功了。该resource已经存在于Agent上，并且该resource的状态已经和该操作请求的resource状态匹配。因此没有对资源进行任何实际上的修改。</td>
+</tr>
+<tr>
+<td>STATUS_ERR_DDS_ERROR</td>
+<td>表示操作的执行失败了，是由与该操作相关的DDS资源创建或操作时的错误引起的</td>
+</tr>
+<tr>
+<td>STATUS_ERR_MISMATCH</td>
+<td>表示针对一个resource的create或者update操作执行成功了。该resource已经存在于Agent上，但是该resource的状态和该操作请求的resource状态不匹配。而且无法修改resource的状态。</td>
+</tr>
+<tr>
+<td>STATUS_ERR_ALPEADY_EXISTS</td>
+<td>表示操作的执行失败了，因为这个resource客观上已经存在了</td>
+</tr>
+<tr>
+<td>STATUS_ERR_DENIED</td>
+<td>表示操作的执行失败了，因为没有权限</td>
+</tr>
+<tr>
+<td>STATUS_ERR_UNKNOWN_REFERENCE</td>
+<td>表示操作的执行失败了，因为引用的resource并不为Agent所知。</td>
+</tr>
+<tr>
+<td>STATUS_ERR_INVALID_DATA</td>
+<td>表示操作的执行失败了，因为传入的参数数据不合法</td>
+</tr>
+<tr>
+<td>STATUS_ERR_INCOMPATIBLE</td>
+<td>表示操作的执行失败了，因为Client和Agent不兼容</td>
+</tr>
+<tr>
+<td>STATUS_ERR_RESOURCES</td>
+<td>表示操作的执行失败了，因为Agent上的资源错误</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h4 id="7-7-8-BaseObjectRequest"><a href="#7-7-8-BaseObjectRequest" class="headerlink" title="7.7.8 BaseObjectRequest"></a>7.7.8 BaseObjectRequest</h4><p>BaseObjectRequest用来保存从XRCE Client发送给Agent的request的公共参数。他在附录中被定义为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@extensibility(FINAL)</span><br><span class="line">struct BaseObjectRequest &#123;</span><br><span class="line"> RequestId request_id;</span><br><span class="line"> ObjectId object_id;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>这个类型的成员说明如下：</p>
+<ul>
+<li><strong><em>request_id(RequestId)</em></strong>:用于标识每个请求。用来将回复和请求进行相关联。适用于每对XRCE Client与Agent。注意，只要Client和Agent知道具有该值的历史请求不再活跃时，才可以为将来的请求重用request_id的值。</li>
+<li><strong><em>object_id(ObjectId)</em></strong>:这就是request的目标。对于创建对象的request来说，<strong><em>object_id</em></strong>给创建的object传达了ObjectIdPrefix信息</li>
+</ul>
+<h4 id="7-7-9-BaseObjectReply"><a href="#7-7-9-BaseObjectReply" class="headerlink" title="7.7.9 BaseObjectReply"></a>7.7.9 BaseObjectReply</h4><p>BaseObjectReply类型用来保存从XRCE Agent返回给Client的reply的公共参数。它在附录中被定义为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">struct ResultStatus &#123;</span><br><span class="line">	StatusValue status;</span><br><span class="line">	octet implementation_status;</span><br><span class="line">&#125;;</span><br><span class="line">@extensibility(FINAL)</span><br><span class="line">struct BaseObjectReply &#123;</span><br><span class="line"> 	BaseObjectRequest related_request;</span><br><span class="line"> 	ResultStatus result;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>类型的成员说明如下：</p>
+<ul>
+<li><strong><em>related_request</em></strong>包含了发送这次reply所响应的request的<strong><em>request_id</em></strong>和<strong><em>object_id</em></strong>，<ul>
+<li><strong><em>request_id</em></strong>（RequestId）用于标识request。它用来表述request和reply的联系</li>
+<li><strong><em>object_id</em></strong>（ObjectId）是request的目标，对于创建objects的requests来说，<strong><em>object_id</em></strong>将创建的对象所需要的objectId进行传递，在这种情况下，</li>
+</ul>
+</li>
+<li><strong>implementation_status</strong>（8位字节）提供特定于实现（特定于供应商）的返回状态。 该值由代理的 XrceVendorId 限定。 它只能由理解返回它的代理的 XrceVendorId 的实现状态值的客户端解释。</li>
+</ul>
+<h3 id="7-8-XRCE-对象操作"><a href="#7-8-XRCE-对象操作" class="headerlink" title="7.8 XRCE 对象操作"></a>7.8 XRCE 对象操作</h3><h4 id="7-8-1-ClientKey-的使用"><a href="#7-8-1-ClientKey-的使用" class="headerlink" title="7.8.1 ClientKey 的使用"></a>7.8.1 ClientKey 的使用</h4><p>所有操作都是在 ClientKey 的上下文中执行的，它用于验证和识别Client：</p>
+<ul>
+<li>ClientKey 被分配给每个Client。 ClientKey 向特定Agent唯一标识Client。 ClientKey 与代理内Client的一组权限相关联。</li>
+<li>ClientKey 应被视为机密。 它必须在Client和Agent中进行配置。 创建和配置超出了本规范的范围。</li>
+<li>ClientKey无法被解释</li>
+</ul>
+<p>除了 XRCE Root 上的 create_client 和 get_info 操作之外，所有其他操作都期望 ClientKey 引用一个已经存在的 XRCE ProxyClient。 如果不是这种情况，操作将失败。</p>
+<p>为避免可能危及安全的信息泄漏，在某些情况下，无法找到 ClientKey 可能会导致 returnValue 具有 STATUS_ERR_NOCLIENT，而在其他情况下，它可能会默默地断开与客户端的连接。</p>
+<p>==代理应维护一个计数器，记录在已建立的连接上发送 STATUS_ERR_NOCLIENT 的次数，一旦超过某个阈值，它将关闭连接。 代理随后可能会拒绝或限制源自先前关闭的同一客户端传输端点的新连接。== 此行为的具体细节是特定于实现的，不在本规范的范围内。</p>
+<h4 id="7-8-2-XRCE-Root"><a href="#7-8-2-XRCE-Root" class="headerlink" title="7.8.2 XRCE Root"></a>7.8.2 XRCE Root</h4><p>XRCE Root 对象代表Agent。 XRCE Agent是所有代理都应实例化的单例对象。</p>
+<p>XRCE Root 负责验证客户端应用程序并创建与每个客户端关联的 XRCE ProxyClient 对象。</p>
+<p>XRCE Root 上的逻辑操作如表所示。</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>参数</th>
+<th>调用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>create_client</td>
+<td></td>
+<td>ResultStatus</td>
+</tr>
+<tr>
+<td></td>
+<td>object_representation</td>
+<td>CLIENT_Representation</td>
+</tr>
+<tr>
+<td></td>
+<td>out:agent_info</td>
+<td>AGETN_Representation</td>
+</tr>
+<tr>
+<td>get_info</td>
+<td></td>
+<td>ResultStatus</td>
+</tr>
+<tr>
+<td></td>
+<td>info_mask</td>
+<td>InfoMask</td>
+</tr>
+<tr>
+<td></td>
+<td>client_info</td>
+<td>ObjectInfo</td>
+</tr>
+<tr>
+<td></td>
+<td>out:agent_info</td>
+<td>ObjectInfo</td>
+</tr>
+<tr>
+<td>delete_client</td>
+<td></td>
+<td>ResultStatus</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h5 id="7-8-2-1-create-client"><a href="#7-8-2-1-create-client" class="headerlink" title="7.8.2.1 create_client"></a>7.8.2.1 create_client</h5><p><strong><em>输入</em></strong></p>
+<ul>
+<li><strong><em>client_representation</em></strong>(CLIENT_Representation) : Client的代表</li>
+</ul>
+<p><strong><em>输出</em></strong></p>
+<ul>
+<li><strong><em>returnValue</em></strong>(ResultStatus): 表示操作是否成功以及XRCE ProxyClient对象的当前状态。</li>
+<li><strong><em>agent_info</em></strong>(AGENT_Representation)：Agent的代表</li>
+</ul>
+<p><strong><em>client_representation</em></strong> 应包含用于初始化 XRCE ProxyClient 的 CLIENT_Representation。 该类型在附件 A，IDL 类型中定义为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">@extensibility(FINAL)</span><br><span class="line">struct CLIENT_Representation &#123;</span><br><span class="line">     XrceCookie xrce_cookie; // XRCE_COOKIE</span><br><span class="line">     XrceVersion xrce_version;</span><br><span class="line">     XrceVendorId xrce_vendor_id;</span><br><span class="line">     Time_t client_timestamp;</span><br><span class="line">     ClientKey client_key;</span><br><span class="line">     SessionId session_id;</span><br><span class="line">     @optional PropertySeq properties;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><strong><em>agent_representation</em></strong> 应包含一个 AGENT_Representation，它通知客户端有关代理的配置。 该类型在附件 A，IDL 类型中定义为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">@extensibility(FINAL)</span><br><span class="line">struct AGENT_Representation &#123;</span><br><span class="line">     XrceCookie xrce_cookie; // XRCE_COOKIE</span><br><span class="line">     XrceVersion xrce_version;</span><br><span class="line">     XrceVendorId xrce_vendor_id;</span><br><span class="line">     Time_t agent_timestamp;</span><br><span class="line">     @optional PropertySeq properties;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>XRCE Agent应根据在 <strong><em>client_representation</em></strong> 中找到的信息执行以下检查和操作：</p>
+<ul>
+<li>检查<strong><em>xrce_cookie</em></strong> 以确保它匹配预定义的XRCE_COOKIE 常量。如果它不匹配，则创建将失败并将返回值 StatusValue 设置为 STATUS_ERR_INVALID_DATA。</li>
+<li>检查主要版本 (<strong><em>xrce_version[0]</em></strong>) 是否与 XRCE_VERSION_MAJOR 匹配。如果不匹配，则创建将失败并将返回值 StatusValue 设置为 STATUS_ERR_INCOMPATIBLE。</li>
+<li>检查由<strong><em>client_key</em></strong> 标识的客户端是否有权连接到XRCE Agent。如果此检查失败，操作将失败并将 returnValue StatusValue 设置为 STATUS_ERR_DENIED。</li>
+<li>检查Client<strong><em>属性</em></strong>（如果存在）。这些可能包含特定于供应商的信息，这些信息可能会阻止代理接受来自Client的连接。<strong><em>属性</em></strong>字段可能包括额外的身份验证令牌（例如用户名和密码）或其他配置信息。如果此检查失败，操作将失败并将 returnValue StatusValue 设置为适当的值。</li>
+<li>检查是否存在与相同 <strong><em>client_key</em></strong> 关联的现有 XRCE ProxyClient 对象，如果是，则将现有 ProxyClient 的 session_id 与 <strong><em>client_representation</em></strong> 中的进行比较：<ul>
+<li>如果 ProxyClient 存在且具有相同的 session_id，则操作不应执行任何操作，并将返回值 StatusValue 设置为 STATUS_OK。</li>
+<li>如果 ProxyClient 存在且具有不同的 session_id，则操作应删除现有的 XRCE ProxyClient 对象，随后采取与没有与 client_key 关联的 ProxyClient 相同的操作。</li>
+</ul>
+</li>
+<li>检查是否有足够的内部资源来完成创建操作。 如果没有，则操作将失败并将返回值 StatusValue 设置为 STATUS_ERR_RESOURCES。</li>
+</ul>
+<p>XRCE Client和 XRCE Agent之间的通信状态由关联的 ProxyClient 管理。 因此，删除现有的 ProxyClient 会重置Client和Agent之间的任何先前通信状态。 任何缓存未决确认的消息都将被丢弃。</p>
+<p>如果Agent创建了一个ProxyClient，它应该：</p>
+<ul>
+<li>初始化它的状态来拥有特定的 <strong><em>session_id</em></strong></li>
+<li>使用序号0初始化内置流</li>
+<li>设置 <strong><em>returnValue</em></strong> <strong><em>StatusValue</em></strong>为 STATUS_OK</li>
+<li>使用agent_info返回XRCE Agent的表示</li>
+</ul>
+<p>Agent和Client可以使用 <strong><em>client_timestamp</em></strong>和 <strong><em>agent_timestamp</em></strong>来检测 XRCE Client和 XRCE Agent之间的时间同步差异。此信息的使用不在本规范的范围内。</p>
+<p>Agent和Client可以使用 XrceVersion 和 XrceVendorId 来进一步配置他们的协议</p>
+<h5 id="7-8-2-2-get-info"><a href="#7-8-2-2-get-info" class="headerlink" title="7.8.2.2 get_info"></a>7.8.2.2 get_info</h5><p><strong>输入：</strong></p>
+<ul>
+<li><strong><em>info_mask</em></strong>(InfoMask):选择需要返回的信息类别</li>
+<li><strong><em>client_info</em></strong>(ObjectInfo)：Client的代表</li>
+</ul>
+<p><strong>输出</strong>：</p>
+<ul>
+<li><strong><em>returnValue</em></strong>(ResultStatus)：表示操作是否成功，以及XRCE ProxyClient的当前状态</li>
+<li><strong><em>agent_info</em></strong>(ObjectInfo)：Agent的代表</li>
+</ul>
+<p>其中 <strong><em>client_info</em></strong>和 <strong><em>agent_info</em></strong>使用的类型 ObjectInfo定义如下所示：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@extensibility(FINAL)</span><br><span class="line">struct ObjectInfo &#123;</span><br><span class="line">     @optional ActivityInfoVariant activity;</span><br><span class="line">     @optional ObjectVariant config;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>操作 <strong>get_info</strong> 返回有关 XRCE  Agent的信息，并且可以在与 XRCE Agent建立Session之前使用，即在 XRCE Root上调用操作 create_client 之前。</p>
+<p>操作 <strong>get_info</strong> 可用于不同的传输或连接，允许Client搜索和发现 XRCE Agent对象的存在，并选择一个（或多个）具有合适配置和可用性的对象。</p>
+<p><strong><em>client_info</em></strong> 中的 ObjectVariant 成员应包含 CLIENT_Representation，它提供有关发出请求的 XRCE  Client的信息。</p>
+<p>CLIENT_Representation 的<strong><em>client_key</em></strong> 字段应设置为值CLIENTKEY_INVALID（见附件A，IDL 类型），以免不必要地公开ClientKey。</p>
+<p><strong><em>agent_info</em></strong> 中的 ObjectVariant 成员应包含 AGENT_ActivityInfo，其中包含有关 XRCE Agent的活动信息。 </p>
+<p><strong><em>agent_info</em></strong> 中的 ActivityInfoVariant 成员应包含 AGENT_Representation，其中包含有关 XRCE Agent的信息。 </p>
+<p>ActivityInfoVariant 成员 <strong><em>address_seq</em></strong> 将用于通知 XRCE Client可以到达的传输地址并可以接收对 create_client 的调用。</p>
+<p>在 CLIENT_Representation 和 AGENT_Representation 中都可用的 <strong><em>PropertySeq</em></strong> 类型的属性字段可用于实现 XRCE Agent的身份验证协议。 具体机制超出了本规范的范围。</p>
+<h5 id="7-8-2-3-delete-client"><a href="#7-8-2-3-delete-client" class="headerlink" title="7.8.2.3 delete_client"></a>7.8.2.3 delete_client</h5><p><strong>输出</strong></p>
+<ul>
+<li><strong><em>returnValue</em></strong>（ResultStatus）： 表示操作是否成功以及对象的当前状态</li>
+</ul>
+<p>XRCE Agent会检查ClientKey来定位是否存在XRCE::ProxyClient。 如果对象并没有找到，操作就会失败，并且 <strong><em>returnValue</em></strong>状态值会被设置为STATUS_ERR_UNKNOWN_REFERENCE。如果找到了对象，对象会被删除，<strong><em>returnValue</em></strong>的状态值会被设置为STATUS_OK。</p>
+<h4 id="7-8-5-XRCE-DataReader"><a href="#7-8-5-XRCE-DataReader" class="headerlink" title="7.8.5 XRCE DataReader"></a>7.8.5 XRCE DataReader</h4><p>操作如下表定义</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>参数</th>
+<th>调用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>read</td>
+<td></td>
+<td>ResultStatus</td>
+</tr>
+<tr>
+<td></td>
+<td>out:read_data</td>
+<td>DataRepresentation</td>
+</tr>
+<tr>
+<td></td>
+<td>object_id</td>
+<td>ObjectId</td>
+</tr>
+<tr>
+<td></td>
+<td>read_specification</td>
+<td>ReadSpecification</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h4 id="7-8-5-1-read"><a href="#7-8-5-1-read" class="headerlink" title="7.8.5.1 read"></a>7.8.5.1 read</h4><p><strong>输入：</strong></p>
+<ul>
+<li><strong><em>object_id</em></strong>(ObjectId)：读取数据的来源对象</li>
+<li><strong><em>read_specification</em></strong>(ReadSpecification): 对返回数据进行的约束，只有匹配了约束的数据才会被操作返回。</li>
+</ul>
+<p><strong>输出：</strong></p>
+<ul>
+<li><strong><em>returnValue</em></strong>(ResultStatus)：表示操作是否成功</li>
+<li><strong><em>read_data</em></strong>(DataRepresentation): 数据满足了 <strong><em>read_spec</em></strong>，或者存在错误</li>
+</ul>
+<p>此操作从 <strong><em>object_id</em></strong> 标识的 XRCE DataReader 中读取一个或多个样本。如果成功读取数据，则应返回 STATUS_OK。</p>
+<ul>
+<li>如果对象不存在，则返回 STATUS_ERR_UNKNOWN_REFERENCE</li>
+<li>如果客户端因为权限约束不被允许使用引用的 <strong><em>object_id</em></strong>来读取数据，则返回STATUS_ERR_DENIED。</li>
+</ul>
+<p><strong><em>read_spec</em></strong>变量控制着由这个操作返回的数据。它的结构如下表所述</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>preferred_stream_id</td>
+<td>octet（8位字节）</td>
+<td>指定Agent 将样本发送到Client使用的StreamId。<br/>特殊值 STREAMID_NONE 表示 Agent 可以不受约束地选择 StreamId。<br/>如果代理确定使用 preferred_stream_id 会导致其资源管理出现问题，则允许代理使用与 preferred_stream_id 不同的 StreamId。</td>
+</tr>
+<tr>
+<td>data_format</td>
+<td>DataFormat</td>
+<td>选择一种数据格式</td>
+</tr>
+<tr>
+<td>content_filter_expression</td>
+<td>string</td>
+<td>选择要读取的数据的内容过滤器表达式。</td>
+</tr>
+<tr>
+<td>max_samples (DataDeliveryControl)</td>
+<td>unsigned short</td>
+<td>作为读取结果返回的最大样本数。<br/>特殊值 MAX_SAMPLES_ZERO =0 用于取消任何可能仍处于活动状态的先前读取操作。<br/>特殊值 MAX_SAMPLES_UNLIMITED =0xffff 用于表示对返回的样本数量有限制。</td>
+</tr>
+<tr>
+<td>max_elapsed_time (DataDeliveryControl)</td>
+<td>unsigned short</td>
+<td>从读取操作中传送样本可能花费的最长时间（以秒为单位）。<br/>单位是从发出呼叫时间算起的秒数。<br/>特殊值 MAX_ELAPSED_TIME_UNLIMITED = 0 表示没有最大值，操作将继续，直到满足某些其他条件或操作被明确取消。</td>
+</tr>
+<tr>
+<td>max_bytes_per_sec (DataDeliveryControl)</td>
+<td>unsigned short</td>
+<td>数据可以返回到读取操作的最大速率（以每秒字节数为单位）。</td>
+</tr>
+<tr>
+<td>min_pace_period (DataDeliveryControl)</td>
+<td>unsigned short</td>
+<td>从读取操作返回的数据消息之间的最小间隔（以毫秒为单位）。</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong><em>data_format</em></strong> 的设置控制读取操作是返回每个消息的单个样本还是样本集合。它还确定数据是否包含出现在 SampleInfo 中的附加信息（参见附录 A IDL 类型）。附加信息包含序列号和时间戳。</p>
+<p><strong><em>content_filter_expression</em></strong> 的设置配置应用于 DataReader 缓存中的样本的内容过滤器。只有过滤器评估为 TRUE 的样本才应返回给 XRCE Client。</p>
+<p><strong><em>max_samples</em></strong> 的设置将读取操作配置为在返回指定数量的样本后终止。值 MAX_SAMPLES_ZERO 可用于取消当前活动的读取操作，而无需发送更多样本。值 MAX_SAMPLES_UNLIMITED 表示对返回的样本数量没有限制。</p>
+<p><strong><em>max_elapsed_time</em></strong> 的设置将读取操作配置为在从进行读取操作的那一刻起经过指定的时间后终止。值 MAX_ELAPSED_TIME_UNLIMITED 表示没有基于经过时间的终止条件。</p>
+<p><strong><em>max_bytes_per_sec</em></strong> 的设置配置可以返回样本的每秒字节数的最大速率。</p>
+<p><strong><em>min_pace_period</em></strong> 的设置配置了从代理发送到客户端的示例消息之间的最小间隔（以毫秒为单位）。这段时间使客户端可以在消息之间进入睡眠周期。</p>
+<h2 id="8-XRCE-Protocol"><a href="#8-XRCE-Protocol" class="headerlink" title="8 XRCE Protocol"></a>8 XRCE Protocol</h2><h3 id="8-1-General"><a href="#8-1-General" class="headerlink" title="8.1 General"></a>8.1 General</h3><p>DDS-XRCE消息协议专门设计用于解决许多类型低功耗设备中的有限CPU、电源和网络带宽，并使该设备能够在较大的DDS网络中被发现。<br>该协议有以下特点：</p>
+<ul>
+<li>在带宽限制为40-100Kbps的网络上运行。</li>
+<li>==使用拥有睡眠周期的设备。这些设备可能每隔几分钟、几天、几个月甚至几年激活一次。==</li>
+<li>简单且独立于编程语言，支持用高度专业化的语言或框架编程的设备。</li>
+<li><strong>支持最小发现协议，允许在动态发现代理位置的进行即插即用部署</strong>。</li>
+<li><strong>支持访问DDS的全部功能。任何数据类型都可以使用任何DDS QoS进行发布或订阅</strong>。</li>
+<li><strong>支持在同一个或多个DDS主题上高效地多次发送数据更新</strong>。</li>
+<li><strong>==支持以可靠和尽力而为的方式接收信息，即使信息是在客户端处于睡眠周期时发送的==</strong>。</li>
+<li>支持传输级别的安全通信。</li>
+<li><strong>==提供对DDS全局数据空间中任何数据的完全读/写访问（受访问控制模块限制）。==</strong></li>
+<li>提供需要少于100KB代码的完整实现。</li>
+</ul>
+<h3 id="8-2-定义"><a href="#8-2-定义" class="headerlink" title="8.2 定义"></a>8.2 定义</h3><p>DDS-XRCE协议定义并使用了<strong>client、agent、session、stream和message</strong>这些术语。在上层来说，一个client使用DDS-XRCE协议和一个agent交流，是在一个session上的一个stream上进行交换message。</p>
+<h4 id="8-2-1-Message"><a href="#8-2-1-Message" class="headerlink" title="8.2.1 Message"></a>8.2.1 Message</h4><p>Message是通过传输发送的信息单元，是在DDS-XRCE传输上发送的结构化字节序列。message具有一个序列号，用于对message进行排序，或标识已被传输丢弃的消息。<br>底层XRCE传输应将每条Message作为一个单元进行传输。单个XRCE传输“消息”应传输单个XRCEmessage。<br>假设第一个字节具有16字节对齐，则应对XRCE消息进行编码。 因此，编码独立于它前面的任何传输标题或前缀。</p>
+<h4 id="8-2-2-Session"><a href="#8-2-2-Session" class="headerlink" title="8.2.2 Session"></a>8.2.2 Session</h4><p>一个Session定义了一个client和一个agent之间通过==一次握手建立==的双向链接。session在使用XRCE agent交换消息时被使用。一个XRCE client如果和多个XRCE agent通信时，应该在多个session上发送消息。<br>一个session可以包含independent、reliable和best-effort消息流。每个session最多可以有256个stream。XRCE客户端和XRCE代理之间最多可以有一个活动session。新的session创建时会结束之前的session。</p>
+<h4 id="8-2-3-Stream"><a href="#8-2-3-Stream" class="headerlink" title="8.2.3 Stream"></a>8.2.3 Stream</h4><p>Stream表示Session中独立有序的消息流。消息通过序列号在流中排序。不同流使用的序列号（sequenceNr）彼此独立。数据流可以是reliable也可以是best-effort。每个stream使用一个固定的字节序来对消息/子消息的header和payload进行编码。</p>
+<h4 id="8-2-4-Client"><a href="#8-2-4-Client" class="headerlink" title="8.2.4 Client"></a>8.2.4 Client</h4><p>XRCE client是发起与XRCE agent建session的实体。XRCE client可以在属于已建立的XRCE session的stream上向agent发送和接收message。</p>
+<h4 id="8-2-5-Agent"><a href="#8-2-5-Agent" class="headerlink" title="8.2.5 Agent"></a>8.2.5 Agent</h4><p>XRCE agent是侦听和接受请求以建立来自XRCE client的session的实体。XRCE agent可以在属于已建立session的stream上向client发送和接收message。</p>
+<h3 id="8-3-Message-Structure"><a href="#8-3-Message-Structure" class="headerlink" title="8.3 Message Structure"></a>8.3 Message Structure</h3><h4 id="8-3-1-General"><a href="#8-3-1-General" class="headerlink" title="8.3.1 General"></a>8.3.1 General</h4><p>一个XRCE message是由一个message Header跟着一个或多个Submessage组成的，它会被底层的XRCE传输以一个单元的形式进行传输。<img src="https://gitee.com/zijian98/images/raw/master/img/image-20211102090619688.png" alt="image-20211102090619688"></p>
+<h4 id="8-3-2-Message-Header"><a href="#8-3-2-Message-Header" class="headerlink" title="8.3.2 Message Header"></a>8.3.2 Message Header</h4><p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20211102090641372.png" alt="image-20211102090641372"></p>
+<h5 id="8-3-2-1-Sessions和sessionId"><a href="#8-3-2-1-Sessions和sessionId" class="headerlink" title="8.3.2.1 Sessions和sessionId"></a>8.3.2.1 Sessions和sessionId</h5><p>XRCE Client和XRCE Agent之间的Session的建立，是为了通信建立初始的环境。这主要包括了协议版本的交换、供应商的信息以及正确处理消息的其他信息。</p>
+<p>一个Session由一个8位的sessionId来确定，sessionId对于给定XRCE Client的XRCE Agent是唯一的。seesionId同时也用来确定Header中是否包含了一个clientKey。</p>
+<ul>
+<li><p>如果sessionId在0~127（0x00到0x7f）之间（含0和127），那么Header应该包含clientKey并且sessionId的作用域由clientKey确定。</p>
+</li>
+<li><p>如果sessionId在128~255（0x80到0xff）之间（含128 255），那么Header将不含clientKey，sessionId的作用域由message的源地址确定。如果clientKey没有显示出现在message的header，那么XRCE Agent必须能够从message的源地址定位它</p>
+</li>
+</ul>
+<p>有两个sessionId的值是预定的：</p>
+<ul>
+<li><p>值0（0x00）应用于指示在包含clientKey的Header中缺少session。此值被称为SESSION_ID_NONE_WITH_CLIENT_KEY  </p>
+</li>
+<li><p>值128（0x80）应用于指示在未包含clientKey的Header中缺少session。此值被称为SESSION_ID_NONE_WITHOUT_CLIENT_KEY.  </p>
+</li>
+</ul>
+<h5 id="8-3-2-2-Stream和streamId"><a href="#8-3-2-2-Stream和streamId" class="headerlink" title="8.3.2.2 Stream和streamId"></a>8.3.2.2 Stream和streamId</h5><p>XRCE Stream表示XRCE Client和XRCE Agent之间的独立信息流。 每个XRCE Message都属于一个stream。 属于同一stream的消息必须按其发送顺序进行传递。 属于不同流的消息没有相对于彼此排序。</p>
+<p>Stream由他们所属于的Session所限制.</p>
+<ul>
+<li>值为0（0x00）的streamId称为STREAMID_NONE。 此流用于仅包含不属于任何流的子消息的消息。</li>
+<li>streamId在1（0x01）和127（0x7F）之间的流都应为best-effort流。</li>
+<li>streamId在128（0x80）和255（0xFF）之间的流都应该是reliable流。</li>
+</ul>
+<p>根据上述规则，如果streamId不是STREAMID_NONE，则streamId的前导位可以解释为指示流可靠性的标志。</p>
+<p>每当创建会话时，都会创建两个内置流：</p>
+<ul>
+<li>由值为1（0x01）的streamId标识的内置best-effort流。 这称为STREAMID_BUILTIN_BEST_EFFORTS。</li>
+<li>由值128（0x80）的streamId标识的reliable流。 这称为STREAMID_BUILTIN_RELIABLE。</li>
+</ul>
+<h5 id="8-3-2-3-sequenceNr"><a href="#8-3-2-3-sequenceNr" class="headerlink" title="8.3.2.3 sequenceNr"></a>8.3.2.3 sequenceNr</h5><p>sequenceNr用于对流中的消息进行排序，并且范围仅限于该流。 属于不同流的消息彼此之间是无序的：</p>
+<ul>
+<li>对于具有streamId STREAMID_NONE的stream，sequenceNr不强加任何顺序。 但是它仍然可以用来丢弃重复的消息。</li>
+<li>对于streamId与STREAMID_NONE不同的流，sequenceNr施加顺序。 流中的消息不得乱序发送。 另外，重复的消息将被丢弃。</li>
+</ul>
+<p>序列号的添加和比较应使用[IETF RFC-1982]定义的序列号算法，并且SERIAL_BITS设置为16。这意味着特定客户端会话流的未解决（未确认）消息的最大数目限制为$2^{15}$，即 是32768。<br>sequenceNr应使用低字节序格式进行编码。</p>
+<h5 id="8-3-2-4-clientKey"><a href="#8-3-2-4-clientKey" class="headerlink" title="8.3.2.4 clientKey"></a>8.3.2.4 clientKey</h5><p>clientKey唯一地标识XRCE Client并向XRCE Agent对XRCE Client进行身份验证。</p>
+<p>如果sessionId在0到127之间，则clientKey将出现在Header上。</p>
+<ul>
+<li>如果存在clientKey，则它应包含与XRCE Client关联的ClientKey。</li>
+<li>如果clientKey不存在，则XRCE代理应能够从消息的源地址派生与XRCE Client关联的ClientKey。这意味着已经在XRCE Agent上为该特定源地址预配置了ClientKey，或者已将其作为会话建立的一部分进行了交换。</li>
+</ul>
+<p>XRCE传输提供的安全机制可以保护clientKey的任何交换。这些安全机制是特定于传输的，可能涉及将每个设备与代理配对或用于建立安全传输连接的一些初始握手。</p>
+<h4 id="8-3-3-Submessage-Structure"><a href="#8-3-3-Submessage-Structure" class="headerlink" title="8.3.3 Submessage Structure"></a>8.3.3 Submessage Structure</h4><p>message Header之后的就是一个或多个submessage。一个<strong>Submessage</strong>由一个<strong>SubmessageHeader</strong>和一个payload组成。</p>
+<p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20211102090704134.png" alt="image-20211102090704134"></p>
+<p>在一个message中防止多个Submessage的作用是减少带宽，原因是这样可以让多个资源来被一个message进行操作。</p>
+<p>submessage应以相对于消息开头的 4 倍数的偏移量开始。。这意味着可以在子消息的结尾和下一个子消息的开始之间进行额外的填充。</p>
+<h4 id="8-3-4-Submessage-Header"><a href="#8-3-4-Submessage-Header" class="headerlink" title="8.3.4 Submessage Header"></a>8.3.4 Submessage Header</h4><p>每一个<strong>Submessage</strong>从一个<strong>SubmessageHeader</strong>开始，<strong>SubmessageHeader</strong>结构如下：</p>
+<p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20211102090716813.png" alt="image-20211102090716813"></p>
+<h5 id="8-3-4-1-submessageId"><a href="#8-3-4-1-submessageId" class="headerlink" title="8.3.4.1 submessageId"></a>8.3.4.1 submessageId</h5><p><strong>submessageIde</strong>定义了<strong>submessage</strong>的种类。</p>
+<h5 id="8-3-4-2-flags"><a href="#8-3-4-2-flags" class="headerlink" title="8.3.4.2 flags"></a>8.3.4.2 flags</h5><p><strong>flags</strong>区域包括了Submessage的内容相关的信息。</p>
+<p>0位是“Endianness”位，表示用于编码子消息头和有效负载的Endianness。如果Endianness位设置为0，则编码应为大端序，否则为小端序。</p>
+<p>所有Submessage的<strong>flags</strong>都应该有Endianness位。特殊的submessage可能定义其他flag位。</p>
+<h5 id="8-3-4-3-submessageLength"><a href="#8-3-4-3-submessageLength" class="headerlink" title="8.3.4.3 submessageLength"></a>8.3.4.3 submessageLength</h5><p><strong>submessageLength</strong>定义了Submessage的长度（含Submessage的头）。</p>
+<p>同时它应该独立于flags的定义，以小端序进行编码。</p>
+<h5 id="8-3-4-4-payload"><a href="#8-3-4-4-payload" class="headerlink" title="8.3.4.4 payload"></a>8.3.4.4 payload</h5><p><strong>payload</strong>包含了特殊于submessage的信息，submessage的格式取决于submessageId定义的submessage类型</p>
+<h4 id="8-3-5-Submessage-Types"><a href="#8-3-5-Submessage-Types" class="headerlink" title="8.3.5 Submessage Types"></a>8.3.5 Submessage Types</h4><p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20211102090734908.png" alt="image-20211102090734908"></p>
+<p>由SubmessageId定义的submessage中，有的是单向的，有的是双向的。</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>SubmessageId</th>
+<th>Value</th>
+<th>direction</th>
+<th style="text-align:left">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CREATE_CLIENT</td>
+<td>0</td>
+<td>Client到Agent</td>
+<td style="text-align:left">初始化Client和Agent之间的连接。在Agent上创建一个ProxyClient。<br />会让Agent调用Root::create_client操作</td>
+</tr>
+<tr>
+<td>CREATE</td>
+<td>1</td>
+<td>Client到Agent</td>
+<td style="text-align:left">创建一个XRCE对象<br />会让Agent调用ProxyClient::create 操作</td>
+</tr>
+<tr>
+<td>GET_INFO</td>
+<td>2</td>
+<td>Client到Agent</td>
+<td style="text-align:left">请求有关XRCE对象的信息<br />会让Agent调用ROOT::get_info或ProxyClient::get_info操作</td>
+</tr>
+<tr>
+<td>DELETE</td>
+<td>3</td>
+<td>Client到Agent</td>
+<td style="text-align:left">删除一个对象或删除一组XRCE对象<br />会让Agent调用ProxyClient::delete操作或者Root::delete_client操作</td>
+</tr>
+<tr>
+<td>STATUS_AGENT</td>
+<td>4</td>
+<td>Agent到Client</td>
+<td style="text-align:left">发送一个对CREATE_CLIENT的响应，包含Agent相关的信息<br />携带Root::create_client操作的返回值</td>
+</tr>
+<tr>
+<td>STATUS</td>
+<td>5</td>
+<td>Agent到Client</td>
+<td style="text-align:left">通常用来响应CREATE、UPDATE或者DELETE。包含一个XRCE对象的状态信息<br />携带PoxyClient::create，update或者delete的返回值</td>
+</tr>
+<tr>
+<td>INFO</td>
+<td>6</td>
+<td>Agent到Client</td>
+<td style="text-align:left">通常发送一个对GET_INFO的响应。包含关于一个XRCE::Object或者一个XRCE Agent的信息<br />携带Root::get_info或者ProxyClient::get_info的返回值</td>
+</tr>
+<tr>
+<td>WRITE_DATA</td>
+<td>7</td>
+<td>Client到Agent</td>
+<td style="text-align:left">使用XRCE的DataWriter来写数据<br />会让Agent来调用ProxyClient::write操作</td>
+</tr>
+<tr>
+<td>READ_DATA</td>
+<td>8</td>
+<td>Client到Agent</td>
+<td style="text-align:left">使用XRCE的DataReader来读数据<br />会让Agent来调用ProxyClient::read操作</td>
+</tr>
+<tr>
+<td>DATA</td>
+<td>9</td>
+<td>Agent到Client</td>
+<td style="text-align:left">响应READ_DATA，提供由XRCE的DataReader接收到的数据<br />携带ProxyClient::read的返回值</td>
+</tr>
+<tr>
+<td>ACKNACK</td>
+<td>10</td>
+<td>双向</td>
+<td style="text-align:left">发送肯定或者否定的信号给一些序列号</td>
+</tr>
+<tr>
+<td>HEARTBEAT</td>
+<td>11</td>
+<td>双向</td>
+<td style="text-align:left">通知可用的序列号的范围</td>
+</tr>
+<tr>
+<td>RESET</td>
+<td>12</td>
+<td>双向</td>
+<td style="text-align:left">重置session</td>
+</tr>
+<tr>
+<td>FRAGMENT</td>
+<td>13</td>
+<td>双向</td>
+<td style="text-align:left">传递数据片段。用于发送大小大于底层传输支持的大小的消息</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="8-4-互操作模型（Interaction-Model）"><a href="#8-4-互操作模型（Interaction-Model）" class="headerlink" title="8.4  互操作模型（Interaction Model）"></a>8.4  互操作模型（Interaction Model）</h3><h4 id="8-4-1-General"><a href="#8-4-1-General" class="headerlink" title="8.4.1 General"></a>8.4.1 General</h4><p>本章节主要描述典型的信息流。</p>
+<p>XRCE协议的目的就是使实现最小化发现和设置流量的客户端成为可能。因此一些信息流是可选的，而且可以被XRCE的Client和Agent进行带外（out-of-band，OOB）设置。</p>
+<h4 id="8-4-2-使用预先配置的DataWriter进行数据发送"><a href="#8-4-2-使用预先配置的DataWriter进行数据发送" class="headerlink" title="8.4.2 使用预先配置的DataWriter进行数据发送"></a>8.4.2 使用预先配置的DataWriter进行数据发送</h4><p>下面的消息流说明了XRCE Client使用XRCE Agent写入数据的完整消息集。 XRCE代理已预先配置为创建一个包含DomainParticipant，Publisher和DataWriter的XRCE应用程序。预先配置了object_id的DataWriter为XRCE Client所知。</p>
+<p><img src="https://i.loli.net/2021/04/20/ir9g7M26I8myWPD.jpg" alt="Message flow to send data using a pre-configured DataWriter.JPG"></p>
+<p>​        <em>已为Clinet（由ClientKey标识）预先配置了XRCE Agent，以便它可以识别出现在 CREATE_CLIENT消息中的application_object_id。 CREATE_CLIENT的接收触发相应XRCE对象的</em> <strong><em>创建或重用</em></strong>。<em>这些XRCE对象包括XRCE DataWriter及其相应的DDS DataWriter。 随后的WRITE_DATA消息通过那些DataWriter的ObjectId来使用DDS发布数据。</em></p>
+<h4 id="8-4-3-使用预先配置的DataReader进行数据接收"><a href="#8-4-3-使用预先配置的DataReader进行数据接收" class="headerlink" title="8.4.3 使用预先配置的DataReader进行数据接收"></a>8.4.3 使用预先配置的DataReader进行数据接收</h4><p>下面的消息流说明了XRCE Client用来通过XRCE Agent接收数据的完整消息集。 XRCE Agent已预先配置为创建一个包含DomainParticipant，Subscriber和DataReader的XRCE Application。 XRCE Client知道DataReader预先配置的object_id。</p>
+<p><img src="https://gitee.com/zijian98/images/raw/master/img/IXLBZPvhVEHGy7q.jpg" alt="Message flow to receive data using a pre-configured DataReader.JPG"></p>
+<p>​            <em>已为Client（由 ClientKey标识）预先配置了一个Agent，从而可以使它识别 出现在 CREATE_CLIENT消息中的 application_object_id。CREATE_CLIENT的接收触发相应 XRCE对象的</em> <strong><em>创建或重用</em></strong>。<em>其中包括 XRCE DataReader及其相应的 DDS DataReader。 随后的READ消息引用这些DataReader的 ObjectId以便从DDS域接收数据。</em></p>
+<h4 id="8-4-4-发现一个Agent"><a href="#8-4-4-发现一个Agent" class="headerlink" title="8.4.4 发现一个Agent"></a>8.4.4 发现一个Agent</h4><p>下面的消息流说明了XRCE客户端发现XRCE代理所需的消息。 仅当未使用XRCE代理的TransportLocator预先配置客户端时，才需要此流程。 它允许将XRCE客户端配置为满足一个或多个TransportLocator（可能包括多播地址）的需求，以便动态发现代理的存在和实际地址。</p>
+<p>作为此过程的结果，XRCE客户端可能发现多个XRCE代理。 在那种情况下，它可能会使用收到的有关XRCE代理配置的信息（例如，字段版本，vendor_id或在AGENT_Representation中找到的属性）和XRCE代理活动（例如，ActivityInfo中的可用性字段）来选择最合适的XRCE代理，<em>甚至连接到多个XRCE代理</em>。</p>
+<p><img src="https://i.loli.net/2021/04/20/TJ8oZRAvC6DfXYg.jpg" alt="Message flow for a Client to an Agent.JPG"></p>
+<p>​                        <em>XRCE 客户端使用 GET_INFO 查询 XRCE 代理的信息，代理响应后，客户端选择一个代理并使用 CREATE_CLIENT 消息连接到它。 代理以 STATUS_AGENT 响应，指示连接是否成功以及是否代表 XRCE 客户端创建了 ClientProxy。</em></p>
+<h4 id="8-4-5-链接到一个Agent上"><a href="#8-4-5-链接到一个Agent上" class="headerlink" title="8.4.5 链接到一个Agent上"></a>8.4.5 链接到一个Agent上</h4><p>下面的消息流说明了XRCE Client连接到XRCE Agent所需的消息。Client连接后，它可以创建资源或调用现有资源上的操作。</p>
+<p><img src="https://gitee.com/zijian98/images/raw/master/img/9Ui56BmGRfrEIJO.jpg" alt="Message flow for a Client to connect to an Agent.JPG"></p>
+<p>​                        <em>XRCE Client使用 CREATE_CLIENT 消息连接到 Agent。 Agent 以 STATUS_AGENT响应，该状态指示连接是否成功以及是否代表 XRCE客户端创建了ClientProxy。</em></p>
+<h4 id="8-4-6-创造一个完整的Application"><a href="#8-4-6-创造一个完整的Application" class="headerlink" title="8.4.6 创造一个完整的Application"></a>8.4.6 创造一个完整的Application</h4><p>下面的消息流说明了已经连接的XRCE Client 创建完整的XRCE Application所需的消息。</p>
+<p><img src="https://i.loli.net/2021/04/20/ALFr26kN51J7UQo.jpg" alt="Message flow for a Client to create an ApplicationJPG.JPG"></p>
+<p>​                    <em>XRCE Client使用 CREATE 消息创建 XRCE Application。 CREATE消息带有一个CREATE_Payload，其中包含一个ObjectKind设置为OBJK_APPLICATION的 ObjectVariant。 相应的 OBJK_APPLICATION_Representation可以使用 REPRESENTATION_BY_REFERENCE 来引用在代理中预先配置的Application，也可以使用REPRESENTATION_AS_XML_STRING来完整地描述该 Application，包括任何必要的 Type，Qos和DDS实体。</em></p>
+<h4 id="8-4-7-定义Qos配置"><a href="#8-4-7-定义Qos配置" class="headerlink" title="8.4.7 定义Qos配置"></a>8.4.7 定义Qos配置</h4><p>下面的消息流说明了已连接的XRCE Client动态定义XRCE QosProfiles所需的消息，这些消息以后可用于创建其他XRCE对象。</p>
+<p><img src="https://gitee.com/zijian98/images/raw/master/img/1lCmuW2qXsiGnFz.jpg" alt="Message flow for a Client to define Qos Profiles.JPG"></p>
+<p>​                <em>XRCE Client使用 CREATE消息来定义Qos配置文件。 CREATE消息包含一个CREATE_Payload，其中包含一个ObjectKind设置为OBJK_QOSPROFILE的ObjectVariant。 相应的 OBJK_QOSPROFILE_Representation可以使用 REPRESENTATION_AS_XML_STRING来完整描述Qos概要文件。</em></p>
+<h4 id="8-4-8-定义类型"><a href="#8-4-8-定义类型" class="headerlink" title="8.4.8 定义类型"></a>8.4.8 定义类型</h4><p>下面的消息流说明了已连接的XRCE Client动态定义XRCE Type所需的消息，这些XRCE Type以后可用于创建XRCE Topic对象。</p>
+<p><img src="https://gitee.com/zijian98/images/raw/master/img/a5wbnPKoTyDCxHM.jpg" alt="Message flow for a Client to a Client to define Types.JPG"></p>
+<p>​                <em>XRCE Client使用 CREATE消息创建XRCE类型。 CREATE消息带有一个CREATE_Payload，其中包含一个ObjectKind设置为OBJK_TYPE的ObjectVariant。 对应的 OBJK_TYPE_Representation可以使用 REPRESENTATION_AS_XML_STRING 来完整描述 DDS-XTYPES类型，包括任何引用的类型。</em></p>
+<h4 id="8-4-9-创建一个Topic"><a href="#8-4-9-创建一个Topic" class="headerlink" title="8.4.9 创建一个Topic"></a>8.4.9 创建一个Topic</h4><p>下面的消息流说明了已连接的XRCE Client动态创建XRCE主题所需的消息，该主题以后可用于创建XRCE DataWriter和DataReader对象。</p>
+<p><img src="https://gitee.com/zijian98/images/raw/master/img/nBxlFAkr1ETu49G.jpg" alt="Message flow for a Client to a Client to define a Topic.JPG"></p>
+<p>​                                <em>XRCE Client使用 CREATE消息创建 XRCE Topic。 CREATE消息包含一个CREATE_Payload，其中包含一个ObjectKind设置为OBJK_TOPIC的ObjectVariant。 相应的 OBJK_TOPIC_Representation可以使用 REPRESENTATION_IN_BINARY或 REPRESENTATION_AS_XML_STRING来完全定义主题。</em></p>
+<h4 id="8-4-10-创建一个DataWriter"><a href="#8-4-10-创建一个DataWriter" class="headerlink" title="8.4.10 创建一个DataWriter"></a>8.4.10 创建一个DataWriter</h4><p>下面的消息流说明了已连接的XRCE Client动态创建XRCE DataWriter所需的消息，该资源具有发布数据所需的所有资源。</p>
+<p>XRCE Agent可能具有QoS配置文件的先验知识，从而允许XRCE客户端按名称引用Qos，而无需明确定义它们。 或者，XRCE Client可以将它们的定义包括在XRCE DataWriter资源的定义中。</p>
+<p><img src="https://gitee.com/zijian98/images/raw/master/img/iTSFz3gcNPyuK76.jpg" alt="Message flow for a Client to create a DataWriter.JPG"></p>
+<p>​                    <em>XRCE Client使用 CREATE消息创建 XRCE DataWriter。 CREATE消息包含一个CREATE_Payload，其中包含一个ObjectKind设置为OBJK_DATAWRITER的ObjectVariat。 相应的 DATAREADER_Representation可以使用 REPRESENTATION_IN_BINARY或 REPRESENTATION_AS_XML_STRING来完全定义DataWriter。 这两种表示方式都可以指定DataWriter Qos。 DATAREADER_Representation也可以使用REPRESENTATION_BY_REFERNCE来引用Agent已知的DataWriter定义。</em></p>
+<h4 id="8-4-11-创建一个DataReader"><a href="#8-4-11-创建一个DataReader" class="headerlink" title="8.4.11 创建一个DataReader"></a>8.4.11 创建一个DataReader</h4><p>下面的消息流说明了已连接的XRCE Client动态创建XRCE DataReader所需要的消息，该资源具有订阅数据所需的所有资源<em>(原文为publish data我觉得有点问题)</em>。</p>
+<p>XRCE Agent可能具有QoS配置文件的先验知识，从而允许XRCE客户端按名称引用这些Qos，而无需明确定义。 或者，XRCE Client可以将它们的定义包括为XRCE DataReader资源的定义中。</p>
+<p><img src="https://gitee.com/zijian98/images/raw/master/img/yV7STktjJD2K6rH.jpg" alt="Message flow for a Client to create a DataReader.JPG"></p>
+<p>​            <em>XRCE Client使用 CREATE消息创建 XRCE DataReader。 CREATE消息包含一个CREATE_Payload，其中包含一个ObjectKind设置为OBJK_DATAREADER的ObjectVariant。 相应的 OBJK_DATAREADER_Representation可以使用 REPRESENTATION_IN_BINARY或 REPRESENTATION_AS_XML_STRING来完全定义DataReader。 这两种表示形式都允许指定DataReader Qos。 OBJK_DATAREADER_Representation也可以使用REPRESENTATION_BY_REFERENCE来引用Agent已知的DataReader定义</em></p>
+<h4 id="8-4-12-从一个资源上获取信息"><a href="#8-4-12-从一个资源上获取信息" class="headerlink" title="8.4.12 从一个资源上获取信息"></a>8.4.12 从一个资源上获取信息</h4><p>下面的消息流说明了XRCE Client如何查询有关资源的信息。 XRCE Client可以使用此机制来确定XRCE Agent代表XRCE Client管理的任何DDS代理实体的QoS。 它还可以用于读取XRCE Agent已知的QoS配置文件和类型声明。</p>
+<p><img src="https://gitee.com/zijian98/images/raw/master/img/P58tgN1CoYHuI7V.jpg" alt="Message flow for a Client to update a Resource.JPG"></p>
+<p>​                <em>XRCE Client使用GET_INFO消息从由其 ObjectId标识的 XRCE Object获取信息。XRCE Agent以包含ObjectVariant的 INFO消息作为响应。 ObjectVariant的ObjectKind适用于指定的 ObjectId。</em></p>
+<h4 id="8-4-13-更新一个资源"><a href="#8-4-13-更新一个资源" class="headerlink" title="8.4.13 更新一个资源"></a>8.4.13 更新一个资源</h4><p>下面的消息流说明了XRCE Client 如何更新XRCE DataReader。 XRCE Client可以使用此机制来更改XRCE Agent代表XRCE Client管理的任何DDS代理实体的QoS参数。</p>
+<p><img src="https://gitee.com/zijian98/images/raw/master/img/P58tgN1CoYHuI7V.jpg" alt="Message flow for a Client to update a Resource.JPG"></p>
+<p>​                        <em>XRCE Client使用CREATE消息，将属性reuse设置为TRUE，并将属性replace设置为TRUE，以表示它希望更新由ObjectId标识的对象。 CREATE消息包含一个ObjectVariant，其中ObjectKind设置为指定的ObjectId的适当值。 XRCE代理使用ObjectVariant中包含的新配置更新对象，并以STATUS消息作为响应。</em></p>
+<h4 id="8-4-14-可靠通信"><a href="#8-4-14-可靠通信" class="headerlink" title="8.4.14 可靠通信"></a>8.4.14 可靠通信</h4><p>可靠性是针对每个Stream分别实现的，并且仅针对由stream_id值介于0x80和0xFF之间标识的可靠流。 （参见第8.3.2.2节Streams和streamId。）</p>
+<p>一个Stream恰好有两个端点，即发送端点和接收端点。 请注意，对于某些流，发送者是XRCE Client，例如 当XRCE Client使用流将数据写入XRCE Agent时。 同样，在其他流中，发送方可以是XRCE Agent，例如，当XRCE Agent 使用流来发送XRCE Client在READ操作中请求的数据时。</p>
+<p>Stream上的发送者和接收者端点各自执行其自己的协议状态机。 这些在以下小节中进行了说明。<br>序列号添加和比较应使用第8.3.2.3节sequenceNr中规定的序列号算法。</p>
+<h5 id="8-4-14-1-可靠发送状态机"><a href="#8-4-14-1-可靠发送状态机" class="headerlink" title="8.4.14.1 可靠发送状态机"></a>8.4.14.1 可靠发送状态机</h5><p>由端点在流上发送的协议如下图所示。</p>
+<p><img src="https://gitee.com/zijian98/images/raw/master/img/CYz5f69IdDPX8eK.jpg" alt="流上可靠协议的发送状态机.JPG"></p>
+<p>发送方维护与流关联的两个状态变量。 最高发送序列号（HighestSentSequenecNumber）和最高确认序列号（HighestAcknowledgedSequenceNumber）。</p>
+<p>每次发送消息时，HighestSentSequenecNumber都会增加。 ACKNACK消息的接收会 更新HighestAcknowledgedSequenceNumber。<br>当HighestAcknowledgedSequenceNumber小于HighestSentSequenceNumber时，发送方将HeartBeat消息发送给接收方，该消息宣告HighestSentSequenecNumber。 这些HeartBeat消息可以是定期的，也可以使用特定于供应商的机制进行优化。 要求以一定的速率发送它们，直到HighestAcknowledgedSequenceNumber与HighestSentSequenceNumber匹配为止。</p>
+<h5 id="8-4-14-2-可靠接收状态机"><a href="#8-4-14-2-可靠接收状态机" class="headerlink" title="8.4.14.2 可靠接收状态机"></a>8.4.14.2 可靠接收状态机</h5><p>由端点在流上接收的协议如下图所示：</p>
+<p><img src="https://gitee.com/zijian98/images/raw/master/img/W85rXaStlMIgQc6.jpg" alt="流上可靠协议的接收状态机.JPG"></p>
+<p>接收方包括两个和流关联的状态变量。最高接受序列号（HighestReceivedSequenceNumber）和最高确认序列号（HighestAnnouncedSequenceNumber  ）。</p>
+<p>每次接收到一条消息时，HighestReceivedSequenceNumber可能会更新（假定已接收到所有先前的消息）。 HighestAnnouncedSequenceNumber也会进行调整。</p>
+<p>每次收到HEARTBEAT时，可能会调整HighestAnnouncedSequenceNumber。</p>
+<p>如果接收方是XRCE Client，则当HighestReceivedSequenceNumber小于HighestAnnouncedSequenceNumber时，接收方将发送ACKNACK消息以请求与丢失的序列号相对应的消息。 这些ACKNACK消息可以是周期性的，或者可以使用特定于供应商的机制进行优化。</p>
+<p>如果接收方是XRCE Agent，则它仅响应于接收到HEARTBEAT才发送ACKNACK消息。</p>
+<p>这样做是为了避免使XRCE Client不堪重负或在不适当的时间唤醒它。</p>
+<h3 id="8-5-XRCE-对象操作的可追溯性"><a href="#8-5-XRCE-对象操作的可追溯性" class="headerlink" title="8.5 XRCE 对象操作的可追溯性"></a>8.5 XRCE 对象操作的可追溯性</h3><p>本节总结了用于在 XRCE 对象模型上实现每个操作的消息，确保已涵盖所有操作。</p>
+<p>使用的消息触发每个操作并接收结果汇总在表 14 中</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>XRCE对象类型</th>
+<th>操作</th>
+<th>用于调用的消息</th>
+<th>用于返回的消息</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>XRCE Root</td>
+<td>create_client</td>
+<td>CREATE_CLIENT</td>
+<td>STATUS_AGENT</td>
+</tr>
+<tr>
+<td>XRCE Root</td>
+<td>get_info</td>
+<td>GET_INFO</td>
+<td>INFO</td>
+</tr>
+<tr>
+<td>XRCE Root</td>
+<td>delete_client</td>
+<td>DELETE</td>
+<td>STATUS_AGENT</td>
+</tr>
+<tr>
+<td>XRCE ProxyClient</td>
+<td>create</td>
+<td>CREATE(标志为创建)</td>
+<td>STATUS</td>
+</tr>
+<tr>
+<td>XRCE ProxyClient</td>
+<td>update</td>
+<td>CREATE(标志为重用)</td>
+<td>STATUS</td>
+</tr>
+<tr>
+<td>XRCE ProxyClient</td>
+<td>get_info</td>
+<td>GET_INFO</td>
+<td>INFO</td>
+</tr>
+<tr>
+<td>XRCE ProxyClient</td>
+<td>delete</td>
+<td>DELETE</td>
+<td>STATUS</td>
+</tr>
+<tr>
+<td>XRCE DataWriter</td>
+<td>write</td>
+<td>WRITE_DATA, FRAGMENT</td>
+<td>STATUS</td>
+</tr>
+<tr>
+<td>XRCE DataReader</td>
+<td>read</td>
+<td>READ_DATA</td>
+<td>DATA, FRAGMENT, STATUS</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="9-XRCE-Agent-配置"><a href="#9-XRCE-Agent-配置" class="headerlink" title="9 XRCE Agent 配置"></a>9 XRCE Agent 配置</h2><h3 id="9-1-常规"><a href="#9-1-常规" class="headerlink" title="9.1 常规"></a>9.1 常规</h3><p>XRCE Agent可以被配置为使得它具有先验知识 XRCE 对象。 这允许 XRCE Client使用表示格式 REPRESENTATION_BY_REFERENCE 来以非常紧凑的方式引用和创建 XRCE 对象，请参阅第 7.7.3.3.1 节 REPRESENTATION_BY_REFERENCE 格式。</p>
+<p>本规范提供了两种标准机制来配置 XRCE Agent。 实现还可以提供额外的机制：</p>
+<ul>
+<li>使用 XRCE 协议进行远程配置</li>
+<li>基于文件的本地配置</li>
+</ul>
+<p>这些机制在以下条款中进行了描述。</p>
+<h3 id="9-2-使用XRCE协议进行远程配置"><a href="#9-2-使用XRCE协议进行远程配置" class="headerlink" title="9.2 使用XRCE协议进行远程配置"></a>9.2 使用XRCE协议进行远程配置</h3><p>应用程序可以使用 XRCE Client，其唯一目的是定义和创建用于其他应用程序的 XRCE 对象。 这种类型的应用程序称为 XRCE ConfigurationClient。</p>
+<p>XRCE ConfigurationClient 使用的协议与任何其他 XRCE Client 使用的协议相同。 唯一的区别是 XRCE ConfigurationClient 从不使用 READ_DATA 或 WRITE 消息。 它仅使用创建、更新或检索有关 XRCE 对象的信息的消息。</p>
+<p>任何其他 XRCE Client都可以引用由XRCE ConfigurationClient创建的 XRCE 对象。</p>
+<p>远程配置机制的典型用途是可用于在部署之前配置代理或交互式配置系统的工具。</p>
+<p>请注意， XRCE ConfigurationClient可能使用不同的网络或传输与代理进行通信，这可能与典型的 XRCE Client具有不同的约束。</p>
+<p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20211102101157490.png" alt="image-20211102101157490"></p>
+<h3 id="9-3-基于文件的配置"><a href="#9-3-基于文件的配置" class="headerlink" title="9.3 基于文件的配置"></a>9.3 基于文件的配置</h3><p>略</p>
+<h2 id="10-XRCE部署"><a href="#10-XRCE部署" class="headerlink" title="10 XRCE部署"></a>10 XRCE部署</h2><p>DDS-XRCE PIM 中描述的所有操作都与客户端应用程序与单个 DDS XRCE Agent的交互有关。 因此，所有操作的范围仅限于与该 DDS-XRCE Agent的交互。 然而，尽管连接到不同的 DDS-XRCE Agent，客户端应用程序仍可能相互交互。 这些交互将作为 DDS-XRCE  Agent在 DDS 域参与者实体上创建和执行操作的结果而发生，这些实体根据 DDS 规范交换信息。</p>
+<h3 id="10-1-XRCE-Client到DDS的通信"><a href="#10-1-XRCE-Client到DDS的通信" class="headerlink" title="10.1 XRCE Client到DDS的通信"></a>10.1 XRCE Client到DDS的通信</h3><p>该规范定义了 XRCE Client用于与代理 DDS 域中客户端的 XRCE Agent通信的协议。 这样做的主要结果是 XRCE Client现在可以与任何 DDS 域参与者进行通信。</p>
+<p>DDS 域参与者将发现 XRCE Agent代表Client创建的代理 DDS 实体，并使用标准的 DDS-RTPS 互操作性协议与代理进行通信。</p>
+<p>XRCE Client将使用 XRCE 协议与 XRCE Agent通信。 使用该协议，它可以指导 XRCE Agent创建新的 DDS 实体，并使用这些实体在DDS全局数据空间上读写数据。</p>
+<p>这种类型的部署如下面的图所示。</p>
+<p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20211102102011872.png" alt="image-20211102102011872"></p>
+<p><em>XRCE Client使用 XRCE 协议与 XRCE Agent通信。 XRCE Agent使用 DDS-RTPS 协议与 DDS 域中的其他 DDS 域参与者通信。</em></p>
+<h3 id="10-2-XRCE-Client-通过DDS到XRCE-Client的通信"><a href="#10-2-XRCE-Client-通过DDS到XRCE-Client的通信" class="headerlink" title="10.2 XRCE Client 通过DDS到XRCE Client的通信"></a>10.2 XRCE Client 通过DDS到XRCE Client的通信</h3><p>XRCE Agent在 DDS 域中显示为 DDS 域参与者。 因此，连接到不同 XRCE Agent的 XRCE Client应用程序无需进一步配置即可相互通信。</p>
+<p>每个 XRCE Agent将其他 XRCE Agent视为 DDS 域参与者，与任何其他 DDS 域参与者没有区别，并使用 DDS-RTPS 与他们通信。 XRCE Agent将将该通信中继到其各自的 XRCE Client。</p>
+<p>这种类型的场景如下图 所示</p>
+<p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20211102102242827.png" alt="image-20211102102242827"></p>
+<p><em>XRCE Client使用 XRCE 协议与其各自的 XRCE Agent进行通信。 这些 XRCE Agent使用 DDS-RTPS 相互通信，因为每个代理都是 DDS 域上的 DDS 域参与者。</em></p>
+<h3 id="10-3-由XRCE-Agent当中间人的Client到Client通信"><a href="#10-3-由XRCE-Agent当中间人的Client到Client通信" class="headerlink" title="10.3 由XRCE Agent当中间人的Client到Client通信"></a>10.3 由XRCE Agent当中间人的Client到Client通信</h3><p>多个 XRCE Client应用程序可以连接到同一个 XRCE Agent。</p>
+<p>它取决于 XRCE Agent的实现，无论它创建的 DDS 实体是每个 XRCE Client专有的，<strong>还是在 XRCE Client之间共享的。</strong>但是，<strong>XRCE Client可观察到的行为应如同 DDS XRCE Agent创建每个 XRCE Client专有的单独 DDS 对象。</strong></p>
+<p>如果 XRCE Agent代表每个 XRCE Client创建单独的 DDS 实体，那么每个实体都将拥有自己的代理 DDS 域参与者。这两个 DDS 域参与者将在 DDS 域上相互通信。在这种情况下，两个 XRCE Client将在 XRCE Agent的“代理”下相互通信，而无需在 XRCE Agent中进行额外的配置或逻辑。</p>
+<p>如果 XRCE Agent在不同的 XRCE Client之间共享 DDS 实体，那么行为“好像”每个都有自己独立的实体的要求需要本地 DDS DataWriter 实体发现并匹配同一 DomainParticipant 中的本地 DDS DataReader 实体。这将自动导致 XRCE Client使用代理作为“代理”相互通信，而无需进一步配置。</p>
+<p>XRCE Agent的实现可以选择在本地 XRCE DataWriter 和 DataReader 对象之间创建更快的通信路径，以便来自 XRCE DataWriter 的数据可以直接进入匹配的 XRCE DataReader，而无需通过关联的 DDS 实体。这个“捷径”可以作为一种优化来实施，因为它不会影响任何协议，也不会影响与其他 XRCE Client、Agent或 DDS 域参与者的互操作性。</p>
+<p>这种类型的场景如下图 所示。</p>
+<p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20211102103306558.png" alt="image-20211102103306558"></p>
+<p><em>多个 XRCE Client可以连接到同一个 XRCE Agent。 XRCE Client使用 XRCE Agent作为“代理”相互通信。 这种“客户端到客户端”的通信可以利用相关的 DDS 对象，或者可以使用代理内部的优化路径，从而缩短 DDS 对象的使用。</em></p>
+<h3 id="10-4-联合部署"><a href="#10-4-联合部署" class="headerlink" title="10.4 联合部署"></a>10.4 联合部署</h3><h3 id="10-5-Client应用之间直接P2P通信"><a href="#10-5-Client应用之间直接P2P通信" class="headerlink" title="10.5 Client应用之间直接P2P通信"></a>10.5 Client应用之间直接P2P通信</h3><h3 id="10-6-组合部署"><a href="#10-6-组合部署" class="headerlink" title="10.6 组合部署"></a>10.6 组合部署</h3><h2 id="11-传输映射"><a href="#11-传输映射" class="headerlink" title="11 传输映射"></a>11 传输映射</h2><h3 id="11-1-传输模型"><a href="#11-1-传输模型" class="headerlink" title="11.1 传输模型"></a>11.1 传输模型</h3><p>XRCE 协议不限于任何特定的传输。它可以映射到大多数现有的网络传输，如 UDP、TCP 和低带宽传输，如蓝牙、ZigBee 和 6LoWPAN。</p>
+<p>为了在没有额外开销的情况下运行，预计传输支持以下功能：</p>
+<ol>
+<li>传送至少 64 字节的消息。</li>
+<li>处理消息的完整性，丢弃任何损坏的消息。此功能不限制可用的传输；它只需要在来自不处理本机完整性的传输的消息中附加一个 CRC。</li>
+<li>提供接收消息的大小以及源地址。此要求不限制可用的传输；它只需要在来自传输本身不包含信息的消息中添加源信息和大小。</li>
+<li>支持双向通信。</li>
+<li>提供传输级安全，特别是客户端验证代理的方法和安全（加密和验证）消息交换的方法。或者，XRCE Agent和Client可以部署在安全网络层（例如加密 VPN）之上。</li>
+</ol>
+<p>传输明确不需要以下功能：</p>
+<ol>
+<li>不需要提供可靠性。消息可能会被丢弃。</li>
+<li>不需要提供顺序。消息可能会乱序到达。</li>
+<li>不需要提供丢弃消息的通知。</li>
+</ol>
+<p>不满足上述某些先决条件的传输仍可通过添加丢失的信息作为 XRCE message的信封来使用。这将作为映射到该特定协议的一部分来完成。</p>
+<p>例如，如果缺少源地址或消息大小，它们可以作为前缀添加到 XRCE 消息。如果传输不支持完整性，可以将 CRC 后缀添加到 XRCE 消息。</p>
+<h3 id="11-2-UDP-传输"><a href="#11-2-UDP-传输" class="headerlink" title="11.2 UDP 传输"></a>11.2 UDP 传输</h3><p>UDP 传输满足第 11.1 节中列出的所有功能。 除了它不提供安全性。</p>
+<p>对于需要安全性的应用程序，有“数据报传输层安全性”(DTLS) 标准 [DTLS]，它在 UDP/IP 之上提供安全性。 或者，UDP 可以部署在专用网络 (VPN) 上，它在 UDP 之下的 IP 层提供安全性。</p>
+<p>由于 XRCE 协议不需要传输提供可靠性、排序或故障通知，因此它可以简单地映射到“数据报”传输，例如 UDP/IP。</p>
+<h4 id="11-2-1-传输定位器"><a href="#11-2-1-传输定位器" class="headerlink" title="11.2.1 传输定位器"></a>11.2.1 传输定位器</h4><p>当 XRCE 映射到 UDP v4 时，union类型的TransportLocator 应使用 TransportLocatorFormat 鉴别器为 ADDRESS_FORMAT_MEDIUM。 这将选择类型的 <strong><em>medium_locator</em></strong>成员。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">struct TransportLocatorMedium &#123;</span><br><span class="line"> octet address[4];</span><br><span class="line"> unsigned short port;</span><br><span class="line"> &#125;;</span><br></pre></td></tr></table></figure>
+<p>当 XRCE 映射到 UDP v6 时，union类型的TransportLocator 应使用 TransportLocatorFormat 鉴别器为 ADDRESS_FORMAT_LARGE。 这将选择类型的 <strong><em>large_locator</em></strong>成员。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">struct TransportLocatorLarge &#123;</span><br><span class="line"> octet address[16];</span><br><span class="line"> unsigned long port;</span><br><span class="line"> &#125;;</span><br></pre></td></tr></table></figure>
+<h4 id="11-2-4-Agent发现"><a href="#11-2-4-Agent发现" class="headerlink" title="11.2.4 Agent发现"></a>11.2.4 Agent发现</h4><p>XRCE Agent发现可以使用 UDP/IP 多播完成。 XRCE Agent应预先配置它们应侦听的多播地址和端口号。默认情况下，它们应为地址 239.255.0.2 和端口 7400。</p>
+<p>为了通过多播发现代理，XRCE Client应定期向配置的多播地址和端口发送 GET_INFO 消息（见 8.3.5.3）。该消息应调用 XRCE Agent上的 get_info 操作（见 7.8.2.2），该操作应响应并包括其 TransportLocators。一旦 XRCE Client收到来自代理的合适响应，它应停止发送定期消息。</p>
+<p>XRCE Agent发现可以使用 UDP/IP 单播完成。 XRCE Client应预先配置有 XRCE Agent可能位于的候选 UDP 地址和端口列表。</p>
+<p>为了通过单播发现代理，XRCE Client应定期向配置的地址和端口发送 GET_INFO 消息（见 8.3.5.3）。该消息应调用 XRCE Agent上的 get_info 操作（见 7.8.2.2），该操作应响应并包括其 TransportLocators。一旦 XRCE Client收到来自代理的合适响应，它应停止发送定期消息</p>
+<h3 id="11-3-TCP-传输"><a href="#11-3-TCP-传输" class="headerlink" title="11.3 TCP 传输"></a>11.3 TCP 传输</h3><h4 id="11-3-4-Agent发现"><a href="#11-3-4-Agent发现" class="headerlink" title="11.3.4 Agent发现"></a>11.3.4 Agent发现</h4><p>即使通信将通过 TCP，XRCE Agent发现可以使用 UDP/IP 多播完成。</p>
+<p>XRCE Agent可以预先配置多播地址和端口号，它们将对多播进行侦听。默认情况下，它们应为地址 239.255.0.2 和端口 7400。</p>
+<p>为了通过多播发现代理，XRCE Client应定期向配置的多播地址和端口发送 GET_INFO 消息（见 8.3.5.3）。该消息应调用 XRCE Agent上的 get_info 操作（见 7.8.2.2），该操作应响应并包括其 TransportLocators。一旦 XRCE Client收到来自代理的合适响应，它应停止发送定期消息。</p>
+<p>XRCE Agent发现可以使用 TCP/IP 完成。 XRCE Client应预先配置有 XRCE Agent可能位于的候选 TCP 地址和端口列表。</p>
+<p>为了通过单播发现代理，XRCE Client应定期尝试与配置的地址和端口建立 TCP 连接。建立连接后，它将发送 CREATE_CLIENT 消息（见 8.3.5.1）。该消息应调用 XRCE Agent上的 create_client 操作（见 7.8.2.1），该操作要么接受要么产生错误。一旦 XRCE Client收到来自代理的合适响应，它应停止进行定期连接尝试。</p>
+
+        
+            <div id="toc-article">
+                
+  <div class="widget-wrap" id="toc-wrap">
+    <h3 class="widget-title"><i class="fa fa-toc"></i> 文章目录</h3>
+    <div class="widget">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#DDS-XRCE"><span class="toc-text">DDS-XRCE</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-scope"><span class="toc-text">1 scope</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E6%9C%AF%E8%AF%AD%E5%92%8C%E5%AE%9A%E4%B9%89"><span class="toc-text">4 术语和定义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E7%AC%A6%E5%8F%B7%E8%A7%A3%E9%87%8A"><span class="toc-text">5 符号解释</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-XRCE-Object-Model"><span class="toc-text">7 XRCE Object Model</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#7-1-General"><span class="toc-text">7.1 General</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-2-XRCE-Client"><span class="toc-text">7.2 XRCE Client</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-3-XRCE-Agent"><span class="toc-text">7.3 XRCE Agent</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-4-Model-Overview"><span class="toc-text">7.4 Model Overview</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Root"><span class="toc-text">Root</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ProxyClient"><span class="toc-text">ProxyClient</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Application"><span class="toc-text">Application</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#AccessController"><span class="toc-text">AccessController</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DomainParticipant"><span class="toc-text">DomainParticipant</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-5-XRCE-DDS-Proxy-Objects"><span class="toc-text">7.5 XRCE DDS Proxy Objects</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-6-XRCE-Object-Identification"><span class="toc-text">7.6 XRCE Object Identification</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-7-%E5%AF%B9XRCE-Object%E4%B8%8A%E7%9A%84%E6%93%8D%E4%BD%9C%E8%BF%9B%E8%A1%8C%E5%BB%BA%E6%A8%A1%E6%89%80%E7%94%A8%E5%88%B0%E7%9A%84%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B"><span class="toc-text">7.7 对XRCE Object上的操作进行建模所用到的数据类型</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#7-7-1-Data-and-Samples"><span class="toc-text">7.7.1 Data and Samples</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#7-7-2-DataRepresentation"><span class="toc-text">7.7.2 DataRepresentation</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#7-7-4-ObjectId"><span class="toc-text">7.7.4 ObjectId</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#7-7-5-ObjectKind"><span class="toc-text">7.7.5 ObjectKind</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#7-7-6-ObjectIdPrefix"><span class="toc-text">7.7.6 ObjectIdPrefix</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#7-7-7-ResultStaus"><span class="toc-text">7.7.7 ResultStaus</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#7-7-8-BaseObjectRequest"><span class="toc-text">7.7.8 BaseObjectRequest</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#7-7-9-BaseObjectReply"><span class="toc-text">7.7.9 BaseObjectReply</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-8-XRCE-%E5%AF%B9%E8%B1%A1%E6%93%8D%E4%BD%9C"><span class="toc-text">7.8 XRCE 对象操作</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#7-8-1-ClientKey-%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="toc-text">7.8.1 ClientKey 的使用</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#7-8-2-XRCE-Root"><span class="toc-text">7.8.2 XRCE Root</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#7-8-2-1-create-client"><span class="toc-text">7.8.2.1 create_client</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#7-8-2-2-get-info"><span class="toc-text">7.8.2.2 get_info</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#7-8-2-3-delete-client"><span class="toc-text">7.8.2.3 delete_client</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#7-8-5-XRCE-DataReader"><span class="toc-text">7.8.5 XRCE DataReader</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#7-8-5-1-read"><span class="toc-text">7.8.5.1 read</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-XRCE-Protocol"><span class="toc-text">8 XRCE Protocol</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#8-1-General"><span class="toc-text">8.1 General</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-2-%E5%AE%9A%E4%B9%89"><span class="toc-text">8.2 定义</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#8-2-1-Message"><span class="toc-text">8.2.1 Message</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#8-2-2-Session"><span class="toc-text">8.2.2 Session</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#8-2-3-Stream"><span class="toc-text">8.2.3 Stream</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#8-2-4-Client"><span class="toc-text">8.2.4 Client</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#8-2-5-Agent"><span class="toc-text">8.2.5 Agent</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-3-Message-Structure"><span class="toc-text">8.3 Message Structure</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#8-3-1-General"><span class="toc-text">8.3.1 General</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#8-3-2-Message-Header"><span class="toc-text">8.3.2 Message Header</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#8-3-2-1-Sessions%E5%92%8CsessionId"><span class="toc-text">8.3.2.1 Sessions和sessionId</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#8-3-2-2-Stream%E5%92%8CstreamId"><span class="toc-text">8.3.2.2 Stream和streamId</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#8-3-2-3-sequenceNr"><span class="toc-text">8.3.2.3 sequenceNr</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#8-3-2-4-clientKey"><span class="toc-text">8.3.2.4 clientKey</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#8-3-3-Submessage-Structure"><span class="toc-text">8.3.3 Submessage Structure</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#8-3-4-Submessage-Header"><span class="toc-text">8.3.4 Submessage Header</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#8-3-4-1-submessageId"><span class="toc-text">8.3.4.1 submessageId</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#8-3-4-2-flags"><span class="toc-text">8.3.4.2 flags</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#8-3-4-3-submessageLength"><span class="toc-text">8.3.4.3 submessageLength</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#8-3-4-4-payload"><span class="toc-text">8.3.4.4 payload</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#8-3-5-Submessage-Types"><span class="toc-text">8.3.5 Submessage Types</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-4-%E4%BA%92%E6%93%8D%E4%BD%9C%E6%A8%A1%E5%9E%8B%EF%BC%88Interaction-Model%EF%BC%89"><span class="toc-text">8.4  互操作模型（Interaction Model）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#8-4-1-General"><span class="toc-text">8.4.1 General</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#8-4-2-%E4%BD%BF%E7%94%A8%E9%A2%84%E5%85%88%E9%85%8D%E7%BD%AE%E7%9A%84DataWriter%E8%BF%9B%E8%A1%8C%E6%95%B0%E6%8D%AE%E5%8F%91%E9%80%81"><span class="toc-text">8.4.2 使用预先配置的DataWriter进行数据发送</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#8-4-3-%E4%BD%BF%E7%94%A8%E9%A2%84%E5%85%88%E9%85%8D%E7%BD%AE%E7%9A%84DataReader%E8%BF%9B%E8%A1%8C%E6%95%B0%E6%8D%AE%E6%8E%A5%E6%94%B6"><span class="toc-text">8.4.3 使用预先配置的DataReader进行数据接收</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#8-4-4-%E5%8F%91%E7%8E%B0%E4%B8%80%E4%B8%AAAgent"><span class="toc-text">8.4.4 发现一个Agent</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#8-4-5-%E9%93%BE%E6%8E%A5%E5%88%B0%E4%B8%80%E4%B8%AAAgent%E4%B8%8A"><span class="toc-text">8.4.5 链接到一个Agent上</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#8-4-6-%E5%88%9B%E9%80%A0%E4%B8%80%E4%B8%AA%E5%AE%8C%E6%95%B4%E7%9A%84Application"><span class="toc-text">8.4.6 创造一个完整的Application</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#8-4-7-%E5%AE%9A%E4%B9%89Qos%E9%85%8D%E7%BD%AE"><span class="toc-text">8.4.7 定义Qos配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#8-4-8-%E5%AE%9A%E4%B9%89%E7%B1%BB%E5%9E%8B"><span class="toc-text">8.4.8 定义类型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#8-4-9-%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AATopic"><span class="toc-text">8.4.9 创建一个Topic</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#8-4-10-%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AADataWriter"><span class="toc-text">8.4.10 创建一个DataWriter</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#8-4-11-%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AADataReader"><span class="toc-text">8.4.11 创建一个DataReader</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#8-4-12-%E4%BB%8E%E4%B8%80%E4%B8%AA%E8%B5%84%E6%BA%90%E4%B8%8A%E8%8E%B7%E5%8F%96%E4%BF%A1%E6%81%AF"><span class="toc-text">8.4.12 从一个资源上获取信息</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#8-4-13-%E6%9B%B4%E6%96%B0%E4%B8%80%E4%B8%AA%E8%B5%84%E6%BA%90"><span class="toc-text">8.4.13 更新一个资源</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#8-4-14-%E5%8F%AF%E9%9D%A0%E9%80%9A%E4%BF%A1"><span class="toc-text">8.4.14 可靠通信</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#8-4-14-1-%E5%8F%AF%E9%9D%A0%E5%8F%91%E9%80%81%E7%8A%B6%E6%80%81%E6%9C%BA"><span class="toc-text">8.4.14.1 可靠发送状态机</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#8-4-14-2-%E5%8F%AF%E9%9D%A0%E6%8E%A5%E6%94%B6%E7%8A%B6%E6%80%81%E6%9C%BA"><span class="toc-text">8.4.14.2 可靠接收状态机</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-5-XRCE-%E5%AF%B9%E8%B1%A1%E6%93%8D%E4%BD%9C%E7%9A%84%E5%8F%AF%E8%BF%BD%E6%BA%AF%E6%80%A7"><span class="toc-text">8.5 XRCE 对象操作的可追溯性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-XRCE-Agent-%E9%85%8D%E7%BD%AE"><span class="toc-text">9 XRCE Agent 配置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#9-1-%E5%B8%B8%E8%A7%84"><span class="toc-text">9.1 常规</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-2-%E4%BD%BF%E7%94%A8XRCE%E5%8D%8F%E8%AE%AE%E8%BF%9B%E8%A1%8C%E8%BF%9C%E7%A8%8B%E9%85%8D%E7%BD%AE"><span class="toc-text">9.2 使用XRCE协议进行远程配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-3-%E5%9F%BA%E4%BA%8E%E6%96%87%E4%BB%B6%E7%9A%84%E9%85%8D%E7%BD%AE"><span class="toc-text">9.3 基于文件的配置</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-XRCE%E9%83%A8%E7%BD%B2"><span class="toc-text">10 XRCE部署</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#10-1-XRCE-Client%E5%88%B0DDS%E7%9A%84%E9%80%9A%E4%BF%A1"><span class="toc-text">10.1 XRCE Client到DDS的通信</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-2-XRCE-Client-%E9%80%9A%E8%BF%87DDS%E5%88%B0XRCE-Client%E7%9A%84%E9%80%9A%E4%BF%A1"><span class="toc-text">10.2 XRCE Client 通过DDS到XRCE Client的通信</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-3-%E7%94%B1XRCE-Agent%E5%BD%93%E4%B8%AD%E9%97%B4%E4%BA%BA%E7%9A%84Client%E5%88%B0Client%E9%80%9A%E4%BF%A1"><span class="toc-text">10.3 由XRCE Agent当中间人的Client到Client通信</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-4-%E8%81%94%E5%90%88%E9%83%A8%E7%BD%B2"><span class="toc-text">10.4 联合部署</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-5-Client%E5%BA%94%E7%94%A8%E4%B9%8B%E9%97%B4%E7%9B%B4%E6%8E%A5P2P%E9%80%9A%E4%BF%A1"><span class="toc-text">10.5 Client应用之间直接P2P通信</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-6-%E7%BB%84%E5%90%88%E9%83%A8%E7%BD%B2"><span class="toc-text">10.6 组合部署</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#11-%E4%BC%A0%E8%BE%93%E6%98%A0%E5%B0%84"><span class="toc-text">11 传输映射</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#11-1-%E4%BC%A0%E8%BE%93%E6%A8%A1%E5%9E%8B"><span class="toc-text">11.1 传输模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-2-UDP-%E4%BC%A0%E8%BE%93"><span class="toc-text">11.2 UDP 传输</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#11-2-1-%E4%BC%A0%E8%BE%93%E5%AE%9A%E4%BD%8D%E5%99%A8"><span class="toc-text">11.2.1 传输定位器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#11-2-4-Agent%E5%8F%91%E7%8E%B0"><span class="toc-text">11.2.4 Agent发现</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-3-TCP-%E4%BC%A0%E8%BE%93"><span class="toc-text">11.3 TCP 传输</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#11-3-4-Agent%E5%8F%91%E7%8E%B0"><span class="toc-text">11.3.4 Agent发现</span></a></li></ol></li></ol></li></ol></li></ol>
+    </div>
+  </div>
+
+
+            </div>
+        
+        
+          <blockquote id="copyright">
+              <p>原文链接: <a href="https://zijian.wang/2021/04/01/XRCE-DDS/">https://zijian.wang/2021/04/01/XRCE-DDS/</a></p>
+              <p>版权声明: 转载请注明出处.</p>
+          </blockquote>
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+    <div class="article-reward">
+        <a id="reward-btn" href="javascript:;">打赏</a>
+        <div id="reward-content">
+            <h6 class="reward-tit">“感谢你的支持，我会继续努力！”</h6>
+            <div>
+                <div class="reward-code">
+                    <img class="type-code" src="/css/images/wechat.jpg">
+                    <img class="er-code" src="/css/images/wechat-pay.jpg">
+                </div>
+                <div class="reward-code">
+                    <img class="type-code" src="/css/images/alipay.jpg">
+                    <img class="er-code" src="/css/images/alipay-pay.jpg">
+                </div>
+            </div>
+            <p class="reward-desc">扫码打赏，感谢支持</p>
+        </div>
+    </div>
+
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DDS/" rel="tag">DDS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8D%8F%E8%AE%AE%E9%98%85%E8%AF%BB/" rel="tag">协议阅读</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%A0%94%E7%A9%B6%E6%96%B9%E5%90%91/" rel="tag">研究方向</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+        
+<nav id="article-nav">
+  
+    <a href="/2021/04/01/%E5%AD%90%E9%9B%86%E9%97%AE%E9%A2%98/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">newer</strong>
+      <div class="article-nav-title">
+        
+          经典NP问题——子集问题
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2021/01/10/%E3%80%8AC++%20Primer%20%E7%AC%AC%E4%BA%94%E7%89%88%E3%80%8B%E9%98%85%E8%AF%BB%E8%BF%87%E7%A8%8B%E6%9F%A5%E6%BC%8F%E8%A1%A5%E7%BC%BA%20Chapter3/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">older</strong>
+      <div class="article-nav-title">《C++ Primer 第五版》阅读过程查漏补缺 Chapter3</div>
+    </a>
+  
+</nav>
+
+      
+      
+        
+
+
+
+
+
+
+  <div id="SOHUCS" sid="2021/04/01/XRCE-DDS/"></div>
+
+
+      
+    </footer>
+  </div>
+</article>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-posts"></i> 最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2022/03/17/XRCE-DDS%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%88epromisa%E5%AE%9E%E7%8E%B0%EF%BC%89/">XRCE-DDS源码阅读（epromisa实现）</a>
+          </li>
+        
+          <li>
+            <a href="/2021/12/30/%E5%AF%B9MQTT%E7%9A%84%E5%BD%A2%E5%BC%8F%E5%8C%96%E5%88%86%E6%9E%90%E4%B8%8E%E5%BB%BA%E6%A8%A1/">对MQTT的形式化分析和建模</a>
+          </li>
+        
+          <li>
+            <a href="/2021/12/13/git%E5%AD%A6%E4%B9%A0/">git学习</a>
+          </li>
+        
+          <li>
+            <a href="/2021/12/01/%E5%AF%B9ROS2%E7%9A%84DDS%E7%9A%84%E5%BD%A2%E5%BC%8F%E5%8C%96%E5%88%86%E6%9E%90/">对ROS2的DDS的形式化分析</a>
+          </li>
+        
+          <li>
+            <a href="/2021/10/19/%E6%97%B6%E9%97%B4%E8%87%AA%E5%8A%A8%E6%9C%BA/">时间自动机</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/C/" style="font-size: 15px;">C++</a> <a href="/tags/DDS/" style="font-size: 15px;">DDS</a> <a href="/tags/Leetcode/" style="font-size: 20px;">Leetcode</a> <a href="/tags/ROS/" style="font-size: 10px;">ROS</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/hash/" style="font-size: 13.75px;">hash</a> <a href="/tags/%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE/" style="font-size: 11.25px;">二分查找</a> <a href="/tags/%E5%89%8D%E7%BC%80%E5%92%8C/" style="font-size: 10px;">前缀和</a> <a href="/tags/%E5%89%91%E6%8C%87offer/" style="font-size: 18.75px;">剑指offer</a> <a href="/tags/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" style="font-size: 12.5px;">动态规划</a> <a href="/tags/%E5%8D%8F%E8%AE%AE%E9%98%85%E8%AF%BB/" style="font-size: 12.5px;">协议阅读</a> <a href="/tags/%E5%8F%8C%E6%8C%87%E9%92%88/" style="font-size: 11.25px;">双指针</a> <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8FRTOS/" style="font-size: 10px;">嵌入式RTOS</a> <a href="/tags/%E5%B7%A5%E5%85%B7/" style="font-size: 11.25px;">工具</a> <a href="/tags/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/" style="font-size: 10px;">工具使用</a> <a href="/tags/%E5%BD%A2%E5%BC%8F%E5%8C%96/" style="font-size: 10px;">形式化</a> <a href="/tags/%E5%BD%A2%E5%BC%8F%E5%8C%96%E9%AA%8C%E8%AF%81/" style="font-size: 11.25px;">形式化验证</a> <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%EF%BC%8C%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" style="font-size: 10px;">操作系统，环境配置</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" style="font-size: 12.5px;">数据库</a> <a href="/tags/%E6%95%B0%E7%BB%84/" style="font-size: 13.75px;">数组</a> <a href="/tags/%E6%A8%A1%E5%9E%8B%E6%A3%80%E6%B5%8B/" style="font-size: 11.25px;">模型检测</a> <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" style="font-size: 11.25px;">源码阅读</a> <a href="/tags/%E7%9F%A9%E9%98%B5/" style="font-size: 13.75px;">矩阵</a> <a href="/tags/%E7%A0%94%E7%A9%B6%E6%96%B9%E5%90%91/" style="font-size: 16.25px;">研究方向</a> <a href="/tags/%E7%A7%91%E7%A0%94%E5%91%A8%E8%AE%B0/" style="font-size: 10px;">科研周记</a> <a href="/tags/%E7%AE%97%E6%B3%95%E9%A2%98/" style="font-size: 20px;">算法题</a> <a href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" style="font-size: 10px;">计算机网络</a> <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/" style="font-size: 11.25px;">论文阅读</a> <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB%EF%BC%8CROS2/" style="font-size: 10px;">论文阅读，ROS2</a> <a href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" style="font-size: 17.5px;">读书笔记</a> <a href="/tags/%E8%B4%AA%E5%BF%83/" style="font-size: 10px;">贪心</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-classify"></i> 分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/C-%E8%A7%86%E9%A2%91%E8%AF%BE/">C++视频课</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Leetcode%E5%88%B7%E9%A2%98/">Leetcode刷题</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ROS/">ROS</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ROS2%E4%B8%8EMicro-ROS/">ROS2与Micro-ROS</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E3%80%8AC-Primer%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/">《C++ Primer》阅读笔记</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%88%B7%E9%A2%98%E8%AE%B0%E5%BD%95/">刷题记录</a><span class="category-list-count">14</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%89%91%E6%8C%87offer/">剑指offer</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%B7%A5%E5%85%B7%E5%AD%A6%E4%B9%A0/">工具学习</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AD%A6%E4%B9%A0/">数据库学习</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%A7%91%E7%A0%94%E5%91%A8%E8%AE%B0/">科研周记</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E5%AD%A6%E4%B9%A0/">计算机网络学习</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">论文阅读</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">读书笔记</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/">软件安装</a><span class="category-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-archive"></i> 归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">2022年03月</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">2021年12月</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">2021年10月</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">2021年09月</a><span class="archive-list-count">17</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">2021年07月</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">2021年06月</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">2021年05月</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">2021年04月</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">2021年01月</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">2020年11月</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">2020年10月</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">2018年06月</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">2018年03月</a><span class="archive-list-count">4</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/C/" rel="tag">C++</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DDS/" rel="tag">DDS</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a><span class="tag-list-count">43</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ROS/" rel="tag">ROS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hash/" rel="tag">hash</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE/" rel="tag">二分查找</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%89%8D%E7%BC%80%E5%92%8C/" rel="tag">前缀和</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%89%91%E6%8C%87offer/" rel="tag">剑指offer</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" rel="tag">动态规划</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8D%8F%E8%AE%AE%E9%98%85%E8%AF%BB/" rel="tag">协议阅读</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8C%E6%8C%87%E9%92%88/" rel="tag">双指针</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8FRTOS/" rel="tag">嵌入式RTOS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B7%A5%E5%85%B7/" rel="tag">工具</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/" rel="tag">工具使用</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BD%A2%E5%BC%8F%E5%8C%96/" rel="tag">形式化</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BD%A2%E5%BC%8F%E5%8C%96%E9%AA%8C%E8%AF%81/" rel="tag">形式化验证</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%EF%BC%8C%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" rel="tag">操作系统，环境配置</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E7%BB%84/" rel="tag">数组</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%A8%A1%E5%9E%8B%E6%A3%80%E6%B5%8B/" rel="tag">模型检测</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" rel="tag">源码阅读</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%9F%A9%E9%98%B5/" rel="tag">矩阵</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A0%94%E7%A9%B6%E6%96%B9%E5%90%91/" rel="tag">研究方向</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A7%91%E7%A0%94%E5%91%A8%E8%AE%B0/" rel="tag">科研周记</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95%E9%A2%98/" rel="tag">算法题</a><span class="tag-list-count">43</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag">计算机网络</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/" rel="tag">论文阅读</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB%EF%BC%8CROS2/" rel="tag">论文阅读，ROS2</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag">读书笔记</a><span class="tag-list-count">11</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%B4%AA%E5%BF%83/" rel="tag">贪心</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-link"></i> 友情链接</h3>
+    <div class="widget">
+      <ul>
+      
+        <li>
+          <a target="_blank" rel="noopener" href="https://www.guanyuqian.com/">G-Blog（关师兄的博客）</a>
+        </li>
+      
+        <li>
+          <a target="_blank" rel="noopener" href="https://imvector.github.io/">峰哥的博客</a>
+        </li>
+      
+        <li>
+          <a target="_blank" rel="noopener" href="https://amyzhoucc.github.io/">豆豆龙（zcc师姐的博客）</a>
+        </li>
+      
+        <li>
+          <a target="_blank" rel="noopener" href="https://mchen0607.github.io/">闽哥的博客</a>
+        </li>
+      
+      </ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+        
+      </div>
+      <a id="totop" href="#top"></a>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      <p>
+        <a href="/sitemap.xml">网站地图</a>
+        <span> | </span><a href="/about/">联系博主</a>
+      </p>
+      
+        <p>
+          <i class="fa fa-visitors"></i>
+          <i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>
+          ，
+          <i class="fa fa-views"></i>
+          <i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>
+        </p>
+      
+      <p>
+        <span>Copyright &copy; 2022 Eric Wang.</span>
+        <span>Theme by <a href="https://github.com/chaooo/hexo-theme-BlueLake/" target="_blank">BlueLake.</a></span>
+        
+            <span>Count by <a href="http://busuanzi.ibruce.info/" target="_blank">busuanzi.</a></span>
+        
+        <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo.</a></span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+<script src="/js/search.json.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+  
+<script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+  
+<script src="/localshare/js/social-share.js"></script>
+
+  
+<script src="/localshare/js/qrcode.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <script>
+    window._config = { showScore: true };
+    (function(){
+      var appid = 'cyvoLETLk';
+      var conf = '9be4582e027b7ddeb93c7cb6571009a5';
+      var width = window.innerWidth || document.documentElement.clientWidth;
+      var nodes =document.getElementsByTagName("head")[0]||document.head||document.documentElement;
+      if (/(Android|iPhone|iPad|iPod|iOS)/i.test(navigator.userAgent) && width < 750) {
+          window.document.write('<script id="changyan_mobile_js" charset="utf-8" type="text/javascript" src="https://changyan.sohu.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf + '"><\/script>');
+      }
+      else {
+        var loadJs=function(d,a){
+          var b=document.createElement("script");b.setAttribute("type","text/javascript");
+          b.setAttribute("charset","UTF-8");
+          b.setAttribute("src",d);
+          if(typeof a==="function"){if(window.attachEvent){b.onreadystatechange=function(){var e=b.readyState;if(e==="loaded"||e==="complete"){b.onreadystatechange=null;a()}}}else{b.onload=a}}
+          nodes.appendChild(b)
+        };
+        loadJs("https://changyan.sohu.com/upload/changyan.js",function(){window.changyan.api.config({appid:appid,conf:conf})});
+      }
+      var loadCss = function(cssString){
+        var style=document.createElement("style");
+        style.setAttribute("type", "text/css");
+        if(style.styleSheet){// IE
+            style.styleSheet.cssText = cssString;
+        } else {// w3c
+            var cssText = document.createTextNode(cssString);
+            style.appendChild(cssText);
+        }
+        nodes.appendChild(style);
+      }
+    })();
+    function removeElement(_element){
+         var _parentElement = _element.parentNode;
+         if(_parentElement){
+                _parentElement.removeChild(_element);
+         }
+    }
+    var removeAD = document.createElement("div");
+    removeAD.id = 'removeAD';
+    var adInterval1 = setInterval(function() {
+      if(document.querySelector("#feedAv")){
+        document.querySelector("[node-type=cmt-list]").appendChild(removeAD);
+        document.querySelector("#removeAD").appendChild(document.querySelector("#feedAv"));
+        //- removeElement(document.querySelectorAll("#feedAv")[0]);
+        var feedAv = document.querySelector("#feedAv").children;
+        for( item of feedAv){
+          item.style.display = 'none'
+        }
+        document.querySelector("#removeAD").style.display="none"
+        clearInterval(adInterval1);
+      }
+    },1000);
+    var adInterval2 = setInterval(function() {
+      if(document.querySelector("#pop_ad")){
+        removeElement(document.querySelector("#pop_ad"));
+        clearInterval(adInterval2);
+      }
+    }, 1000);
+  </script>
+  
+<script src="https://assets.changyan.sohu.com/upload/plugins/plugins.count.js"></script>
+
+
+
+
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+  <script src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML" async type="text/javascript"></script>
+
+  </div>
+</body>
+</html>

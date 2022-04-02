@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>安装FastDDS中遇到的问题 | 妄越</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+    <meta name="description" content="学海无涯，记在路上">
+  
+  
+    <meta name="keywords" content="技术博客">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="妄越" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/logo.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+    
+<link rel="stylesheet" href="/localshare/css/share.css">
+
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">妄越</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">平生蹉跎少年志，雨落樱花又一年</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/."><i class="fa fa-home"></i> 首页</a>
+        
+          <a class="main-nav-link" href="/archives/"><i class="fa fa-archive"></i> 归档</a>
+        
+          <a class="main-nav-link" href="/about/"><i class="fa fa-user"></i> 关于</a>
+        
+      </nav>
+    </div>
+    <div id="search-form">
+      <div id="result-mask" class="hide"></div>
+      <label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label>
+      <div id="result-wrap" class="hide">
+        <div id="search-result"></div>
+      </div>
+      <div class="hide">
+        <template id="search-tpl">
+          <div class="item">
+            <a href="/{path}" title="{title}">
+              <div class="title">{title}</div>
+              <div class="time">{date}</div>
+              <div class="tags">{tags}</div>
+            </a>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-安装fastDDS中遇到的问题" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      安装FastDDS中遇到的问题
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-04-12T03:00:00.000Z" itemprop="datePublished">2021年04月12日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/ROS2%E4%B8%8EMicro-ROS/">ROS2与Micro-ROS</a>
+  </div>
+
+      
+        <span class="article-views">
+  <i class="fa fa-views"></i>
+  <i id="busuanzi_container_page_pv">
+      <i id="busuanzi_value_page_pv"></i>
+  </i>
+</span>
+
+      
+      
+<a href="/2021/04/12/%E5%AE%89%E8%A3%85fastDDS%E4%B8%AD%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98/#comments" class="article-comment-link">
+  
+    
+    
+    
+    
+    
+      <i id="changyan_count_unit" data-xid="/2021/04/12/%E5%AE%89%E8%A3%85fastDDS%E4%B8%AD%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98/"></i>
+    
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>最近在安装FastDDS，按照官网教程以为很简单，结果却踩了不少的坑，记一下，其中有一些问题在ROS1、ROS2以及Micro-ROS中都有出现，可以作为一些参考。</p>
+<span id="more"></span>
+<h1 id="问题一：’vcs’-not-found"><a href="#问题一：’vcs’-not-found" class="headerlink" title="问题一：’vcs’ not found"></a>问题一：’vcs’ not found</h1><h2 id="问题表现"><a href="#问题表现" class="headerlink" title="问题表现"></a>问题表现</h2><p><img src="https://i.loli.net/2021/04/13/j3NIHdl2tWPYTih.jpg" alt="vcs not found.JPG"></p>
+<h2 id="问题解决"><a href="#问题解决" class="headerlink" title="问题解决"></a>问题解决</h2><p>官方的教程问题，<code>pip3 install -U colcon-common-extensions vcstool</code>命令前加上<code>sudo</code>。否则安装的东西不会加到路径中</p>
+<h2 id="问题二：pytest版本不对"><a href="#问题二：pytest版本不对" class="headerlink" title="问题二：pytest版本不对"></a>问题二：pytest版本不对</h2><h2 id="问题表现-1"><a href="#问题表现-1" class="headerlink" title="问题表现"></a>问题表现</h2><p><img src="https://i.loli.net/2021/04/13/tuJw9xqohAQBGcC.jpg" alt="pytest版本.JPG"></p>
+<h2 id="问题解决-1"><a href="#问题解决-1" class="headerlink" title="问题解决"></a>问题解决</h2><p>运行命令强制安装一下</p>
+<p><code>sudo pip3 install pytest-rerunfailures</code></p>
+<p>如果这一步忽略了，那么下面问题四就会出现。再安装也不晚。</p>
+<h1 id="问题三：vcs-import-src-lt-fastrtps-repos-很慢、并且失败"><a href="#问题三：vcs-import-src-lt-fastrtps-repos-很慢、并且失败" class="headerlink" title="问题三：vcs import src &lt; fastrtps.repos 很慢、并且失败"></a>问题三：vcs import src &lt; fastrtps.repos 很慢、并且失败</h1><p>主要原因是因为懂得都懂的存在，但问题就在于你打开了小飞机都没有用。</p>
+<h2 id="问题表现-2"><a href="#问题表现-2" class="headerlink" title="问题表现"></a>问题表现</h2><p>在执行了命令<code>vcs import src &lt; fastrtps.repos</code>后，会出现若干个E，以及红字报错，如图所示。</p>
+<p><img src="https://i.loli.net/2021/04/12/kfKwhpdsBlNA6Y8.jpg" alt="vcs报错.JPG"></p>
+<h2 id="问题分析与解决"><a href="#问题分析与解决" class="headerlink" title="问题分析与解决"></a>问题分析与解决</h2><p>vcs命令是一个版本控制命令，这句命令的主要功能是把fastrtps.repos中记录的一些命令进行执行，并将获得的文件放入src文件中。</p>
+<p>我们打开fastrtps.repos，可以发现里面的内容如下所示：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">repositories:</span><br><span class="line">    foonathan_memory_vendor:</span><br><span class="line">        type: git</span><br><span class="line">        url: https://github.com/eProsima/foonathan_memory_vendor.git</span><br><span class="line">        version: master</span><br><span class="line">    fastcdr:</span><br><span class="line">        type: git</span><br><span class="line">        url: https://github.com/eProsima/Fast-CDR.git</span><br><span class="line">        version: master</span><br><span class="line">    fastrtps:</span><br><span class="line">        type: git</span><br><span class="line">        url: https://github.com/eProsima/Fast-DDS.git</span><br><span class="line">        version: master</span><br><span class="line">    fastrtpsgen:</span><br><span class="line">        type: git</span><br><span class="line">        url: https://github.com/eProsima/Fast-DDS-Gen.git</span><br><span class="line">        version: master</span><br><span class="line">    fastrtpsgen/thirdparty/idl-parser:</span><br><span class="line">        type: git</span><br><span class="line">        url: https://github.com/eProsima/IDL-Parser.git</span><br><span class="line">        version: master</span><br></pre></td></tr></table></figure>
+<p>其本质就是创建一个文件夹，然后使用git clone命令，将url中的东西下载到这个文件夹，五个部分分别下载五个文件夹。报错信息中E的数量和该文件中的部分数目是对应的。</p>
+<p>所以本质是github的问题，仓库在墙外，所以导致访问超时失败。</p>
+<p>当然有很多解决办法，个人觉得百分百成功的应该就是翻墙大法。但是VPN开启后还是相同的问题，主要是因为git没有走代理的端口，所以我们应该设置一下git走代理端口。</p>
+<p>一般我们使用的翻墙工具是ss嘛，是基于socks协议的，所以我们需要这两个命令行：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git config --global http.proxy &#x27;socks5://127.0.0.1:1080&#x27;</span><br><span class="line">git config --global https.proxy &#x27;socks5://127.0.0.1:1080&#x27;</span><br></pre></td></tr></table></figure>
+<p>然后再执行一遍（记得打开小飞机）<code>vcs import src &lt; fastrtps.repos</code></p>
+<p><img src="https://i.loli.net/2021/04/12/pn8qEzQNk9AYal7.jpg" alt="开启代理后的报错.JPG"></p>
+<p>显然已经有四个成功了！没成功那个我感觉可能是因为第三个、第四个都是往目录fastrtpsgen中git东西，然后可能它是先有thirdparty这个文件夹，所以因为fastrtpsgen路径非空的原因，导致git失败。<em>事实上后来发现这种问题是小概率时间，大概率是一遍成功的。</em>看一下此时fastrtpsgen的目录结构</p>
+<p><img src="https://i.loli.net/2021/04/12/zREXZDILu9Ubi8S.jpg" alt="目录结构1.JPG"></p>
+<p>果然只有第五部分git成功了。我的解决方案是删掉fasrtrtpsgen，然后重新执行<code>vcs import src &lt; fastrtps.repos</code>，这次就会比较快，因为很多已经git过了，没再报错。</p>
+<p><img src="https://i.loli.net/2021/04/12/QsU8Hd1PqLT4x9g.jpg" alt="删掉重新执行.JPG"></p>
+<p>重新看一下fastrtpsgen的目录结构，没有问题。</p>
+<p><img src="https://i.loli.net/2021/04/12/sNk4BXtxwDJnRvC.jpg" alt="目录结构2.JPG"></p>
+<p>当然这部分具体原因应该涉及vcs对repo进行解释的具体过程，我还不甚清楚。后面我会再调查一下。</p>
+<p>对了，最后记得把git代理关掉，否则访问国内资源会很慢，以及万一vpn没关就会啥都访问不到。关闭命令是</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git config --global --unset http.proxy</span><br><span class="line">git config --global --unset https.proxy </span><br></pre></td></tr></table></figure>
+<h1 id="问题四：colcon-build失败（如果问题二解决了这个问题不会再发生）"><a href="#问题四：colcon-build失败（如果问题二解决了这个问题不会再发生）" class="headerlink" title="问题四：colcon build失败（如果问题二解决了这个问题不会再发生）"></a>问题四：colcon build失败（如果问题二解决了这个问题不会再发生）</h1><p>主要问题是依赖问题，pytest下载的版本问题。</p>
+<h2 id="问题表现-3"><a href="#问题表现-3" class="headerlink" title="问题表现"></a>问题表现</h2><p>上一步安装完毕后，进入src目录，执行colcon build命令，colcon是基于CMake的工具，是用来构建软件包的，也是ROS2开发工具。本来以为前面按照教程装好了依赖应该没问题了，结果还是发生了报错，报错很长，但是都差不多，截取一部分放在下面：</p>
+<blockquote>
+<p>·········</p>
+<p>ERROR:colcon.colcon<em>core.entry<em>point:Exception loading extension ‘colcon<em>core.environment<em>variable.all<em>shells’: (pytest 4.6.9 (/usr/lib/python3/dist-packages), Requirement.parse(‘pytest&gt;=5.0’), {‘pytest-rerunfailures’})<br>Traceback (most recent call last):<br>  File “/home/wzj/.local/lib/python3.8/site-packages/colcon<em>core/entry_point.py”, line 120, in load_entry_points<br>    extension_type = load_entry_point(entry_point)<br>  File “/home/wzj/.local/lib/python3.8/site-packages/colcon_core/entry_point.py”, line 168, in load_entry_point<br>    return entry_point.load()<br>  File “/usr/lib/python3/dist-packages/pkg_resources/__init\</em></em>.py”, line 2444, in load<br>    self.require(<em>args, *</em>kwargs)<br>  File “/usr/lib/python3/dist-packages/pkg_resources/__init\</em></em>.py”, line 2467, in require<br>    items = working_set.resolve(reqs, env, installer, extras=self.extras)<br>  File “/usr/lib/python3/dist-packages/pkg_resources/__init\</em></em>.py”, line 792, in resolve<br>    raise VersionConflict(dist, req).with_context(dependent_req)<br>pkg_resources.ContextualVersionConflict: (pytest 4.6.9 (/usr/lib/python3/dist-packages), Requirement.parse(‘pytest&gt;=5.0’), {‘pytest-rerunfailures’})</p>
+<p>·········</p>
+</blockquote>
+<h2 id="问题分析与解决-1"><a href="#问题分析与解决-1" class="headerlink" title="问题分析与解决"></a>问题分析与解决</h2><p>一看就知道是pytest版本没跟上，虽然不知道啥原因，但是不妨碍我重新安装一下试试。执行命令<code>sudo pip(pip3) install pytest-rerunfailures</code>（ps. 网上抄的）</p>
+<p>虽然有一大堆<code>can&#39;t uninstall XXX.No files were fount to uninstall</code>但是最后看到了<code>Successfully installed iniconfig-1.1.1 py-1.10.0 pytest-6.2.3 toml-0.10.2</code>,说明缺少的pytest高版本已经有了，</p>
+<p>重新执行<code>colcon build</code>就开始跑了。</p>
+<h1 id="问题五：colcon-build失败（二）"><a href="#问题五：colcon-build失败（二）" class="headerlink" title="问题五：colcon build失败（二）"></a>问题五：colcon build失败（二）</h1><h2 id="问题表现-4"><a href="#问题表现-4" class="headerlink" title="问题表现"></a>问题表现</h2><p>东西挺多，我直接贴log</p>
+<blockquote>
+<p>Cloning into ‘foo_mem-ext’…<br>Note: switching to ‘c619113’.</p>
+<p>You are in ‘detached HEAD’ state. You can look around, make experimental<br>changes and commit them, and you can discard any commits you make in this<br>state without impacting any branches by switching back to a branch.</p>
+<p>If you want to create a new branch to retain commits you create, you may<br>do so (now or later) by using -c with the switch command. Example:</p>
+<p>  git switch -c <new-branch-name></p>
+<p>Or undo this operation with:</p>
+<p>  git switch -</p>
+<p>Turn off this advice by setting config variable advice.detachedHead to false</p>
+<p>HEAD is now at c619113 Whitespace clean up (#70)<br>Submodule ‘cmake/comp’ (<a target="_blank" rel="noopener" href="https://github.com/foonathan/compatibility.git">https://github.com/foonathan/compatibility.git</a>) registered for path ‘cmake/comp’<br>Cloning into ‘/home/wzj/Fast-DDS/build/foonathan_memory_vendor/foo_mem-ext-prefix/src/foo_mem-ext/cmake/comp’…<br>CMake Error at cmake/comp/comp_base.cmake:288 (message):<br>  error downloading feature file cpp11_lang/constexpr.cmake: “Failure when<br>  receiving data from the peer”.  Check spelling of feature.</p>
+<pre><code>Trying 185.199.108.133:443...
+</code></pre><p>  TCP_NODELAY set</p>
+<p>  connect to 185.199.108.133 port 443 failed: Connection refused</p>
+<pre><code>Trying 185.199.109.133:443...
+</code></pre><p>  TCP_NODELAY set</p>
+<p>  connect to 185.199.109.133 port 443 failed: Connection refused</p>
+<pre><code>Trying 185.199.110.133:443...
+</code></pre><p>  TCP_NODELAY set</p>
+<p>  Connected to raw.githubusercontent.com (185.199.110.133) port 443 (#0)</p>
+<p>  ALPN, offering h2</p>
+<p>  ALPN, offering http/1.1</p>
+<p>  successfully set certificate verify locations:</p>
+<pre><code>CAfile: /etc/ssl/certs/ca-certificates.crt
+CApath: /etc/ssl/certs
+</code></pre><p>  [5 bytes data]</p>
+<p>  TLSv1.3 (OUT), TLS handshake, Client hello (1):</p>
+<p>  [512 bytes data]</p>
+<p>  [5 bytes data]</p>
+<p>  TLSv1.3 (IN), TLS handshake, Server hello (2):</p>
+<p>  [122 bytes data]</p>
+<p>  [5 bytes data]</p>
+<p>  [5 bytes data]</p>
+<p>  [1 bytes data]</p>
+<p>  TLSv1.3 (IN), TLS handshake, Encrypted Extensions (8):</p>
+<p>  [19 bytes data]</p>
+<p>  [5 bytes data]</p>
+<p>  [1 bytes data]</p>
+<p>  TLSv1.3 (IN), TLS handshake, Certificate (11):</p>
+<p>  [3067 bytes data]</p>
+<p>  [5 bytes data]</p>
+<p>  [1 bytes data]</p>
+<p>  TLSv1.3 (IN), TLS handshake, CERT verify (15):</p>
+<p>  [264 bytes data]</p>
+<p>  [5 bytes data]</p>
+<p>  [1 bytes data]</p>
+<p>  TLSv1.3 (IN), TLS handshake, Finished (20):</p>
+<p>  [52 bytes data]</p>
+<p>  [5 bytes data]</p>
+<p>  TLSv1.3 (OUT), TLS change cipher, Change cipher spec (1):</p>
+<p>  [1 bytes data]</p>
+<p>  [5 bytes data]</p>
+<p>  [1 bytes data]</p>
+<p>  TLSv1.3 (OUT), TLS handshake, Finished (20):</p>
+<p>  [52 bytes data]</p>
+<p>  SSL connection using TLSv1.3 / TLS_AES_256_GCM_SHA384</p>
+<p>  ALPN, server accepted to use h2</p>
+<p>  Server certificate:</p>
+<p>   subject: C=US; ST=California; L=San Francisco; O=GitHub, Inc.; CN=www.github.com<br>   start date: May  6 00:00:00 2020 GMT<br>   expire date: Apr 14 12:00:00 2022 GMT<br>   subjectAltName: host “raw.githubusercontent.com” matched cert’s “*.githubusercontent.com”<br>   issuer: C=US; O=DigiCert Inc; OU=www.digicert.com; CN=DigiCert SHA2 High Assurance Server CA<br>   SSL certificate verify ok.</p>
+<p>  Using HTTP2, server supports multi-use</p>
+<p>  Connection state changed (HTTP/2 confirmed)</p>
+<p>  Copying HTTP/2 data in stream buffer to connection buffer after upgrade:<br>  len=0</p>
+<p>  [5 bytes data]</p>
+<p>  [1 bytes data]</p>
+<p>  [5 bytes data]</p>
+<p>  [1 bytes data]</p>
+<p>  [5 bytes data]</p>
+<p>  [1 bytes data]</p>
+<p>  Using Stream ID: 1 (easy handle 0x5575f191ae80)</p>
+<p>  [5 bytes data]</p>
+<p>  [1 bytes data]</p>
+<p>  GET /foonathan/compatibility/master/cpp11_lang/constexpr.cmake HTTP/2</p>
+<p>  Host: raw.githubusercontent.com</p>
+<p>  user-agent: curl/7.66.0</p>
+<p>  accept: <em>/</em></p>
+<p>  [5 bytes data]</p>
+<p>  [1 bytes data]</p>
+<p>  TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):</p>
+<p>  [193 bytes data]</p>
+<p>  OpenSSL SSL_read: Connection reset by peer, errno 104</p>
+<p>  Failed receiving HTTP2 data</p>
+<p>  [5 bytes data]</p>
+<p>  [1 bytes data]</p>
+<p>  OpenSSL SSL_write: Broken pipe, errno 32</p>
+<p>  Failed sending HTTP2 data</p>
+<p>  Connection #0 to host raw.githubusercontent.com left intact</p>
+<p>Call Stack (most recent call first):<br>  cmake/comp/comp_base.cmake:347 (_comp_fetch_feature)<br>  cmake/comp/comp_base.cmake:369 (_comp_handle_feature)<br>  cmake/compatibility.cmake:13 (comp_target_features)<br>  CMakeLists.txt:50 (include)</p>
+<p>make[2]: <strong><em> [CMakeFiles/foo_mem-ext.dir/build.make:108: foo_mem-ext-prefix/src/foo_mem-ext-stamp/foo_mem-ext-configure] Error 1<br>make[1]: </em></strong> [CMakeFiles/Makefile2:76: CMakeFiles/foo_mem-ext.dir/all] Error 2<br>make: <em>*</em> [Makefile:130: all] Error 2</p>
+</blockquote>
+<h2 id="问题分析和解决"><a href="#问题分析和解决" class="headerlink" title="问题分析和解决"></a>问题分析和解决</h2><p>中间的几次try是我将raw.githubusercontent.com域名解析出来的四个ip写到了/etc/hosts里，显然在尝试185.199.110.133的时候应该成功了，并且已经有了一部分数据交换，但是在后来http2 data的接受时候又失败了。</p>
+<p>解决办法目前是没有很好的解决办法，运气好的话换网络，用手机热点有一定几率成功（？？？经典ROS），至于原因还不清楚。</p>
+<p>····</p>
+<p>在github上提了issue，大佬给了回复，但是还没有解决我的问题，哎。</p>
+<p>·····</p>
+<p>已经在看计算机网络了，辣鸡gayhub。</p>
+
+        
+            <div id="toc-article">
+                
+  <div class="widget-wrap" id="toc-wrap">
+    <h3 class="widget-title"><i class="fa fa-toc"></i> 文章目录</h3>
+    <div class="widget">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E4%B8%80%EF%BC%9A%E2%80%99vcs%E2%80%99-not-found"><span class="toc-text">问题一：’vcs’ not found</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E8%A1%A8%E7%8E%B0"><span class="toc-text">问题表现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3"><span class="toc-text">问题解决</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E4%BA%8C%EF%BC%9Apytest%E7%89%88%E6%9C%AC%E4%B8%8D%E5%AF%B9"><span class="toc-text">问题二：pytest版本不对</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E8%A1%A8%E7%8E%B0-1"><span class="toc-text">问题表现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3-1"><span class="toc-text">问题解决</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E4%B8%89%EF%BC%9Avcs-import-src-lt-fastrtps-repos-%E5%BE%88%E6%85%A2%E3%80%81%E5%B9%B6%E4%B8%94%E5%A4%B1%E8%B4%A5"><span class="toc-text">问题三：vcs import src &lt; fastrtps.repos 很慢、并且失败</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E8%A1%A8%E7%8E%B0-2"><span class="toc-text">问题表现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90%E4%B8%8E%E8%A7%A3%E5%86%B3"><span class="toc-text">问题分析与解决</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E5%9B%9B%EF%BC%9Acolcon-build%E5%A4%B1%E8%B4%A5%EF%BC%88%E5%A6%82%E6%9E%9C%E9%97%AE%E9%A2%98%E4%BA%8C%E8%A7%A3%E5%86%B3%E4%BA%86%E8%BF%99%E4%B8%AA%E9%97%AE%E9%A2%98%E4%B8%8D%E4%BC%9A%E5%86%8D%E5%8F%91%E7%94%9F%EF%BC%89"><span class="toc-text">问题四：colcon build失败（如果问题二解决了这个问题不会再发生）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E8%A1%A8%E7%8E%B0-3"><span class="toc-text">问题表现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90%E4%B8%8E%E8%A7%A3%E5%86%B3-1"><span class="toc-text">问题分析与解决</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E4%BA%94%EF%BC%9Acolcon-build%E5%A4%B1%E8%B4%A5%EF%BC%88%E4%BA%8C%EF%BC%89"><span class="toc-text">问题五：colcon build失败（二）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E8%A1%A8%E7%8E%B0-4"><span class="toc-text">问题表现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90%E5%92%8C%E8%A7%A3%E5%86%B3"><span class="toc-text">问题分析和解决</span></a></li></ol></li></ol>
+    </div>
+  </div>
+
+
+            </div>
+        
+        
+          <blockquote id="copyright">
+              <p>原文链接: <a href="https://zijian.wang/2021/04/12/安装fastDDS中遇到的问题/">https://zijian.wang/2021/04/12/安装fastDDS中遇到的问题/</a></p>
+              <p>版权声明: 转载请注明出处.</p>
+          </blockquote>
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+    <div class="article-reward">
+        <a id="reward-btn" href="javascript:;">打赏</a>
+        <div id="reward-content">
+            <h6 class="reward-tit">“感谢你的支持，我会继续努力！”</h6>
+            <div>
+                <div class="reward-code">
+                    <img class="type-code" src="/css/images/wechat.jpg">
+                    <img class="er-code" src="/css/images/wechat-pay.jpg">
+                </div>
+                <div class="reward-code">
+                    <img class="type-code" src="/css/images/alipay.jpg">
+                    <img class="er-code" src="/css/images/alipay-pay.jpg">
+                </div>
+            </div>
+            <p class="reward-desc">扫码打赏，感谢支持</p>
+        </div>
+    </div>
+
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DDS/" rel="tag">DDS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%B7%A5%E5%85%B7/" rel="tag">工具</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%A0%94%E7%A9%B6%E6%96%B9%E5%90%91/" rel="tag">研究方向</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+        
+<nav id="article-nav">
+  
+    <a href="/2021/05/11/%E3%80%8AC++%20Primer%20%E7%AC%AC%E4%BA%94%E7%89%88%E3%80%8B%E9%98%85%E8%AF%BB%E8%BF%87%E7%A8%8B%E6%9F%A5%E6%BC%8F%E8%A1%A5%E7%BC%BA%20Chapter5/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">newer</strong>
+      <div class="article-nav-title">
+        
+          《C++ Primer 第五版》阅读过程查漏补缺 Chapter5
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2021/04/10/%E3%80%8AC++%20Primer%20%E7%AC%AC%E4%BA%94%E7%89%88%E3%80%8B%E9%98%85%E8%AF%BB%E8%BF%87%E7%A8%8B%E6%9F%A5%E6%BC%8F%E8%A1%A5%E7%BC%BA%20Chapter4/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">older</strong>
+      <div class="article-nav-title">《C++ Primer 第五版》阅读过程查漏补缺 Chapter4</div>
+    </a>
+  
+</nav>
+
+      
+      
+        
+
+
+
+
+
+
+  <div id="SOHUCS" sid="2021/04/12/安装fastDDS中遇到的问题/"></div>
+
+
+      
+    </footer>
+  </div>
+</article>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-posts"></i> 最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2022/03/17/XRCE-DDS%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%88epromisa%E5%AE%9E%E7%8E%B0%EF%BC%89/">XRCE-DDS源码阅读（epromisa实现）</a>
+          </li>
+        
+          <li>
+            <a href="/2021/12/30/%E5%AF%B9MQTT%E7%9A%84%E5%BD%A2%E5%BC%8F%E5%8C%96%E5%88%86%E6%9E%90%E4%B8%8E%E5%BB%BA%E6%A8%A1/">对MQTT的形式化分析和建模</a>
+          </li>
+        
+          <li>
+            <a href="/2021/12/13/git%E5%AD%A6%E4%B9%A0/">git学习</a>
+          </li>
+        
+          <li>
+            <a href="/2021/12/01/%E5%AF%B9ROS2%E7%9A%84DDS%E7%9A%84%E5%BD%A2%E5%BC%8F%E5%8C%96%E5%88%86%E6%9E%90/">对ROS2的DDS的形式化分析</a>
+          </li>
+        
+          <li>
+            <a href="/2021/10/19/%E6%97%B6%E9%97%B4%E8%87%AA%E5%8A%A8%E6%9C%BA/">时间自动机</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/C/" style="font-size: 15px;">C++</a> <a href="/tags/DDS/" style="font-size: 15px;">DDS</a> <a href="/tags/Leetcode/" style="font-size: 20px;">Leetcode</a> <a href="/tags/ROS/" style="font-size: 10px;">ROS</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/hash/" style="font-size: 13.75px;">hash</a> <a href="/tags/%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE/" style="font-size: 11.25px;">二分查找</a> <a href="/tags/%E5%89%8D%E7%BC%80%E5%92%8C/" style="font-size: 10px;">前缀和</a> <a href="/tags/%E5%89%91%E6%8C%87offer/" style="font-size: 18.75px;">剑指offer</a> <a href="/tags/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" style="font-size: 12.5px;">动态规划</a> <a href="/tags/%E5%8D%8F%E8%AE%AE%E9%98%85%E8%AF%BB/" style="font-size: 12.5px;">协议阅读</a> <a href="/tags/%E5%8F%8C%E6%8C%87%E9%92%88/" style="font-size: 11.25px;">双指针</a> <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8FRTOS/" style="font-size: 10px;">嵌入式RTOS</a> <a href="/tags/%E5%B7%A5%E5%85%B7/" style="font-size: 11.25px;">工具</a> <a href="/tags/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/" style="font-size: 10px;">工具使用</a> <a href="/tags/%E5%BD%A2%E5%BC%8F%E5%8C%96/" style="font-size: 10px;">形式化</a> <a href="/tags/%E5%BD%A2%E5%BC%8F%E5%8C%96%E9%AA%8C%E8%AF%81/" style="font-size: 11.25px;">形式化验证</a> <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%EF%BC%8C%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" style="font-size: 10px;">操作系统，环境配置</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" style="font-size: 12.5px;">数据库</a> <a href="/tags/%E6%95%B0%E7%BB%84/" style="font-size: 13.75px;">数组</a> <a href="/tags/%E6%A8%A1%E5%9E%8B%E6%A3%80%E6%B5%8B/" style="font-size: 11.25px;">模型检测</a> <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" style="font-size: 11.25px;">源码阅读</a> <a href="/tags/%E7%9F%A9%E9%98%B5/" style="font-size: 13.75px;">矩阵</a> <a href="/tags/%E7%A0%94%E7%A9%B6%E6%96%B9%E5%90%91/" style="font-size: 16.25px;">研究方向</a> <a href="/tags/%E7%A7%91%E7%A0%94%E5%91%A8%E8%AE%B0/" style="font-size: 10px;">科研周记</a> <a href="/tags/%E7%AE%97%E6%B3%95%E9%A2%98/" style="font-size: 20px;">算法题</a> <a href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" style="font-size: 10px;">计算机网络</a> <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/" style="font-size: 11.25px;">论文阅读</a> <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB%EF%BC%8CROS2/" style="font-size: 10px;">论文阅读，ROS2</a> <a href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" style="font-size: 17.5px;">读书笔记</a> <a href="/tags/%E8%B4%AA%E5%BF%83/" style="font-size: 10px;">贪心</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-classify"></i> 分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/C-%E8%A7%86%E9%A2%91%E8%AF%BE/">C++视频课</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Leetcode%E5%88%B7%E9%A2%98/">Leetcode刷题</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ROS/">ROS</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ROS2%E4%B8%8EMicro-ROS/">ROS2与Micro-ROS</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E3%80%8AC-Primer%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/">《C++ Primer》阅读笔记</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%88%B7%E9%A2%98%E8%AE%B0%E5%BD%95/">刷题记录</a><span class="category-list-count">14</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%89%91%E6%8C%87offer/">剑指offer</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%B7%A5%E5%85%B7%E5%AD%A6%E4%B9%A0/">工具学习</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AD%A6%E4%B9%A0/">数据库学习</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%A7%91%E7%A0%94%E5%91%A8%E8%AE%B0/">科研周记</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E5%AD%A6%E4%B9%A0/">计算机网络学习</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">论文阅读</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">读书笔记</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/">软件安装</a><span class="category-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-archive"></i> 归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">2022年03月</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">2021年12月</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">2021年10月</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">2021年09月</a><span class="archive-list-count">17</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">2021年07月</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">2021年06月</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">2021年05月</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">2021年04月</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">2021年01月</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">2020年11月</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">2020年10月</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">2018年06月</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">2018年03月</a><span class="archive-list-count">4</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/C/" rel="tag">C++</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DDS/" rel="tag">DDS</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a><span class="tag-list-count">43</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ROS/" rel="tag">ROS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hash/" rel="tag">hash</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE/" rel="tag">二分查找</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%89%8D%E7%BC%80%E5%92%8C/" rel="tag">前缀和</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%89%91%E6%8C%87offer/" rel="tag">剑指offer</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" rel="tag">动态规划</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8D%8F%E8%AE%AE%E9%98%85%E8%AF%BB/" rel="tag">协议阅读</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8C%E6%8C%87%E9%92%88/" rel="tag">双指针</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8FRTOS/" rel="tag">嵌入式RTOS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B7%A5%E5%85%B7/" rel="tag">工具</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/" rel="tag">工具使用</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BD%A2%E5%BC%8F%E5%8C%96/" rel="tag">形式化</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BD%A2%E5%BC%8F%E5%8C%96%E9%AA%8C%E8%AF%81/" rel="tag">形式化验证</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%EF%BC%8C%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" rel="tag">操作系统，环境配置</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E7%BB%84/" rel="tag">数组</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%A8%A1%E5%9E%8B%E6%A3%80%E6%B5%8B/" rel="tag">模型检测</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" rel="tag">源码阅读</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%9F%A9%E9%98%B5/" rel="tag">矩阵</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A0%94%E7%A9%B6%E6%96%B9%E5%90%91/" rel="tag">研究方向</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A7%91%E7%A0%94%E5%91%A8%E8%AE%B0/" rel="tag">科研周记</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95%E9%A2%98/" rel="tag">算法题</a><span class="tag-list-count">43</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag">计算机网络</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/" rel="tag">论文阅读</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB%EF%BC%8CROS2/" rel="tag">论文阅读，ROS2</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag">读书笔记</a><span class="tag-list-count">11</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%B4%AA%E5%BF%83/" rel="tag">贪心</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-link"></i> 友情链接</h3>
+    <div class="widget">
+      <ul>
+      
+        <li>
+          <a target="_blank" rel="noopener" href="https://www.guanyuqian.com/">G-Blog（关师兄的博客）</a>
+        </li>
+      
+        <li>
+          <a target="_blank" rel="noopener" href="https://imvector.github.io/">峰哥的博客</a>
+        </li>
+      
+        <li>
+          <a target="_blank" rel="noopener" href="https://amyzhoucc.github.io/">豆豆龙（zcc师姐的博客）</a>
+        </li>
+      
+        <li>
+          <a target="_blank" rel="noopener" href="https://mchen0607.github.io/">闽哥的博客</a>
+        </li>
+      
+      </ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+        
+      </div>
+      <a id="totop" href="#top"></a>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      <p>
+        <a href="/sitemap.xml">网站地图</a>
+        <span> | </span><a href="/about/">联系博主</a>
+      </p>
+      
+        <p>
+          <i class="fa fa-visitors"></i>
+          <i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>
+          ，
+          <i class="fa fa-views"></i>
+          <i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>
+        </p>
+      
+      <p>
+        <span>Copyright &copy; 2022 Eric Wang.</span>
+        <span>Theme by <a href="https://github.com/chaooo/hexo-theme-BlueLake/" target="_blank">BlueLake.</a></span>
+        
+            <span>Count by <a href="http://busuanzi.ibruce.info/" target="_blank">busuanzi.</a></span>
+        
+        <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo.</a></span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+<script src="/js/search.json.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+  
+<script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+  
+<script src="/localshare/js/social-share.js"></script>
+
+  
+<script src="/localshare/js/qrcode.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <script>
+    window._config = { showScore: true };
+    (function(){
+      var appid = 'cyvoLETLk';
+      var conf = '9be4582e027b7ddeb93c7cb6571009a5';
+      var width = window.innerWidth || document.documentElement.clientWidth;
+      var nodes =document.getElementsByTagName("head")[0]||document.head||document.documentElement;
+      if (/(Android|iPhone|iPad|iPod|iOS)/i.test(navigator.userAgent) && width < 750) {
+          window.document.write('<script id="changyan_mobile_js" charset="utf-8" type="text/javascript" src="https://changyan.sohu.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf + '"><\/script>');
+      }
+      else {
+        var loadJs=function(d,a){
+          var b=document.createElement("script");b.setAttribute("type","text/javascript");
+          b.setAttribute("charset","UTF-8");
+          b.setAttribute("src",d);
+          if(typeof a==="function"){if(window.attachEvent){b.onreadystatechange=function(){var e=b.readyState;if(e==="loaded"||e==="complete"){b.onreadystatechange=null;a()}}}else{b.onload=a}}
+          nodes.appendChild(b)
+        };
+        loadJs("https://changyan.sohu.com/upload/changyan.js",function(){window.changyan.api.config({appid:appid,conf:conf})});
+      }
+      var loadCss = function(cssString){
+        var style=document.createElement("style");
+        style.setAttribute("type", "text/css");
+        if(style.styleSheet){// IE
+            style.styleSheet.cssText = cssString;
+        } else {// w3c
+            var cssText = document.createTextNode(cssString);
+            style.appendChild(cssText);
+        }
+        nodes.appendChild(style);
+      }
+    })();
+    function removeElement(_element){
+         var _parentElement = _element.parentNode;
+         if(_parentElement){
+                _parentElement.removeChild(_element);
+         }
+    }
+    var removeAD = document.createElement("div");
+    removeAD.id = 'removeAD';
+    var adInterval1 = setInterval(function() {
+      if(document.querySelector("#feedAv")){
+        document.querySelector("[node-type=cmt-list]").appendChild(removeAD);
+        document.querySelector("#removeAD").appendChild(document.querySelector("#feedAv"));
+        //- removeElement(document.querySelectorAll("#feedAv")[0]);
+        var feedAv = document.querySelector("#feedAv").children;
+        for( item of feedAv){
+          item.style.display = 'none'
+        }
+        document.querySelector("#removeAD").style.display="none"
+        clearInterval(adInterval1);
+      }
+    },1000);
+    var adInterval2 = setInterval(function() {
+      if(document.querySelector("#pop_ad")){
+        removeElement(document.querySelector("#pop_ad"));
+        clearInterval(adInterval2);
+      }
+    }, 1000);
+  </script>
+  
+<script src="https://assets.changyan.sohu.com/upload/plugins/plugins.count.js"></script>
+
+
+
+
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+  <script src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML" async type="text/javascript"></script>
+
+  </div>
+</body>
+</html>

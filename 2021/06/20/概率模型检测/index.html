@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>概率模型检测 | 妄越</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+    <meta name="description" content="学海无涯，记在路上">
+  
+  
+    <meta name="keywords" content="技术博客">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="妄越" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/logo.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+    
+<link rel="stylesheet" href="/localshare/css/share.css">
+
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">妄越</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">平生蹉跎少年志，雨落樱花又一年</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/."><i class="fa fa-home"></i> 首页</a>
+        
+          <a class="main-nav-link" href="/archives/"><i class="fa fa-archive"></i> 归档</a>
+        
+          <a class="main-nav-link" href="/about/"><i class="fa fa-user"></i> 关于</a>
+        
+      </nav>
+    </div>
+    <div id="search-form">
+      <div id="result-mask" class="hide"></div>
+      <label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label>
+      <div id="result-wrap" class="hide">
+        <div id="search-result"></div>
+      </div>
+      <div class="hide">
+        <template id="search-tpl">
+          <div class="item">
+            <a href="/{path}" title="{title}">
+              <div class="title">{title}</div>
+              <div class="time">{date}</div>
+              <div class="tags">{tags}</div>
+            </a>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-概率模型检测" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      概率模型检测
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-06-20T07:45:22.000Z" itemprop="datePublished">2021年06月20日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">读书笔记</a>
+  </div>
+
+      
+        <span class="article-views">
+  <i class="fa fa-views"></i>
+  <i id="busuanzi_container_page_pv">
+      <i id="busuanzi_value_page_pv"></i>
+  </i>
+</span>
+
+      
+      
+<a href="/2021/06/20/%E6%A6%82%E7%8E%87%E6%A8%A1%E5%9E%8B%E6%A3%80%E6%B5%8B/#comments" class="article-comment-link">
+  
+    
+    
+    
+    
+    
+      <i id="changyan_count_unit" data-xid="/2021/06/20/%E6%A6%82%E7%8E%87%E6%A8%A1%E5%9E%8B%E6%A3%80%E6%B5%8B/"></i>
+    
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>对《Principles  of Model Checking》一书概率模型检测部分的翻译。</p>
+<p>未完成 先鸽了</p>
+<span id="more"></span>
+<p>模型检测技术一般着眼于绝对保证的正确性——“系统的失败是不可能的”——事实上，这种僵化的概念很难保证，或者说是不可能保证的。事实上，系统受制于一种随机性的多种现象，比如消息丢失或者混淆之类的，所以正确性——“99%概率上个系统不会失败”——正在变得没那么绝对。这一章节讨论了概率系统，也就是表现出概率性的系统，的自动化验证。概率层面对下面几种情况是非常至关重要的：</p>
+<ul>
+<li>随机算法。 经典案例是分布式算法比如领导人选举或者共识算法（<del>使用抛硬币实验打破过程之间的“对称性”，从而最终以概率1达成共识。</del>）</li>
+<li>对不可靠和不可预测系统行为的建模。比如消息丢失、处理器故障等现象可以用不确定性来进行建模。这通常适用于早期系统设计阶段，在该阶段中，系统被认为是高度抽象的，并且未明确指定有关可能性的信息（有时是故意的）。 但是，在以后的设计阶段中，内部系统的特征将变得更加占主导地位，概率是量化并改进此信息的有用工具。 </li>
+<li>基于模型的性能评估。由于性能评估旨在预测系统性能和可靠性，概率信息-消息传输延迟的分布是什么或处理器的故障率是多少？ —需要存在以评估定量属性，例如等待时间，队列长度，故障间隔时间等 </li>
+</ul>
+<p>为了建模随机现象，转移系统被赋予概率。这通过不同的几种方式实现。在<strong>离散时间的马尔科夫链（MCs）</strong>中，所有的选择是概率性的。马尔科夫链是最常用的用来评估信息处理系统的性能和可靠性的互操作模型。概括的讲，马尔科夫链就是对每个状态后继者的概率分布的转移系统。换句话说，下个状态会概率的进行选择，而不是不确定的进行选择。马尔科夫链不适用于随即分布式系统的建模，因为他们无法以适当的方式对并发系统的交错行为进行建模。为了这个目的，<strong>马尔科夫决策进程（Markov decision processes，MDPs）</strong>被使用。在MDPs中，不确定性和概率性选择共存。简而言之，MDPs是一个任何状态下，概率分布之间都存在一个不确定性选择的转移系统。一旦不确定性的选择了概率分布，就如同MCs中一样，将以概率方式选择了下一个状态。因此，任何MC都是在任何状态下唯一确定概率分布的MDP。随机分布算法通常都由MDP进行合适的建模，因为概率影响算法的只是一小部分，而不确定性用于进程之间进行交互的并发行为的建模。</p>
+<p>概率系统的验证可以集中在定量性质或定性性质（或两者）上。 定量属性通常会限制某些事件的概率或期望。 定量属性的实例是，例如，要求在接下来的t个时间单位内传递消息的概率至少为0.98，或者在并发系统中寻找领导者的不成功尝试的预期次数最多为7。 另一方面，定性属性通常断言某个（好）事件几乎肯定会发生，即概率为1，或者两次断言，某个（坏）事件几乎不会发生，即概率为零。 马尔可夫模型的典型定性属性是可达性，持久性（最终是否总是会发生事件？）和重复可达性（是否可以重复达到某些状态？） </p>
+<p>本章节目的是介绍离散时间的马尔科夫链和马尔科夫决策进程的定性和定量性质的主要验证原理。从分析可达性、持久性和重复可达性到CTL的概率性变体模型检测算法，称为概率计算树逻辑，简称为PCTL。此逻辑适用于以一种非常优雅的方式，表示一大类属性。例如属性“最终一个领导者将会以至少4/5的概率当选”在PCTL中将会被表述为：</p>
+<script type="math/tex; mode=display">
+\mathbb{P}_{\geq0.8}(\lozenge  leader)</script><p>另一种表述为：</p>
+<script type="math/tex; mode=display">
+\mathbb{P}_{\geq0.015}(\neg c.empty \cup^{\leq6} c.full)</script><p>断言在所有6个中间配置c为非空的情况下，接下来6个步骤里通道被完全占用的概率被限制在0.015</p>
+<p>除了PCTL中的分支时间属性之外，本章还介绍了线性时间属性。在PCTL中，概率是通过 $\mathbb{P}$ 运算实现的，在线性时间设置中，概率概念仅仅出现在语义级别上。也就是说，在概率线性时间设置中，LTL公式用于指定所需的或者不好的行为，目的是建立给定的LTL公式成立的概率。因此，状态之间的满足关系不再是布尔值——公式在某个状态下是否满足——而是将一个概率值分配给了状态。本章涉及线性时间属性的验证，例如正则安全属性和$\omega$安全属性。</p>
+<p>与本专论的其余部分一致，我们采用了基于状态的概率模型视图。这意味着将马尔科夫链和马尔可夫决策过程视为有向图的变体。在该变体中，边（转移过程）使用随机信息进行赋值。这与许多教科书中将MC定义为随机变量序列相反。当将MCs和MDPs视作一个反应系统和时态逻辑结构的操作模型时，基于状态的方法（具有针对状态的原子命题）似乎更自然。由于马尔可夫模型的组合方法不在本专论的讨论范围之内，因此本章不涉及任何操作，因此将其省略。</p>
+<h2 id="马尔科夫链"><a href="#马尔科夫链" class="headerlink" title="马尔科夫链"></a>马尔科夫链</h2><p>马尔科夫链表现为转移系统，唯一不同指出在于后继状态之间的不确定性选择被概率性选择所代替。也就是说，状态s的后继状态会根据概率分布进行选择。该概率分布仅仅取决于当前状态s，而不取决于比如从某些初始状态引导到该状态s的路径片段。因此，系统演变不取决于历史（即到目前为止已经执行的路径片段），而仅仅取决于当前状态s。这被称为<strong>无记忆属性</strong>。</p>
+<h5 id="定义1-（离散时间的）马尔科夫链（MC）"><a href="#定义1-（离散时间的）马尔科夫链（MC）" class="headerlink" title="定义1. （离散时间的）马尔科夫链（MC）"></a>定义1. （离散时间的）马尔科夫链（MC）</h5><p>一个（离散时间的）马尔科夫链是一个五元组$\mathcal{M} = (S,\mathbf{P},\iota_{init},AP,L)$，其中</p>
+<ul>
+<li><p>S是一个可数的、不为空的状态集合</p>
+</li>
+<li><p>$\mathbf{P}$：$S \times S \rightarrow [0,1] $是<em>转移概率函数</em>，对于所有状态s，有</p>
+<script type="math/tex; mode=display">
+\sum_{s'\in S} \mathbf{P}(s,s') = 1</script></li>
+<li><p>$\iota<em>{init}$:$S \rightarrow [0,1]$是<em>初始分布</em>，$$ \sum\limits</em>{s\in S} \iota_{init}(s)=1 $$</p>
+</li>
+<li><p>AP是一个原子命题的集合，$L:S\rightarrow2^{AP}$是一个标签函数</p>
+</li>
+</ul>
+<p>当$S$和$AP$是有限的时候，$\mathcal{M}$被称为有限的。对有限的$\mathcal{M}$,$\mathcal{M}$的<em>大小</em>（表示为$size(\mathcal{M})$)指的是状态的数量加上$(s,s’)$对的数量，其中$(s,s’)\in S \times S$并且$\mathbf{P}(s,s’)&gt;0$。</p>
+<p>转移概率函数$\mathbf{P}$指定了每个状态s的概率$\mathbf{P}(s,s’)$，该概率描述的是从再单独的一次转移中，状态$s$移动一步到$s’$的概率。==施加在$\mathbf{P}$上的约束确保$\mathbf{P}$是分布的。对于马尔可夫链的数学处理，非零的转移概率是否合理是无关就要的。==然而，处于算法目的，我们假定$\mathbf{P}(s,s’)$的值对于所有的状态$s,s’\in S$都是合理的。</p>
+<p>$\iota<em>{init}$的值指定系统从状态s开始进行的概率。$\iota</em>{init}(s)&gt;0$的状态s被视作<em>初始状态</em>。类似的，$\mathbf{P}(s,s’)&gt;0$的状态s‘被视为s的可能后继。对于状态$s$和$T\subseteq S$，令$\mathbf{P}(s,T)$表示从状态s转移一步到达某个状态$t\in T$的概率。也就是说，</p>
+<script type="math/tex; mode=display">
+\mathbf{P}(s,T) = \sum\limits_{t\in T} \mathbf{P}(s,T).</script><p>在==续集（sequel）==中，我们通常用矩阵$(\mathbf{P}(s,t))<em>{s,t\in S}$来标识转移概率函数$\mathbf{P}:S\times S\rightarrow [0,1]$。矩阵中状态$s$的行$\mathbf{P}(s,·)$包含从$s$转移到其后继的概率，而状态$s$的列$\mathbf{P}(·,s)$指定从任何其他状态进入状态$s$的概率。类似的，初始分布$\iota</em>{init}$通常被视作一个向量$(\iota<em>{init}(s))</em>{s\in S}$。</p>
+<p>原子命题和标记函数$L$的使用和转移系统相同，本章的其余部分，我们通常将状态名视作原子命题，比如$AP = S$并且$L(s)={s}$。</p>
+<p>当且仅当$\mathbf{P}(s,s’)&gt;0$时，马尔科夫链才会产生一个<em>底层有向图</em>，其中状态充当顶点，并且从s到s’有一条边。在底层有向图中，马尔科夫链中的路径是最大（比如无限）路径。他们被定义为对所有$i\geq0$下$ \mathbf{P}(s_i,s_i+1)&gt;0$的无限状态序列$\pi = s_0 s_1 s_2 ···\in S^{\omega} $。对于$\mathcal{M}$中的路径$\pi$ ，$inf(\pi)$表示在$\pi$中被无限经常次访问的状态集。对于有限马尔科夫链，$inf(\pi)$对所有的路径$\pi$非空。</p>
+<p>马尔科夫链由他们的底层有向图表示，其中边上被赋予了[0,1]之间的转移概率。如果状态s有一个唯一后继s’，比如$\mathbf{P}(s,s’)=1$，那么可以省略转移概率。</p>
+<h5 id="示例2-一个简单的通信协议"><a href="#示例2-一个简单的通信协议" class="headerlink" title="示例2. 一个简单的通信协议"></a>示例2. 一个简单的通信协议</h5><p>考虑一个使用通道的简单的通讯协议。参见图中的马尔可夫链，从消息可能会丢失的角度来看，这是非常容易出错的。在此，对于$s \neq start$，$\iota<em>{init}(start)=1$并且$\iota</em>{init}(s)=0$，即$start$是独一无二的初始状态。在$start$状态，一条消息被生成并沿着通道被发送给独一无二的后继状态$try$。这个消息会有$\frac{1}{10} $的概率丢失，那么消息会被重新发送，知道它最终被发送到。一但消息被正确地发送，系统会返回它的初始状态。</p>
+<p><img src="https://i.loli.net/2021/05/19/6fzWTSqCg3lZcFy.png" alt="image.png"></p>
+<p>使用针对$start,try,lost,delivered$等状态的枚举，转移概率函数$\mathbf{P}$被看作一个$4\times 4$矩阵，初始分布被看作一个列向量。</p>
+<script type="math/tex; mode=display">
+\mathbf{P} = \begin{pmatrix}
+ 0&  1&  0&  0\\ 
+ 0&  0&  \frac{1}{10}& \frac{9}{10}\\ 
+ 0&  1&  0& 0\\ 
+ 1&  0&  0& 0
+\end{pmatrix}            
+\iota_{init} = \begin{pmatrix} 
+1 \\
+0 \\
+0 \\
+0
+\end{pmatrix}</script><p>路径的一个示例为</p>
+<script type="math/tex; mode=display">
+\pi = (start\space try\space lost\space try\space lost \space try \space delivered)^{\omega}</script><p>沿着这条路径，每条消息在送达之前要被重发两次。它是遵循$inf(\pi)=S$。对于$T={lost,delivered}$,我们有$\mathbf{P}(try,T)=1$。</p>
+<h5 id="示例3-用公平硬币来模拟骰子"><a href="#示例3-用公平硬币来模拟骰子" class="headerlink" title="示例3. 用公平硬币来模拟骰子"></a>示例3. 用公平硬币来模拟骰子</h5><p>考虑由Knuth和Yao最初提出的使用公平硬币来模拟6面骰子的行为，可以得到如图所示的马尔科夫链：</p>
+<p><img src="https://i.loli.net/2021/05/19/QRsN3Dn7acruBMO.png" alt="image.png"></p>
+<p>计算从初始状态$s<em>0$开始，即对于所有状态$s\neq s_0$，我们有$\iota</em>{init}(s<em>0)=1$并且$\iota</em>{init}(s)=0$。底层的1，2，3，4，5和6状态表示了可能的骰子结果。每个内部节点表示扔了一个公平的硬币。如果结果为正面，左侧分支确定下一个状态，如果结果为反面，右侧分支确定为下一个状态。</p>
+<p>如果处于状态$s<em>0$时的抛硬币实验产生的结果为正面，则系统迁移至状态$s</em>{1,2,3}$，再次投掷硬币以相等的概率导向状态$s<em>{2,3}$(该状态骰子会以相等的概率产生2或者3) 或者状态$s’</em>{1,2,3}$。从后面这种状态出发，投掷硬币会以$\frac{1}{2}$的概率产生1，或者以$\frac{1}{2}$的概率返回状态$s_{1,2,3}$。在初始状态下产生结果为反面的行为导致的结果是对称的。我们将会在后面对此进行确定，事实上，这个马尔科夫链可以充分地对一个骰子进行建模，即结果具有同等可能性。</p>
+<h5 id="示例4-掷骰子赌博游戏"><a href="#示例4-掷骰子赌博游戏" class="headerlink" title="示例4. 掷骰子赌博游戏"></a>示例4. 掷骰子赌博游戏</h5><p>游戏掷骰子时基于对两个骰子掷骰结果的投注。第一次投掷出来的结果决定是否需要再投一次。当结果投出来为7或11，游戏结束，玩家获胜，结果投出来为2，3或者12是”残次“，玩家输了。投出来的 结果为其他情况时，再投一次，但是第一次投出来的结果已经留存了（也就是点数）。如果下一轮投掷出7点或者上次投掷的点数，游戏结束，为7点时，玩家输掉，为上次投出来的点数时，玩家获胜。其他任何情况下，继续投骰子，直到最终获得7点或者那个结果位置。如图描述了掷骰子游戏行为的马尔科夫链。状态$start$是唯一的初始状态。我们有$\mathbf{P}(start,won)=\frac{2}{9}$,因为有8种成功的掷骰组合:$(1,6),(2,5),(3,4),(5,6)$以及相应对称的组合。其他转移概率以类似的方式确定。状态4，5，6，8，9和10处的自环回路对骰子的重新投掷进行建模。对于$T={4,5,6}$，我们有$\mathbf{P}(s_0 ,T)=\frac{1}{3}$。</p>
+<p><img src="https://i.loli.net/2021/05/19/AXtjuS24C8kUK3Z.png" alt="image.png"></p>
+<h5 id="示例5-Zeroconf协议"><a href="#示例5-Zeroconf协议" class="headerlink" title="示例5. Zeroconf协议"></a>示例5. Zeroconf协议</h5><p>IPv4的Zeroconf协议是为了家庭局域网应用（微波炉、笔记本电脑、VCR、DVD放映机等）设计的，每种设备都配有网络接口以实现相互通信。这样的自组织网络必须是热插拔并且可以自我配置的。覆盖所有这些应用，意味着将新设备（接口）连接到网络时，必须为其自动配置一个唯一的IP地址。Zeroconf协议以下述几种方式解决这个任务。主机需要从65024个可选地址中随机选择一个IP地址，比如说$U$进行配置，然后广播一条消息（称之为探测）“谁在使用地址$U$?”如果探测被一个已经在使用地址$U$的主机收到，它就会通过一条消息进行答复，表示$U$已经在使用了。收到此消息后，需要配置的主机重新启动：它再次随机挑选一个新的地址，广播一个探测信号······</p>
+<p>由于消息丢失或者主机繁忙，一个探测或者回复消息可能不能到达某些（或者所有）主机。为了增强协议的可靠性，一个主机需要发送$n$个探测信号，每个后面都要跟着一个$r$个时间单位的监听周期。因此，主机仅仅可以在n个探测都被发送，并且在$n·r$个时间单位内没有到回复之后，开始使用选择的IP地址。注意，在协议运行之后，主机仍然有可能会使用一个另外的主机正在使用的IP地址，如果说所有的探测都被丢失了。这种被称为<em>地址冲突</em>的情况是非常不希望的，因为他可能迫使主机终止活跃的TCP/IP链接。</p>
+<p><img src="https://i.loli.net/2021/05/19/aADTtEivo3xn4pM.png" alt="image.png"></p>
+<p>单个主机的协议行为由包含$n+5$个状态的马尔科夫链进行建模（$n=4$的情况如上图所示），其中$n$时需要的探测的最大数量（如上所述）。初始状态是$s<em>0$（标记为$start$）。在状态$s</em>{n+4}$中（标记为$ok$），主机最终使用一个未被使用的IP地址并结束；在状态$s<em>{n+2}$中（标记为$error$），主机使用一个正在使用的IP地址并结束，也就是地址冲突。状态$s_i(0&lt;i\leqslant n)$在发射第$i$个探测后到达。在状态$s_0$主机随机选择一个IP地址。概率$q = m/65024$，其中m是链接入网络的主机的数量，这些地址是正在使用的。主机有$1-q$的概率选择一个未被使用的地址并且在状态$s</em>{n+3}$结束。然后它在使用这个地址之前，要发射$n-1$个探测并且等待$n·r$个时间单元。（发送的这些探测以及等待时间从MC中抽象）。如果哦选择的IP地址已经是正在使用的了，就会进入状态$s_1$。现在两个情形是可能的。在$r$个时间单元内，有$p$概率什么回复都没有收到（因为探测信号或者应答信号已经丢失），并且下一个探测信号已经发送，那么就进入状态$s_2$。但是，如果一个应答及时被收到了，那么主机就会返回初始状态并且重新启动协议。这些状态$s_i(2\leqslant i &lt;n)$的行为是类似的。但是如果在状态$s_n$中，没有应答在发送了第$n$个探测信号后的$r$个单元时间内被收到，那个一个地址冲突就发生了。</p>
+<p>我们采用转移系统中的直接后继和直接前驱的概念，令$Paths(\mathcal{M})$表示在马尔科夫链$\mathcal{M}$中的路径，$Pahts<em>{fin}(\mathcal{M})$表示有限路径片段$s_0s_1···s_n$的集合，其中$n\geqslant0$并且$\mathbf{P}(s_i,s</em>{i+1})&gt;0$对于所有的$0\leqslant i<n$。$Paths(s)$表示从状态$s$开始的马尔科夫链$\mathcal{M}$中的所有路径集合。同样的，$Paths_{fin}(s)$表示$s_0=s$的所有的路径片段$s_0s_1···s_n$的集合。直接后继和直接前驱的集合被定义为下述表示：令$Post(s)$表示为$s$的直接后继，比如$Post(s) = \{s'\in S | \mathbf{P}(s,s')>0}$。同理,$Pre(s)={s’ \in S | \mathbf{P}(s’,s)&gt;0}$。$Post^<em>(s)$表示所有从状态$s$通过一个有限路径片段到达的状态结合，$Pre^</em>(s)={s’\in S | s \in Post^*(s’)}$。对于$B\subseteq S$,令</p>
+<script type="math/tex; mode=display">
+Post^*(B)=\bigcup_{s\in B}Post^*(s)\space\space \space \space \space \space \space \space \space \space \space Pre^*(B)=\bigcup_{s\in B}Pre^*(s)</script><h5 id="注释6-吸收状态"><a href="#注释6-吸收状态" class="headerlink" title="注释6. 吸收状态"></a>注释6. 吸收状态</h5><p>如果$Post^<em>(s) = {s}$，那么马尔科夫链$\mathcal{M}$的状态s被称为</em>吸收*。如果$\mathbf{P}$是一个随机矩阵，每一行的总和等于1，那么当且仅当$\mathbf{P}(s,s)=1$并且对于所有的$t\neq s$有$\mathbf{P}(s,t)=0$，$s$是一个吸收状态。</p>
+<h5 id="备注7-离散时间马尔科夫链"><a href="#备注7-离散时间马尔科夫链" class="headerlink" title="备注7. 离散时间马尔科夫链"></a>备注7. 离散时间马尔科夫链</h5><h5 id="示例8-扔公平的硬币"><a href="#示例8-扔公平的硬币" class="headerlink" title="示例8. 扔公平的硬币"></a>示例8. 扔公平的硬币</h5><h5 id="定义9-Cylinder-集"><a href="#定义9-Cylinder-集" class="headerlink" title="定义9. Cylinder 集"></a>定义9. Cylinder 集</h5><h5 id="定义10-马尔科夫链的-sigma-代数"><a href="#定义10-马尔科夫链的-sigma-代数" class="headerlink" title="定义10. 马尔科夫链的$\sigma$-代数"></a>定义10. 马尔科夫链的$\sigma$-代数</h5><h5 id="示例11-Cylinder-集"><a href="#示例11-Cylinder-集" class="headerlink" title="示例11. Cylinder 集"></a>示例11. Cylinder 集</h5><h5 id="注释12-事件的LTL风格表示"><a href="#注释12-事件的LTL风格表示" class="headerlink" title="注释12. 事件的LTL风格表示"></a>注释12. 事件的LTL风格表示</h5><h3 id="可达性概率"><a href="#可达性概率" class="headerlink" title="可达性概率"></a>可达性概率</h3><h5 id="示例13-按无穷级数计算可达性概率"><a href="#示例13-按无穷级数计算可达性概率" class="headerlink" title="示例13. 按无穷级数计算可达性概率"></a>示例13. 按无穷级数计算可达性概率</h5><h5 id="示例14-简单通信协议"><a href="#示例14-简单通信协议" class="headerlink" title="示例14. 简单通信协议"></a>示例14. 简单通信协议</h5><h5 id="理论15-最小不动点表征"><a href="#理论15-最小不动点表征" class="headerlink" title="理论15. 最小不动点表征"></a>理论15. 最小不动点表征</h5><h5 id="备注16-膨胀法"><a href="#备注16-膨胀法" class="headerlink" title="备注16. 膨胀法"></a>备注16. 膨胀法</h5><h5 id="备注17-选择-S-0-和-S-1"><a href="#备注17-选择-S-0-和-S-1" class="headerlink" title="备注17. 选择$S{=0}$和$S{=1}$"></a>备注17. 选择$S<em>{=0}$和$S</em>{=1}$</h5><h5 id="备注18-几种不动点"><a href="#备注18-几种不动点" class="headerlink" title="备注18. 几种不动点"></a>备注18. 几种不动点</h5><h5 id="理论19-独特的解决方案"><a href="#理论19-独特的解决方案" class="headerlink" title="理论19. 独特的解决方案"></a>理论19. 独特的解决方案</h5><h5 id="备注20-矩阵-I-A-的非奇异性"><a href="#备注20-矩阵-I-A-的非奇异性" class="headerlink" title="备注20.  矩阵$I-A$的非奇异性"></a>备注20.  矩阵$I-A$的非奇异性</h5><h5 id="示例21-掷骰子游戏中的可达性受到限制"><a href="#示例21-掷骰子游戏中的可达性受到限制" class="headerlink" title="示例21. 掷骰子游戏中的可达性受到限制"></a>示例21. 掷骰子游戏中的可达性受到限制</h5><h5 id="备注22-暂态（Transient）概率"><a href="#备注22-暂态（Transient）概率" class="headerlink" title="备注22. 暂态（Transient）概率"></a>备注22. 暂态（Transient）概率</h5><h5 id="示例23-暂态概率的可达性"><a href="#示例23-暂态概率的可达性" class="headerlink" title="示例23. 暂态概率的可达性"></a>示例23. 暂态概率的可达性</h5><h3 id="定性属性"><a href="#定性属性" class="headerlink" title="定性属性"></a>定性属性</h3><h5 id="备注24-重复可达性和持久性的可测量性"><a href="#备注24-重复可达性和持久性的可测量性" class="headerlink" title="备注24. 重复可达性和持久性的可测量性"></a>备注24. 重复可达性和持久性的可测量性</h5><h5 id="理论25-概率选择作为强公平性"><a href="#理论25-概率选择作为强公平性" class="headerlink" title="理论25. 概率选择作为强公平性"></a>理论25. 概率选择作为强公平性</h5><h5 id="注释26-马尔可夫链的图形符号"><a href="#注释26-马尔可夫链的图形符号" class="headerlink" title="注释26. 马尔可夫链的图形符号"></a>注释26. 马尔可夫链的图形符号</h5><h5 id="理论27-马尔可夫链的极限行为"><a href="#理论27-马尔可夫链的极限行为" class="headerlink" title="理论27. 马尔可夫链的极限行为"></a>理论27. 马尔可夫链的极限行为</h5><h5 id="示例28-Zeroconf协议（修订版）"><a href="#示例28-Zeroconf协议（修订版）" class="headerlink" title="示例28. Zeroconf协议（修订版）"></a>示例28. Zeroconf协议（修订版）</h5><h5 id="理论29-几乎可以确定的可达性"><a href="#理论29-几乎可以确定的可达性" class="headerlink" title="理论29. 几乎可以确定的可达性"></a>理论29. 几乎可以确定的可达性</h5><h5 id="推论30-全局几乎可以确定的可达性"><a href="#推论30-全局几乎可以确定的可达性" class="headerlink" title="推论30. 全局几乎可以确定的可达性"></a>推论30. 全局几乎可以确定的可达性</h5><h5 id="推论31-定性约束可达性"><a href="#推论31-定性约束可达性" class="headerlink" title="推论31. 定性约束可达性"></a>推论31. 定性约束可达性</h5><h5 id="示例32-定性约束可达性"><a href="#示例32-定性约束可达性" class="headerlink" title="示例32. 定性约束可达性"></a>示例32. 定性约束可达性</h5><h5 id="推论33-定性重复可达性"><a href="#推论33-定性重复可达性" class="headerlink" title="推论33. 定性重复可达性"></a>推论33. 定性重复可达性</h5><h5 id="推论34-定量重复可达性"><a href="#推论34-定量重复可达性" class="headerlink" title="推论34. 定量重复可达性"></a>推论34. 定量重复可达性</h5><h5 id="备注35-无限马尔科夫链的定性性质"><a href="#备注35-无限马尔科夫链的定性性质" class="headerlink" title="备注35. 无限马尔科夫链的定性性质"></a>备注35. 无限马尔科夫链的定性性质</h5><h2 id="概率计算树逻辑（Probabilistic-Computation-Tree-Logic-）"><a href="#概率计算树逻辑（Probabilistic-Computation-Tree-Logic-）" class="headerlink" title="概率计算树逻辑（Probabilistic Computation Tree Logic ）"></a>概率计算树逻辑（Probabilistic Computation Tree Logic ）</h2><h5 id="定义36-PCTL语法"><a href="#定义36-PCTL语法" class="headerlink" title="定义36. PCTL语法"></a>定义36. PCTL语法</h5><h5 id="示例37-在PCTL中指定属性"><a href="#示例37-在PCTL中指定属性" class="headerlink" title="示例37. 在PCTL中指定属性"></a>示例37. 在PCTL中指定属性</h5><h5 id="定义38-PCTL的满足关系"><a href="#定义38-PCTL的满足关系" class="headerlink" title="定义38. PCTL的满足关系"></a>定义38. PCTL的满足关系</h5><h5 id="引理39-PCTL事件的可衡量性"><a href="#引理39-PCTL事件的可衡量性" class="headerlink" title="引理39. PCTL事件的可衡量性"></a>引理39. PCTL事件的可衡量性</h5><h3 id="PCTL模型检测"><a href="#PCTL模型检测" class="headerlink" title="PCTL模型检测"></a>PCTL模型检测</h3><h5 id="理论40-MC的PCTL模型检测的时间复杂度"><a href="#理论40-MC的PCTL模型检测的时间复杂度" class="headerlink" title="理论40. MC的PCTL模型检测的时间复杂度"></a>理论40. MC的PCTL模型检测的时间复杂度</h5><h5 id="示例41-反例"><a href="#示例41-反例" class="headerlink" title="示例41. 反例"></a>示例41. 反例</h5><h3 id="PCTL的定性片段"><a href="#PCTL的定性片段" class="headerlink" title="PCTL的定性片段"></a>PCTL的定性片段</h3><h5 id="定义42-PCTL的定性片段"><a href="#定义42-PCTL的定性片段" class="headerlink" title="定义42. PCTL的定性片段"></a>定义42. PCTL的定性片段</h5><h5 id="定义43-等价的PCTL和CTL公式"><a href="#定义43-等价的PCTL和CTL公式" class="headerlink" title="定义43. 等价的PCTL和CTL公式"></a>定义43. 等价的PCTL和CTL公式</h5><h5 id="引理44"><a href="#引理44" class="headerlink" title="引理44."></a>引理44.</h5><h5 id="引理45"><a href="#引理45" class="headerlink" title="引理45."></a>引理45.</h5><h5 id="引理46-几乎可以肯定的重复可达性是PCTL定义的"><a href="#引理46-几乎可以肯定的重复可达性是PCTL定义的" class="headerlink" title="引理46. 几乎可以肯定的重复可达性是PCTL定义的"></a>引理46. 几乎可以肯定的重复可达性是PCTL定义的</h5><h5 id="理论47-重复可达概率是PCTL定义的"><a href="#理论47-重复可达概率是PCTL定义的" class="headerlink" title="理论47. 重复可达概率是PCTL定义的"></a>理论47. 重复可达概率是PCTL定义的</h5><h5 id="理论48-持久性概率是PCTL定义的"><a href="#理论48-持久性概率是PCTL定义的" class="headerlink" title="理论48. 持久性概率是PCTL定义的"></a>理论48. 持久性概率是PCTL定义的</h5><h2 id="线性时间性质"><a href="#线性时间性质" class="headerlink" title="线性时间性质"></a>线性时间性质</h2><h5 id="定义49-LT属性的概率"><a href="#定义49-LT属性的概率" class="headerlink" title="定义49. LT属性的概率"></a>定义49. LT属性的概率</h5><h5 id="定义50-产品马尔科夫链"><a href="#定义50-产品马尔科夫链" class="headerlink" title="定义50. 产品马尔科夫链"></a>定义50. 产品马尔科夫链</h5><h5 id="理论51-安全性的定量分析"><a href="#理论51-安全性的定量分析" class="headerlink" title="理论51. 安全性的定量分析"></a>理论51. 安全性的定量分析</h5><h5 id="理论52-DBS可定义属性的定量分析"><a href="#理论52-DBS可定义属性的定量分析" class="headerlink" title="理论52. DBS可定义属性的定量分析"></a>理论52. DBS可定义属性的定量分析</h5><h5 id="定义53-确定性拉宾自动机（DRA）"><a href="#定义53-确定性拉宾自动机（DRA）" class="headerlink" title="定义53. 确定性拉宾自动机（DRA）"></a>定义53. 确定性拉宾自动机（DRA）</h5><h5 id="示例54-square-lozenge-a-的DRA"><a href="#示例54-square-lozenge-a-的DRA" class="headerlink" title="示例54. $\square \lozenge a$的DRA"></a>示例54. $\square \lozenge a$的DRA</h5><h5 id="理论55-DRA和-omega-正则语言"><a href="#理论55-DRA和-omega-正则语言" class="headerlink" title="理论55. DRA和$\omega- $正则语言"></a>理论55. DRA和$\omega- $正则语言</h5><h5 id="理论56-基于DRA的马尔科夫链分析"><a href="#理论56-基于DRA的马尔科夫链分析" class="headerlink" title="理论56. 基于DRA的马尔科夫链分析"></a>理论56. 基于DRA的马尔科夫链分析</h5><h5 id="备注57-omega-正则性质的可测量性"><a href="#备注57-omega-正则性质的可测量性" class="headerlink" title="备注57. $\omega-$正则性质的可测量性"></a>备注57. $\omega-$正则性质的可测量性</h5><h5 id="理论58"><a href="#理论58" class="headerlink" title="理论58."></a>理论58.</h5><h2 id="PCTL-和-概率互模拟"><a href="#PCTL-和-概率互模拟" class="headerlink" title="PCTL* 和 概率互模拟"></a>PCTL* 和 概率互模拟</h2><h3 id="PCTL"><a href="#PCTL" class="headerlink" title="PCTL*"></a>PCTL*</h3><h5 id="定义59-PCTL-语法"><a href="#定义59-PCTL-语法" class="headerlink" title="定义59. PCTL*语法"></a>定义59. PCTL*语法</h5><h3 id="概率互模拟"><a href="#概率互模拟" class="headerlink" title="概率互模拟"></a>概率互模拟</h3><h5 id="定义60-马尔可夫链的互模拟"><a href="#定义60-马尔可夫链的互模拟" class="headerlink" title="定义60. 马尔可夫链的互模拟"></a>定义60. 马尔可夫链的互模拟</h5><h5 id="示例61-马尔可夫链的互模拟"><a href="#示例61-马尔可夫链的互模拟" class="headerlink" title="示例61. 马尔可夫链的互模拟"></a>示例61. 马尔可夫链的互模拟</h5><h5 id="定义62-互模拟商"><a href="#定义62-互模拟商" class="headerlink" title="定义62. 互模拟商"></a>定义62. 互模拟商</h5><h5 id="示例63-掷骰子游戏"><a href="#示例63-掷骰子游戏" class="headerlink" title="示例63. 掷骰子游戏"></a>示例63. 掷骰子游戏</h5><h2 id="有代价的马尔科夫链"><a href="#有代价的马尔科夫链" class="headerlink" title="有代价的马尔科夫链"></a>有代价的马尔科夫链</h2><h3 id="成本受限的可达性"><a href="#成本受限的可达性" class="headerlink" title="成本受限的可达性"></a>成本受限的可达性</h3><h3 id="长期属性"><a href="#长期属性" class="headerlink" title="长期属性"></a>长期属性</h3><h2 id="马尔可夫决策过程"><a href="#马尔可夫决策过程" class="headerlink" title="马尔可夫决策过程"></a>马尔可夫决策过程</h2><h3 id="可达性概率-1"><a href="#可达性概率-1" class="headerlink" title="可达性概率"></a>可达性概率</h3><h3 id="PCTL模型检测-1"><a href="#PCTL模型检测-1" class="headerlink" title="PCTL模型检测"></a>PCTL模型检测</h3><h3 id="限制属性"><a href="#限制属性" class="headerlink" title="限制属性"></a>限制属性</h3><h3 id="线性时间性质和PCTL"><a href="#线性时间性质和PCTL" class="headerlink" title="线性时间性质和PCTL*"></a>线性时间性质和PCTL*</h3><h3 id="公平性"><a href="#公平性" class="headerlink" title="公平性"></a>公平性</h3><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2>
+        
+            <div id="toc-article">
+                
+  <div class="widget-wrap" id="toc-wrap">
+    <h3 class="widget-title"><i class="fa fa-toc"></i> 文章目录</h3>
+    <div class="widget">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A9%AC%E5%B0%94%E7%A7%91%E5%A4%AB%E9%93%BE"><span class="toc-text">马尔科夫链</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%AE%9A%E4%B9%891-%EF%BC%88%E7%A6%BB%E6%95%A3%E6%97%B6%E9%97%B4%E7%9A%84%EF%BC%89%E9%A9%AC%E5%B0%94%E7%A7%91%E5%A4%AB%E9%93%BE%EF%BC%88MC%EF%BC%89"><span class="toc-text">定义1. （离散时间的）马尔科夫链（MC）</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B2-%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE"><span class="toc-text">示例2. 一个简单的通信协议</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B3-%E7%94%A8%E5%85%AC%E5%B9%B3%E7%A1%AC%E5%B8%81%E6%9D%A5%E6%A8%A1%E6%8B%9F%E9%AA%B0%E5%AD%90"><span class="toc-text">示例3. 用公平硬币来模拟骰子</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B4-%E6%8E%B7%E9%AA%B0%E5%AD%90%E8%B5%8C%E5%8D%9A%E6%B8%B8%E6%88%8F"><span class="toc-text">示例4. 掷骰子赌博游戏</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B5-Zeroconf%E5%8D%8F%E8%AE%AE"><span class="toc-text">示例5. Zeroconf协议</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%B3%A8%E9%87%8A6-%E5%90%B8%E6%94%B6%E7%8A%B6%E6%80%81"><span class="toc-text">注释6. 吸收状态</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%A4%87%E6%B3%A87-%E7%A6%BB%E6%95%A3%E6%97%B6%E9%97%B4%E9%A9%AC%E5%B0%94%E7%A7%91%E5%A4%AB%E9%93%BE"><span class="toc-text">备注7. 离散时间马尔科夫链</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B8-%E6%89%94%E5%85%AC%E5%B9%B3%E7%9A%84%E7%A1%AC%E5%B8%81"><span class="toc-text">示例8. 扔公平的硬币</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%AE%9A%E4%B9%899-Cylinder-%E9%9B%86"><span class="toc-text">定义9. Cylinder 集</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%AE%9A%E4%B9%8910-%E9%A9%AC%E5%B0%94%E7%A7%91%E5%A4%AB%E9%93%BE%E7%9A%84-sigma-%E4%BB%A3%E6%95%B0"><span class="toc-text">定义10. 马尔科夫链的$\sigma$-代数</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B11-Cylinder-%E9%9B%86"><span class="toc-text">示例11. Cylinder 集</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%B3%A8%E9%87%8A12-%E4%BA%8B%E4%BB%B6%E7%9A%84LTL%E9%A3%8E%E6%A0%BC%E8%A1%A8%E7%A4%BA"><span class="toc-text">注释12. 事件的LTL风格表示</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%AF%E8%BE%BE%E6%80%A7%E6%A6%82%E7%8E%87"><span class="toc-text">可达性概率</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B13-%E6%8C%89%E6%97%A0%E7%A9%B7%E7%BA%A7%E6%95%B0%E8%AE%A1%E7%AE%97%E5%8F%AF%E8%BE%BE%E6%80%A7%E6%A6%82%E7%8E%87"><span class="toc-text">示例13. 按无穷级数计算可达性概率</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B14-%E7%AE%80%E5%8D%95%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE"><span class="toc-text">示例14. 简单通信协议</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%90%86%E8%AE%BA15-%E6%9C%80%E5%B0%8F%E4%B8%8D%E5%8A%A8%E7%82%B9%E8%A1%A8%E5%BE%81"><span class="toc-text">理论15. 最小不动点表征</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%A4%87%E6%B3%A816-%E8%86%A8%E8%83%80%E6%B3%95"><span class="toc-text">备注16. 膨胀法</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%A4%87%E6%B3%A817-%E9%80%89%E6%8B%A9-S-0-%E5%92%8C-S-1"><span class="toc-text">备注17. 选择$S{&#x3D;0}$和$S{&#x3D;1}$</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%A4%87%E6%B3%A818-%E5%87%A0%E7%A7%8D%E4%B8%8D%E5%8A%A8%E7%82%B9"><span class="toc-text">备注18. 几种不动点</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%90%86%E8%AE%BA19-%E7%8B%AC%E7%89%B9%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="toc-text">理论19. 独特的解决方案</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%A4%87%E6%B3%A820-%E7%9F%A9%E9%98%B5-I-A-%E7%9A%84%E9%9D%9E%E5%A5%87%E5%BC%82%E6%80%A7"><span class="toc-text">备注20.  矩阵$I-A$的非奇异性</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B21-%E6%8E%B7%E9%AA%B0%E5%AD%90%E6%B8%B8%E6%88%8F%E4%B8%AD%E7%9A%84%E5%8F%AF%E8%BE%BE%E6%80%A7%E5%8F%97%E5%88%B0%E9%99%90%E5%88%B6"><span class="toc-text">示例21. 掷骰子游戏中的可达性受到限制</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%A4%87%E6%B3%A822-%E6%9A%82%E6%80%81%EF%BC%88Transient%EF%BC%89%E6%A6%82%E7%8E%87"><span class="toc-text">备注22. 暂态（Transient）概率</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B23-%E6%9A%82%E6%80%81%E6%A6%82%E7%8E%87%E7%9A%84%E5%8F%AF%E8%BE%BE%E6%80%A7"><span class="toc-text">示例23. 暂态概率的可达性</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9A%E6%80%A7%E5%B1%9E%E6%80%A7"><span class="toc-text">定性属性</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%A4%87%E6%B3%A824-%E9%87%8D%E5%A4%8D%E5%8F%AF%E8%BE%BE%E6%80%A7%E5%92%8C%E6%8C%81%E4%B9%85%E6%80%A7%E7%9A%84%E5%8F%AF%E6%B5%8B%E9%87%8F%E6%80%A7"><span class="toc-text">备注24. 重复可达性和持久性的可测量性</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%90%86%E8%AE%BA25-%E6%A6%82%E7%8E%87%E9%80%89%E6%8B%A9%E4%BD%9C%E4%B8%BA%E5%BC%BA%E5%85%AC%E5%B9%B3%E6%80%A7"><span class="toc-text">理论25. 概率选择作为强公平性</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%B3%A8%E9%87%8A26-%E9%A9%AC%E5%B0%94%E5%8F%AF%E5%A4%AB%E9%93%BE%E7%9A%84%E5%9B%BE%E5%BD%A2%E7%AC%A6%E5%8F%B7"><span class="toc-text">注释26. 马尔可夫链的图形符号</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%90%86%E8%AE%BA27-%E9%A9%AC%E5%B0%94%E5%8F%AF%E5%A4%AB%E9%93%BE%E7%9A%84%E6%9E%81%E9%99%90%E8%A1%8C%E4%B8%BA"><span class="toc-text">理论27. 马尔可夫链的极限行为</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B28-Zeroconf%E5%8D%8F%E8%AE%AE%EF%BC%88%E4%BF%AE%E8%AE%A2%E7%89%88%EF%BC%89"><span class="toc-text">示例28. Zeroconf协议（修订版）</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%90%86%E8%AE%BA29-%E5%87%A0%E4%B9%8E%E5%8F%AF%E4%BB%A5%E7%A1%AE%E5%AE%9A%E7%9A%84%E5%8F%AF%E8%BE%BE%E6%80%A7"><span class="toc-text">理论29. 几乎可以确定的可达性</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%8E%A8%E8%AE%BA30-%E5%85%A8%E5%B1%80%E5%87%A0%E4%B9%8E%E5%8F%AF%E4%BB%A5%E7%A1%AE%E5%AE%9A%E7%9A%84%E5%8F%AF%E8%BE%BE%E6%80%A7"><span class="toc-text">推论30. 全局几乎可以确定的可达性</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%8E%A8%E8%AE%BA31-%E5%AE%9A%E6%80%A7%E7%BA%A6%E6%9D%9F%E5%8F%AF%E8%BE%BE%E6%80%A7"><span class="toc-text">推论31. 定性约束可达性</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B32-%E5%AE%9A%E6%80%A7%E7%BA%A6%E6%9D%9F%E5%8F%AF%E8%BE%BE%E6%80%A7"><span class="toc-text">示例32. 定性约束可达性</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%8E%A8%E8%AE%BA33-%E5%AE%9A%E6%80%A7%E9%87%8D%E5%A4%8D%E5%8F%AF%E8%BE%BE%E6%80%A7"><span class="toc-text">推论33. 定性重复可达性</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%8E%A8%E8%AE%BA34-%E5%AE%9A%E9%87%8F%E9%87%8D%E5%A4%8D%E5%8F%AF%E8%BE%BE%E6%80%A7"><span class="toc-text">推论34. 定量重复可达性</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%A4%87%E6%B3%A835-%E6%97%A0%E9%99%90%E9%A9%AC%E5%B0%94%E7%A7%91%E5%A4%AB%E9%93%BE%E7%9A%84%E5%AE%9A%E6%80%A7%E6%80%A7%E8%B4%A8"><span class="toc-text">备注35. 无限马尔科夫链的定性性质</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A6%82%E7%8E%87%E8%AE%A1%E7%AE%97%E6%A0%91%E9%80%BB%E8%BE%91%EF%BC%88Probabilistic-Computation-Tree-Logic-%EF%BC%89"><span class="toc-text">概率计算树逻辑（Probabilistic Computation Tree Logic ）</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%AE%9A%E4%B9%8936-PCTL%E8%AF%AD%E6%B3%95"><span class="toc-text">定义36. PCTL语法</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B37-%E5%9C%A8PCTL%E4%B8%AD%E6%8C%87%E5%AE%9A%E5%B1%9E%E6%80%A7"><span class="toc-text">示例37. 在PCTL中指定属性</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%AE%9A%E4%B9%8938-PCTL%E7%9A%84%E6%BB%A1%E8%B6%B3%E5%85%B3%E7%B3%BB"><span class="toc-text">定义38. PCTL的满足关系</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%BC%95%E7%90%8639-PCTL%E4%BA%8B%E4%BB%B6%E7%9A%84%E5%8F%AF%E8%A1%A1%E9%87%8F%E6%80%A7"><span class="toc-text">引理39. PCTL事件的可衡量性</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PCTL%E6%A8%A1%E5%9E%8B%E6%A3%80%E6%B5%8B"><span class="toc-text">PCTL模型检测</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%90%86%E8%AE%BA40-MC%E7%9A%84PCTL%E6%A8%A1%E5%9E%8B%E6%A3%80%E6%B5%8B%E7%9A%84%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6"><span class="toc-text">理论40. MC的PCTL模型检测的时间复杂度</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B41-%E5%8F%8D%E4%BE%8B"><span class="toc-text">示例41. 反例</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PCTL%E7%9A%84%E5%AE%9A%E6%80%A7%E7%89%87%E6%AE%B5"><span class="toc-text">PCTL的定性片段</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%AE%9A%E4%B9%8942-PCTL%E7%9A%84%E5%AE%9A%E6%80%A7%E7%89%87%E6%AE%B5"><span class="toc-text">定义42. PCTL的定性片段</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%AE%9A%E4%B9%8943-%E7%AD%89%E4%BB%B7%E7%9A%84PCTL%E5%92%8CCTL%E5%85%AC%E5%BC%8F"><span class="toc-text">定义43. 等价的PCTL和CTL公式</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%BC%95%E7%90%8644"><span class="toc-text">引理44.</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%BC%95%E7%90%8645"><span class="toc-text">引理45.</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%BC%95%E7%90%8646-%E5%87%A0%E4%B9%8E%E5%8F%AF%E4%BB%A5%E8%82%AF%E5%AE%9A%E7%9A%84%E9%87%8D%E5%A4%8D%E5%8F%AF%E8%BE%BE%E6%80%A7%E6%98%AFPCTL%E5%AE%9A%E4%B9%89%E7%9A%84"><span class="toc-text">引理46. 几乎可以肯定的重复可达性是PCTL定义的</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%90%86%E8%AE%BA47-%E9%87%8D%E5%A4%8D%E5%8F%AF%E8%BE%BE%E6%A6%82%E7%8E%87%E6%98%AFPCTL%E5%AE%9A%E4%B9%89%E7%9A%84"><span class="toc-text">理论47. 重复可达概率是PCTL定义的</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%90%86%E8%AE%BA48-%E6%8C%81%E4%B9%85%E6%80%A7%E6%A6%82%E7%8E%87%E6%98%AFPCTL%E5%AE%9A%E4%B9%89%E7%9A%84"><span class="toc-text">理论48. 持久性概率是PCTL定义的</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BA%BF%E6%80%A7%E6%97%B6%E9%97%B4%E6%80%A7%E8%B4%A8"><span class="toc-text">线性时间性质</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%AE%9A%E4%B9%8949-LT%E5%B1%9E%E6%80%A7%E7%9A%84%E6%A6%82%E7%8E%87"><span class="toc-text">定义49. LT属性的概率</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%AE%9A%E4%B9%8950-%E4%BA%A7%E5%93%81%E9%A9%AC%E5%B0%94%E7%A7%91%E5%A4%AB%E9%93%BE"><span class="toc-text">定义50. 产品马尔科夫链</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%90%86%E8%AE%BA51-%E5%AE%89%E5%85%A8%E6%80%A7%E7%9A%84%E5%AE%9A%E9%87%8F%E5%88%86%E6%9E%90"><span class="toc-text">理论51. 安全性的定量分析</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%90%86%E8%AE%BA52-DBS%E5%8F%AF%E5%AE%9A%E4%B9%89%E5%B1%9E%E6%80%A7%E7%9A%84%E5%AE%9A%E9%87%8F%E5%88%86%E6%9E%90"><span class="toc-text">理论52. DBS可定义属性的定量分析</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%AE%9A%E4%B9%8953-%E7%A1%AE%E5%AE%9A%E6%80%A7%E6%8B%89%E5%AE%BE%E8%87%AA%E5%8A%A8%E6%9C%BA%EF%BC%88DRA%EF%BC%89"><span class="toc-text">定义53. 确定性拉宾自动机（DRA）</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B54-square-lozenge-a-%E7%9A%84DRA"><span class="toc-text">示例54. $\square \lozenge a$的DRA</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%90%86%E8%AE%BA55-DRA%E5%92%8C-omega-%E6%AD%A3%E5%88%99%E8%AF%AD%E8%A8%80"><span class="toc-text">理论55. DRA和$\omega- $正则语言</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%90%86%E8%AE%BA56-%E5%9F%BA%E4%BA%8EDRA%E7%9A%84%E9%A9%AC%E5%B0%94%E7%A7%91%E5%A4%AB%E9%93%BE%E5%88%86%E6%9E%90"><span class="toc-text">理论56. 基于DRA的马尔科夫链分析</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%A4%87%E6%B3%A857-omega-%E6%AD%A3%E5%88%99%E6%80%A7%E8%B4%A8%E7%9A%84%E5%8F%AF%E6%B5%8B%E9%87%8F%E6%80%A7"><span class="toc-text">备注57. $\omega-$正则性质的可测量性</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%90%86%E8%AE%BA58"><span class="toc-text">理论58.</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PCTL-%E5%92%8C-%E6%A6%82%E7%8E%87%E4%BA%92%E6%A8%A1%E6%8B%9F"><span class="toc-text">PCTL* 和 概率互模拟</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#PCTL"><span class="toc-text">PCTL*</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%AE%9A%E4%B9%8959-PCTL-%E8%AF%AD%E6%B3%95"><span class="toc-text">定义59. PCTL*语法</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A6%82%E7%8E%87%E4%BA%92%E6%A8%A1%E6%8B%9F"><span class="toc-text">概率互模拟</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%AE%9A%E4%B9%8960-%E9%A9%AC%E5%B0%94%E5%8F%AF%E5%A4%AB%E9%93%BE%E7%9A%84%E4%BA%92%E6%A8%A1%E6%8B%9F"><span class="toc-text">定义60. 马尔可夫链的互模拟</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B61-%E9%A9%AC%E5%B0%94%E5%8F%AF%E5%A4%AB%E9%93%BE%E7%9A%84%E4%BA%92%E6%A8%A1%E6%8B%9F"><span class="toc-text">示例61. 马尔可夫链的互模拟</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%AE%9A%E4%B9%8962-%E4%BA%92%E6%A8%A1%E6%8B%9F%E5%95%86"><span class="toc-text">定义62. 互模拟商</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B63-%E6%8E%B7%E9%AA%B0%E5%AD%90%E6%B8%B8%E6%88%8F"><span class="toc-text">示例63. 掷骰子游戏</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%89%E4%BB%A3%E4%BB%B7%E7%9A%84%E9%A9%AC%E5%B0%94%E7%A7%91%E5%A4%AB%E9%93%BE"><span class="toc-text">有代价的马尔科夫链</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%88%90%E6%9C%AC%E5%8F%97%E9%99%90%E7%9A%84%E5%8F%AF%E8%BE%BE%E6%80%A7"><span class="toc-text">成本受限的可达性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%95%BF%E6%9C%9F%E5%B1%9E%E6%80%A7"><span class="toc-text">长期属性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A9%AC%E5%B0%94%E5%8F%AF%E5%A4%AB%E5%86%B3%E7%AD%96%E8%BF%87%E7%A8%8B"><span class="toc-text">马尔可夫决策过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%AF%E8%BE%BE%E6%80%A7%E6%A6%82%E7%8E%87-1"><span class="toc-text">可达性概率</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PCTL%E6%A8%A1%E5%9E%8B%E6%A3%80%E6%B5%8B-1"><span class="toc-text">PCTL模型检测</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%99%90%E5%88%B6%E5%B1%9E%E6%80%A7"><span class="toc-text">限制属性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BA%BF%E6%80%A7%E6%97%B6%E9%97%B4%E6%80%A7%E8%B4%A8%E5%92%8CPCTL"><span class="toc-text">线性时间性质和PCTL*</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%AC%E5%B9%B3%E6%80%A7"><span class="toc-text">公平性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li></ol>
+    </div>
+  </div>
+
+
+            </div>
+        
+        
+          <blockquote id="copyright">
+              <p>原文链接: <a href="https://zijian.wang/2021/06/20/概率模型检测/">https://zijian.wang/2021/06/20/概率模型检测/</a></p>
+              <p>版权声明: 转载请注明出处.</p>
+          </blockquote>
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+    <div class="article-reward">
+        <a id="reward-btn" href="javascript:;">打赏</a>
+        <div id="reward-content">
+            <h6 class="reward-tit">“感谢你的支持，我会继续努力！”</h6>
+            <div>
+                <div class="reward-code">
+                    <img class="type-code" src="/css/images/wechat.jpg">
+                    <img class="er-code" src="/css/images/wechat-pay.jpg">
+                </div>
+                <div class="reward-code">
+                    <img class="type-code" src="/css/images/alipay.jpg">
+                    <img class="er-code" src="/css/images/alipay-pay.jpg">
+                </div>
+            </div>
+            <p class="reward-desc">扫码打赏，感谢支持</p>
+        </div>
+    </div>
+
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%A8%A1%E5%9E%8B%E6%A3%80%E6%B5%8B/" rel="tag">模型检测</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag">读书笔记</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+        
+<nav id="article-nav">
+  
+    <a href="/2021/06/23/25.%20%E5%90%88%E5%B9%B6%E4%B8%A4%E4%B8%AA%E6%8E%92%E5%BA%8F%E7%9A%84%E9%93%BE%E8%A1%A8/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">newer</strong>
+      <div class="article-nav-title">
+        
+          《剑指offer》 25. 合并两个排序的链表
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2021/06/17/21.%20%E8%B0%83%E6%95%B4%E6%95%B0%E7%BB%84%E9%A1%BA%E5%BA%8F%E4%BD%BF%E5%A5%87%E4%B9%A6%E4%BD%8D%E4%BA%8E%E5%81%B6%E6%95%B0%E5%89%8D%E9%9D%A2/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">older</strong>
+      <div class="article-nav-title">《剑指offer》 21.调整数组顺序使奇数位于偶数前面</div>
+    </a>
+  
+</nav>
+
+      
+      
+        
+
+
+
+
+
+
+  <div id="SOHUCS" sid="2021/06/20/概率模型检测/"></div>
+
+
+      
+    </footer>
+  </div>
+</article>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-posts"></i> 最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2022/03/17/XRCE-DDS%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%88epromisa%E5%AE%9E%E7%8E%B0%EF%BC%89/">XRCE-DDS源码阅读（epromisa实现）</a>
+          </li>
+        
+          <li>
+            <a href="/2021/12/30/%E5%AF%B9MQTT%E7%9A%84%E5%BD%A2%E5%BC%8F%E5%8C%96%E5%88%86%E6%9E%90%E4%B8%8E%E5%BB%BA%E6%A8%A1/">对MQTT的形式化分析和建模</a>
+          </li>
+        
+          <li>
+            <a href="/2021/12/13/git%E5%AD%A6%E4%B9%A0/">git学习</a>
+          </li>
+        
+          <li>
+            <a href="/2021/12/01/%E5%AF%B9ROS2%E7%9A%84DDS%E7%9A%84%E5%BD%A2%E5%BC%8F%E5%8C%96%E5%88%86%E6%9E%90/">对ROS2的DDS的形式化分析</a>
+          </li>
+        
+          <li>
+            <a href="/2021/10/19/%E6%97%B6%E9%97%B4%E8%87%AA%E5%8A%A8%E6%9C%BA/">时间自动机</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/C/" style="font-size: 15px;">C++</a> <a href="/tags/DDS/" style="font-size: 15px;">DDS</a> <a href="/tags/Leetcode/" style="font-size: 20px;">Leetcode</a> <a href="/tags/ROS/" style="font-size: 10px;">ROS</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/hash/" style="font-size: 13.75px;">hash</a> <a href="/tags/%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE/" style="font-size: 11.25px;">二分查找</a> <a href="/tags/%E5%89%8D%E7%BC%80%E5%92%8C/" style="font-size: 10px;">前缀和</a> <a href="/tags/%E5%89%91%E6%8C%87offer/" style="font-size: 18.75px;">剑指offer</a> <a href="/tags/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" style="font-size: 12.5px;">动态规划</a> <a href="/tags/%E5%8D%8F%E8%AE%AE%E9%98%85%E8%AF%BB/" style="font-size: 12.5px;">协议阅读</a> <a href="/tags/%E5%8F%8C%E6%8C%87%E9%92%88/" style="font-size: 11.25px;">双指针</a> <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8FRTOS/" style="font-size: 10px;">嵌入式RTOS</a> <a href="/tags/%E5%B7%A5%E5%85%B7/" style="font-size: 11.25px;">工具</a> <a href="/tags/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/" style="font-size: 10px;">工具使用</a> <a href="/tags/%E5%BD%A2%E5%BC%8F%E5%8C%96/" style="font-size: 10px;">形式化</a> <a href="/tags/%E5%BD%A2%E5%BC%8F%E5%8C%96%E9%AA%8C%E8%AF%81/" style="font-size: 11.25px;">形式化验证</a> <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%EF%BC%8C%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" style="font-size: 10px;">操作系统，环境配置</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" style="font-size: 12.5px;">数据库</a> <a href="/tags/%E6%95%B0%E7%BB%84/" style="font-size: 13.75px;">数组</a> <a href="/tags/%E6%A8%A1%E5%9E%8B%E6%A3%80%E6%B5%8B/" style="font-size: 11.25px;">模型检测</a> <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" style="font-size: 11.25px;">源码阅读</a> <a href="/tags/%E7%9F%A9%E9%98%B5/" style="font-size: 13.75px;">矩阵</a> <a href="/tags/%E7%A0%94%E7%A9%B6%E6%96%B9%E5%90%91/" style="font-size: 16.25px;">研究方向</a> <a href="/tags/%E7%A7%91%E7%A0%94%E5%91%A8%E8%AE%B0/" style="font-size: 10px;">科研周记</a> <a href="/tags/%E7%AE%97%E6%B3%95%E9%A2%98/" style="font-size: 20px;">算法题</a> <a href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" style="font-size: 10px;">计算机网络</a> <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/" style="font-size: 11.25px;">论文阅读</a> <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB%EF%BC%8CROS2/" style="font-size: 10px;">论文阅读，ROS2</a> <a href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" style="font-size: 17.5px;">读书笔记</a> <a href="/tags/%E8%B4%AA%E5%BF%83/" style="font-size: 10px;">贪心</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-classify"></i> 分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/C-%E8%A7%86%E9%A2%91%E8%AF%BE/">C++视频课</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Leetcode%E5%88%B7%E9%A2%98/">Leetcode刷题</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ROS/">ROS</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ROS2%E4%B8%8EMicro-ROS/">ROS2与Micro-ROS</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E3%80%8AC-Primer%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/">《C++ Primer》阅读笔记</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%88%B7%E9%A2%98%E8%AE%B0%E5%BD%95/">刷题记录</a><span class="category-list-count">14</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%89%91%E6%8C%87offer/">剑指offer</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%B7%A5%E5%85%B7%E5%AD%A6%E4%B9%A0/">工具学习</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AD%A6%E4%B9%A0/">数据库学习</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%A7%91%E7%A0%94%E5%91%A8%E8%AE%B0/">科研周记</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E5%AD%A6%E4%B9%A0/">计算机网络学习</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">论文阅读</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">读书笔记</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/">软件安装</a><span class="category-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-archive"></i> 归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">2022年03月</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">2021年12月</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">2021年10月</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">2021年09月</a><span class="archive-list-count">17</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">2021年07月</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">2021年06月</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">2021年05月</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">2021年04月</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">2021年01月</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">2020年11月</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">2020年10月</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">2018年06月</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">2018年03月</a><span class="archive-list-count">4</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/C/" rel="tag">C++</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DDS/" rel="tag">DDS</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a><span class="tag-list-count">43</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ROS/" rel="tag">ROS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hash/" rel="tag">hash</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE/" rel="tag">二分查找</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%89%8D%E7%BC%80%E5%92%8C/" rel="tag">前缀和</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%89%91%E6%8C%87offer/" rel="tag">剑指offer</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" rel="tag">动态规划</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8D%8F%E8%AE%AE%E9%98%85%E8%AF%BB/" rel="tag">协议阅读</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8C%E6%8C%87%E9%92%88/" rel="tag">双指针</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8FRTOS/" rel="tag">嵌入式RTOS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B7%A5%E5%85%B7/" rel="tag">工具</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/" rel="tag">工具使用</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BD%A2%E5%BC%8F%E5%8C%96/" rel="tag">形式化</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BD%A2%E5%BC%8F%E5%8C%96%E9%AA%8C%E8%AF%81/" rel="tag">形式化验证</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%EF%BC%8C%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" rel="tag">操作系统，环境配置</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E7%BB%84/" rel="tag">数组</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%A8%A1%E5%9E%8B%E6%A3%80%E6%B5%8B/" rel="tag">模型检测</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" rel="tag">源码阅读</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%9F%A9%E9%98%B5/" rel="tag">矩阵</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A0%94%E7%A9%B6%E6%96%B9%E5%90%91/" rel="tag">研究方向</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A7%91%E7%A0%94%E5%91%A8%E8%AE%B0/" rel="tag">科研周记</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95%E9%A2%98/" rel="tag">算法题</a><span class="tag-list-count">43</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag">计算机网络</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/" rel="tag">论文阅读</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB%EF%BC%8CROS2/" rel="tag">论文阅读，ROS2</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag">读书笔记</a><span class="tag-list-count">11</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%B4%AA%E5%BF%83/" rel="tag">贪心</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-link"></i> 友情链接</h3>
+    <div class="widget">
+      <ul>
+      
+        <li>
+          <a target="_blank" rel="noopener" href="https://www.guanyuqian.com/">G-Blog（关师兄的博客）</a>
+        </li>
+      
+        <li>
+          <a target="_blank" rel="noopener" href="https://imvector.github.io/">峰哥的博客</a>
+        </li>
+      
+        <li>
+          <a target="_blank" rel="noopener" href="https://amyzhoucc.github.io/">豆豆龙（zcc师姐的博客）</a>
+        </li>
+      
+        <li>
+          <a target="_blank" rel="noopener" href="https://mchen0607.github.io/">闽哥的博客</a>
+        </li>
+      
+      </ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+        
+      </div>
+      <a id="totop" href="#top"></a>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      <p>
+        <a href="/sitemap.xml">网站地图</a>
+        <span> | </span><a href="/about/">联系博主</a>
+      </p>
+      
+        <p>
+          <i class="fa fa-visitors"></i>
+          <i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>
+          ，
+          <i class="fa fa-views"></i>
+          <i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>
+        </p>
+      
+      <p>
+        <span>Copyright &copy; 2022 Eric Wang.</span>
+        <span>Theme by <a href="https://github.com/chaooo/hexo-theme-BlueLake/" target="_blank">BlueLake.</a></span>
+        
+            <span>Count by <a href="http://busuanzi.ibruce.info/" target="_blank">busuanzi.</a></span>
+        
+        <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo.</a></span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+<script src="/js/search.json.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+  
+<script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+  
+<script src="/localshare/js/social-share.js"></script>
+
+  
+<script src="/localshare/js/qrcode.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <script>
+    window._config = { showScore: true };
+    (function(){
+      var appid = 'cyvoLETLk';
+      var conf = '9be4582e027b7ddeb93c7cb6571009a5';
+      var width = window.innerWidth || document.documentElement.clientWidth;
+      var nodes =document.getElementsByTagName("head")[0]||document.head||document.documentElement;
+      if (/(Android|iPhone|iPad|iPod|iOS)/i.test(navigator.userAgent) && width < 750) {
+          window.document.write('<script id="changyan_mobile_js" charset="utf-8" type="text/javascript" src="https://changyan.sohu.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf + '"><\/script>');
+      }
+      else {
+        var loadJs=function(d,a){
+          var b=document.createElement("script");b.setAttribute("type","text/javascript");
+          b.setAttribute("charset","UTF-8");
+          b.setAttribute("src",d);
+          if(typeof a==="function"){if(window.attachEvent){b.onreadystatechange=function(){var e=b.readyState;if(e==="loaded"||e==="complete"){b.onreadystatechange=null;a()}}}else{b.onload=a}}
+          nodes.appendChild(b)
+        };
+        loadJs("https://changyan.sohu.com/upload/changyan.js",function(){window.changyan.api.config({appid:appid,conf:conf})});
+      }
+      var loadCss = function(cssString){
+        var style=document.createElement("style");
+        style.setAttribute("type", "text/css");
+        if(style.styleSheet){// IE
+            style.styleSheet.cssText = cssString;
+        } else {// w3c
+            var cssText = document.createTextNode(cssString);
+            style.appendChild(cssText);
+        }
+        nodes.appendChild(style);
+      }
+    })();
+    function removeElement(_element){
+         var _parentElement = _element.parentNode;
+         if(_parentElement){
+                _parentElement.removeChild(_element);
+         }
+    }
+    var removeAD = document.createElement("div");
+    removeAD.id = 'removeAD';
+    var adInterval1 = setInterval(function() {
+      if(document.querySelector("#feedAv")){
+        document.querySelector("[node-type=cmt-list]").appendChild(removeAD);
+        document.querySelector("#removeAD").appendChild(document.querySelector("#feedAv"));
+        //- removeElement(document.querySelectorAll("#feedAv")[0]);
+        var feedAv = document.querySelector("#feedAv").children;
+        for( item of feedAv){
+          item.style.display = 'none'
+        }
+        document.querySelector("#removeAD").style.display="none"
+        clearInterval(adInterval1);
+      }
+    },1000);
+    var adInterval2 = setInterval(function() {
+      if(document.querySelector("#pop_ad")){
+        removeElement(document.querySelector("#pop_ad"));
+        clearInterval(adInterval2);
+      }
+    }, 1000);
+  </script>
+  
+<script src="https://assets.changyan.sohu.com/upload/plugins/plugins.count.js"></script>
+
+
+
+
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+  <script src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML" async type="text/javascript"></script>
+
+  </div>
+</body>
+</html>

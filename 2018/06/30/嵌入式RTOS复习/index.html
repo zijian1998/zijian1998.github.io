@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>嵌入式实时操作系统课程知识点复习 | 妄越</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+    <meta name="description" content="学海无涯，记在路上">
+  
+  
+    <meta name="keywords" content="技术博客">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="妄越" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/logo.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+    
+<link rel="stylesheet" href="/localshare/css/share.css">
+
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">妄越</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">平生蹉跎少年志，雨落樱花又一年</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/."><i class="fa fa-home"></i> 首页</a>
+        
+          <a class="main-nav-link" href="/archives/"><i class="fa fa-archive"></i> 归档</a>
+        
+          <a class="main-nav-link" href="/about/"><i class="fa fa-user"></i> 关于</a>
+        
+      </nav>
+    </div>
+    <div id="search-form">
+      <div id="result-mask" class="hide"></div>
+      <label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label>
+      <div id="result-wrap" class="hide">
+        <div id="search-result"></div>
+      </div>
+      <div class="hide">
+        <template id="search-tpl">
+          <div class="item">
+            <a href="/{path}" title="{title}">
+              <div class="title">{title}</div>
+              <div class="time">{date}</div>
+              <div class="tags">{tags}</div>
+            </a>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-嵌入式RTOS复习" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      嵌入式实时操作系统课程知识点复习
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2018-06-30T07:05:49.000Z" itemprop="datePublished">2018年06月30日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">读书笔记</a>
+  </div>
+
+      
+        <span class="article-views">
+  <i class="fa fa-views"></i>
+  <i id="busuanzi_container_page_pv">
+      <i id="busuanzi_value_page_pv"></i>
+  </i>
+</span>
+
+      
+      
+<a href="/2018/06/30/%E5%B5%8C%E5%85%A5%E5%BC%8FRTOS%E5%A4%8D%E4%B9%A0/#comments" class="article-comment-link">
+  
+    
+    
+    
+    
+    
+      <i id="changyan_count_unit" data-xid="/2018/06/30/%E5%B5%8C%E5%85%A5%E5%BC%8FRTOS%E5%A4%8D%E4%B9%A0/"></i>
+    
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>上学期嵌入式实时操作系统对PPT上的知识点的一个汇总</p>
+<p>最后真就一个都没考</p>
+<span id="more"></span>
+<h2 id="嵌入式系统体系结构回顾"><a href="#嵌入式系统体系结构回顾" class="headerlink" title="嵌入式系统体系结构回顾"></a>嵌入式系统体系结构回顾</h2><h3 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h3><p>DSP：数字信号处理处理器 可以进行累乘累加，区别于普通的CPU，一般的CPU的运算器是无法直接进行累乘操作的</p>
+<p>CPU包括：运算器、控制器、寄存器。</p>
+<p>NOC和SOC：分别是片上网络和片上系统</p>
+<p>三大总线： 地址总线、数据总线、控制总线</p>
+<p>PC： 程序计数器。系统复位后指向某一点区域，然后取值、译码、执行。然后PC寄存器内容会增加一个单位指向下条指令</p>
+<p>CPU的架构有</p>
+<ul>
+<li>冯诺依曼架构，cpu通过三大总线和同时存储了数据和指令的存储联系</li>
+<li>哈佛结构，六个总线，三个负责指令，三个负责数据，指令数据分开存放，取址就不会受到数据的干扰</li>
+<li>改进的哈佛结构，总线分开，数据和指令分区域存放。</li>
+</ul>
+<p>FPU：浮点数单元 </p>
+<p>MPU：内存保护单元，监控在CPU和主存之的事务，并且在检测到访问违规时发出警报。主要目的是防止程序访问为分配给它的内存。</p>
+<p>MMU：翻译虚拟地址到主存中的物理地址</p>
+<p>Microprocessor Unit（MPU）：微处理器单元。有很多种类，除了CPU外，FPU、MMU、cache都是可选项。为什么不要cache，因为cache可能会影响干扰RTOS的实时性，所以嵌入式RTOS一般会关掉cache，以保证系统的确定性。</p>
+<p>Microcontroller Unit（MCU）：微控制器单元。其中FPU、MPU为可选项。由于没有MMU，所以无法跑大型OS</p>
+<p>GPU（Graphics Processing Unit）： 图形处理单元。有很多core</p>
+<p>NPU/TPU：用来加速神经网络运算</p>
+<p>FPGA：现场可编程门阵列。一种可编程硬件</p>
+<p>NVIC：嵌套式向量中断控制器。确定中断优先级、提高MCU或CPU性能并减少中断延迟的方法。</p>
+<p>时钟振荡器：一种物理器件，又名晶振。可以作为频率源，产生时钟信号</p>
+<p>锁相环（phase locked loop）：利用相位同步产生的电压，去调谐压控振荡器以产生目标频率的负反馈控制系统。作用是使得电路上的时钟和某一外部时钟的相位同步。</p>
+<p>RAM（Random access memory）：常用的时SRAM和DRAM。前者更快动态功率更少，但是成本更高。一般而言，SRAM多作为CPU的缓存，DRAM作为内存</p>
+<p>SRAM：有一定数据持久能力，但依然在断电后会最终丢失</p>
+<p>DRAM：需要外部存储器刷新电路，定期重写电容器中的数据。这是一种易失性存储器，断电后会迅速丢失数据</p>
+<p>SDRAM：同步动态随机存取存储器，外部引脚接口的操作由外部提供的时钟信号协调，DDR3 DDR4···都是这种</p>
+<p>SGRAM&amp;HBM：超级计算器、高性能图形加速器、网络设备使用的高性能RAM</p>
+<p>ROM：只读内存 。一种非易失性存储器，一般无法进行电子修改，一般用于存储很少更改的软件，即<strong>固件</strong></p>
+<p>EEPROM：代表电可擦除可编程只读存储器，一种非易失性存储器，允许单个字节被擦除或重新编程</p>
+<h2 id="嵌入式实时操作系统基础概念"><a href="#嵌入式实时操作系统基础概念" class="headerlink" title="嵌入式实时操作系统基础概念"></a>嵌入式实时操作系统基础概念</h2><h3 id="任务"><a href="#任务" class="headerlink" title="任务"></a>任务</h3><p>拥有CPU资源（寄存器 堆栈）正在执行的简单程序，类似于进程的概念，可以申请资源，一般是周期性的，是一个无限循环，拥有就绪、运行、挂起三种状态。</p>
+<ul>
+<li>就绪状态指任务获得执行优先级，等待OS安排开始执行（还没进入死循环）</li>
+<li>运行状态指任务执行过程（正在死循环）</li>
+<li>挂起状态指任务结束（跳出死循环，释放资源）</li>
+</ul>
+<p>任务的拥有动态性（拥有生命周期）、并发性（单核交替——逻辑并发，中断服务例程辅助，假并发；多核同时）、独立性（任务是资源分配的基本单位，MCU上多使用栈资源，因为有的RTOS没有堆，这一块应该是是为了防止复杂的内存分配算法降低实时性）、异步性（任务按异步方式运行）</p>
+<h3 id="任务上下文"><a href="#任务上下文" class="headerlink" title="任务上下文"></a>任务上下文</h3><p>任务上下文就是指一个未运行任务的状态，包括堆栈指针、计数器、内存字段和通用寄存器。</p>
+<p>tips:某些编译器会和OS、CPU配合将某些寄存器定为专门存放中间值，那么就不需要在任务切换时进行内存交换，这是一种运行时的优化</p>
+<h3 id="调度"><a href="#调度" class="headerlink" title="调度"></a>调度</h3><p>调度即决定任务运行次序的机制。主要有抢占式、非抢占式。</p>
+<p>多数实时内核的调度实际上是基于优先级调度的多种方法的复合。</p>
+<p>其中抢占与否和实时画不上等号，非抢占式调度的划分时间片法，如果能很好地划分时间片，那么对于整个系统来说抖动也很小，也是可以接受的实时调度。</p>
+<h4 id="基本的调度算法"><a href="#基本的调度算法" class="headerlink" title="基本的调度算法"></a>基本的调度算法</h4><p>先来先服务、最短周期优先、优先级法、轮转法、多级队列法、多级反馈队列</p>
+<ul>
+<li>优先级法是最常用最有效的调度方法（FreeRTOS和ucos都采用的这种调度方法），分为抢占式和非抢占式</li>
+<li>先来先服务法简单易行，性能较差，cpu会先运行处于就绪队列之首的任务。这种方法下可以想到我们的任务不再是while死循环，而是不断再创建一次</li>
+<li>轮转法多用在windows和Linux中，每次从有序队列头部选出一任务，并分配定长时间片。时间片内未处理完的任务会在时间片用尽后重新送到队列尾部。凡新到达的任务会被放在队列尾部。</li>
+<li>最短周期优先：谁执行周期最短先执行谁（可能会产生进程饥饿）</li>
+<li>多级反馈队列：设置多个就绪队列，每个队列对应一种优先级。CPU先执行高优先级队列中的任务。各就绪队列中的 进程运行时间片不同，高优先级队列时间片小，低优先级队列时间片大（可以理解为对其抢占到cpu的概率小的补偿），UNIX和windowsNT采用的就是这种方法。</li>
+</ul>
+<p>一般而言，桌面系统，多采用时间片分片的调度，RTOS多采用抢占式调度。</p>
+<h3 id="调度延迟"><a href="#调度延迟" class="headerlink" title="调度延迟"></a>调度延迟</h3><p>调度延迟，指当一个事件从引起更高优先级任务就绪到开始运行之间的时间。表示的是系统的反应能力。</p>
+<p>一般会存在三种调度延迟</p>
+<ul>
+<li>直接创建新任务并执行——这种事调度延迟最小的。</li>
+<li>触发中断，由中断服务例程直接创建并执行新任务</li>
+<li>触发中断，由中断服务例程创建任务，回到原任务后执行新任务。——这种是调度延迟最长的。</li>
+</ul>
+<h3 id="优先级"><a href="#优先级" class="headerlink" title="优先级"></a>优先级</h3><p>优先级即表示任务的轻重缓急，每个任务会有自己的优先级。</p>
+<p>优先级分为静态优先级和动态优先级，区别在于是否可变</p>
+<p>基于优先级的系统会出现优先级倒置的问题， 这实际上是资源占用导致的。</p>
+<h3 id="优先级倒置"><a href="#优先级倒置" class="headerlink" title="优先级倒置"></a>优先级倒置</h3><p>当一个任务等待比它优先级低的任务释放资源而被阻塞时，就发生了优先级倒置。</p>
+<p>解决方法是优先级继承</p>
+<h3 id="优先级继承"><a href="#优先级继承" class="headerlink" title="优先级继承"></a>优先级继承</h3><p>优先级继承强制命令低优先级的任务继承与之共享资源而被挂起的任意高优先级任务的优先等级，使较低优先级任务尽快执行，尽快释放高优先级所需要的资源。</p>
+<h3 id="代码临界区"><a href="#代码临界区" class="headerlink" title="代码临界区"></a>代码临界区</h3><p>不可分割的一段代码。一旦执行不能被中断</p>
+<p>实现方法有两种：</p>
+<ul>
+<li>屏蔽中断，代码执行前关中断，执行后开中断，只能用于单核情形。但如果过于频繁开关中断，也会影响性能</li>
+<li>通过信号量实现。</li>
+</ul>
+<h3 id="信号量"><a href="#信号量" class="headerlink" title="信号量"></a>信号量</h3><p>多任务环境常用的协调各个任务来使用公共资源的指示标志。查询信号量来确定公共资源的使用情况，符合要求可以使用，不然就要等待。使用资源的任务在使用完毕后要释放信号量。</p>
+<h3 id="任务间通信"><a href="#任务间通信" class="headerlink" title="任务间通信"></a>任务间通信</h3><p>多任务系统中，任务之间存在相互制约的关系，任务之间需要交换信息，这就是任务间通信</p>
+<p>有两种任务间通信</p>
+<ul>
+<li>控制信息传送</li>
+<li>批量数据传送</li>
+</ul>
+<p>任务间通信方式有信号量、消息邮箱（消息队列）、管道、共享内存、套接字等。</p>
+<p>任务间通信在微内核操作系统中非常常见，各内核会构建自己的容器，进行互相通信。 </p>
+<p>未来发布订阅机制在这方面可能会有更进一步的应用，比如分布式系统的DDS，不过是是分布式系统一般通过网络、外部总线进行任务间通信，无法实现0拷贝。</p>
+<h4 id="信箱"><a href="#信箱" class="headerlink" title="信箱"></a>信箱</h4><p>信箱在两个任务之间，使用步骤是首先创建信箱，然后任务一向信箱发送消息，任务二会查询信箱状态，从而从信箱二中接收消息</p>
+<h4 id="队列"><a href="#队列" class="headerlink" title="队列"></a>队列</h4><p>队列是一种非阻塞式同步，过程跟信箱类似，但是具有强序列关系。</p>
+<p>一般数据队列用于数据缓存，可以用来平衡速率不同的两个部件，使快速部件不需要等待慢速部件</p>
+<h3 id="互斥"><a href="#互斥" class="headerlink" title="互斥"></a>互斥</h3><p>控制多任务对共享数据顺序访问的同步机制。方法主要有开关中断、使用硬件指令、使用信号量。</p>
+<p>目前处理器主要有主从通信、总线通信、内存通信</p>
+<p>未来处理器可能会靠网络通信、点对点通信</p>
+<h3 id="抢占"><a href="#抢占" class="headerlink" title="抢占"></a>抢占</h3><p>当前执行任务可被另外任务打断的任务调度机制。</p>
+<h2 id="FreeRTOS"><a href="#FreeRTOS" class="headerlink" title="FreeRTOS"></a>FreeRTOS</h2><p>代码主要负责三个区块——任务、通讯、硬件接口，代码量比为5：4：0.6</p>
+<h3 id="任务-1"><a href="#任务-1" class="headerlink" title="任务"></a>任务</h3><p>任务函数返回值为void且不允许返回，不允许有一条return语句</p>
+<p>FreeRTOS的任务调度 通过对任务设置优先级进行优先级抢占式调度，拥有下述特性</p>
+<ul>
+<li>每个任务都赋予了一个优先级</li>
+<li>每个任务都可以存在一个或多个状态</li>
+<li>在任何时候都只有一个任务可以处于运行状态</li>
+<li>调度器总是在所有处于就绪态的任务中具有最高优先级的任务来执行。</li>
+</ul>
+<p>一般FreeRTOS会存在一个任务在其他所有任务都处于阻塞态时运行，也就是空闲任务，一个非常短小的循环，它拥有<strong>最低优先级（优先级0）</strong>，就不会妨碍更高优先级的任务进入运行态。空闲任务会通过钩子函数，直接在空闲任务中添加应用程序相关功能。<strong>空闲任务钩子函数</strong>有很多功能，比如在没有应用能力需要处理的时候，将系统配置为省电模式。空闲任务钩子函数<strong>绝对不能阻塞或挂起</strong>，且一定要能<strong>尽快返回</strong>，因为空闲函数负责回收内核资源，不尽快返回无法进行回收工作。</p>
+<p>FreeRTOS对于相同优先级的任务，会划分<strong>时间片轮流</strong>执行。</p>
+<p>FreeRTOS任务有<strong>运行、阻塞、挂起、就绪</strong>四个状态。</p>
+<h3 id="队列-1"><a href="#队列-1" class="headerlink" title="队列"></a>队列</h3><p>FreeRTOS通过<strong>队列</strong>来解决通信与同步机制，队列是具有自己独立权限的内核对象，不属于任何任务</p>
+<p>FreeRTOS中队列有两套函数，分别用于普通情况和中断服务。不可混用。</p>
+<p>队列可以通过yeild（taskYIELD()）立即进行任务切换不必等到时间片耗尽.</p>
+<h3 id="延迟中断处理"><a href="#延迟中断处理" class="headerlink" title="延迟中断处理"></a>延迟中断处理</h3><p>在嵌入式实时领域，<em>一般都不会让中断服务程序运行时间过长，否则会大大降低系统的实时性</em>。我们可以让中断服务程序作为触发者，触发<strong>其他函数（被称为延迟处理任务）</strong>执行任务，这样就增强了实时性，一般这种手段通过<strong>二值信号量</strong>的手段来实现。</p>
+<p>延迟处理任务会对一个信号量执行take调用，进入阻塞态等待中断发生，中断发生后，ISR（中断服务例程）会对该信号量进行give操作，当ISR退出后，该延迟处理任务就会由阻塞态转为运行态，进行相应处理，处理完后会再次尝试获取信号量，从而进入阻塞态，等待下次中断发生。</p>
+<h3 id="计数信号量"><a href="#计数信号量" class="headerlink" title="计数信号量"></a>计数信号量</h3><p>二值信号量会在中断多次触发时，存在丢失后面的中断事件的可能，所以引入计数信号量，计数信号量代替二值信号量，有<strong>事件计数</strong>和<strong>资源管理</strong>两种用法。</p>
+<h3 id="共享资源的处理"><a href="#共享资源的处理" class="headerlink" title="共享资源的处理"></a>共享资源的处理</h3><p>多任务系统当一个任务在使用某个资源时，如果没完全结束对资源的访问，就被切除运行态，就会使得资源处于非一致，不完整的状态，此时其他任务或中断访问资源，就会出现数据损坏或者其他错误。</p>
+<h4 id="函数重入"><a href="#函数重入" class="headerlink" title="函数重入"></a>函数重入</h4><p>一个函数可以安全地被多个任务调用，或者在任务和中断中均可调用，那么该函数是可重入的。</p>
+<p>每个任务单独维护自己的的栈空间和自身在的内存寄存器组的值，如果一个函数除了访问自己栈空间上分配的数据或内核寄存器中的数据外，不会访问其他任何数据，则这个函数是可重入的。</p>
+<h4 id="互斥-1"><a href="#互斥-1" class="headerlink" title="互斥"></a>互斥</h4><p>FreeRTOS有<strong>临界区（必须只具有很短的时间，否则会反过来影响中断响应）</strong>、<strong>挂起（锁定）调度器（只防止任务打断，中断是使能的）</strong>、<strong>互斥量（特殊的二值信号量，互斥的信号量必须归还，同步的信号量同步后丢弃）</strong>、<strong>守护任务</strong>（对某资源具备唯一所有权，其他任务要访问该资源只能间接通过守护任务提供的服务进行访问，这可以避免<strong>优先级反转</strong>和<strong>死锁问题</strong>）</p>
+<h4 id="内存管理"><a href="#内存管理" class="headerlink" title="内存管理"></a>内存管理</h4><p>任务、队列或信号量被创建时，内核需要进行动态内存分配。一般内存分配调用的是malloc()函数和free()函数，面临的问题有下述六条</p>
+<ul>
+<li>小型嵌入式系统不支持这两个函数</li>
+<li>两个函数实现需要的代码空间很大</li>
+<li>两个函数不具备线程安全特性</li>
+<li>两个函数具有不确定性，每次调用时间开销不同</li>
+<li>会产生内存碎片</li>
+<li>链接器配置会复杂</li>
+</ul>
+<p>FreeRTOS有自己的内存分配算法，有多种实现范例，现在已经从heap1~heap4。PPT上只介绍了三种。heap1没有free，面向不需要删除任务、队列、信号量的应用程序，其确定性最强。heap2允许内存释放，但是不会把相邻空闲块合并，所以会产生内存碎片，因此适用于重复创建和删除具有相同栈空间人物的应用程序。heap3调用了标准的malloc和free，但是通过挂起调度器保证了线程安全。</p>
+<h2 id="RTOS网络通讯"><a href="#RTOS网络通讯" class="headerlink" title="RTOS网络通讯"></a>RTOS网络通讯</h2><h3 id="LwIP"><a href="#LwIP" class="headerlink" title="LwIP"></a>LwIP</h3><p>用于嵌入式系统的开源TCP/IP协议栈。轻型IP协议，实现重点在保持TCP协议主要功能基础上减少对RAM的占用，非常适用于小型嵌入式系统</p>
+<h4 id="OSI标准模型"><a href="#OSI标准模型" class="headerlink" title="OSI标准模型"></a>OSI标准模型</h4><p>七层模型：应用层、表示层、会话层、传输层、网络层、数据链路层、物理层</p>
+<h4 id="LwIP的软件体系结构"><a href="#LwIP的软件体系结构" class="headerlink" title="LwIP的软件体系结构"></a>LwIP的软件体系结构</h4><ul>
+<li><p>LwIP是以<strong>4层TCP/IP模型(从下至上分别是网络接口层、网际层、运输层和应用层)</strong>为参照实现TCP/IP协议簇的，，同时提供几个函数作为协议的入口点。没有严格按照OSI分层方式实现协议簇。</p>
+</li>
+<li><p>一种比较松散的通讯机制，通过<strong>共享内存</strong>实现应用层与底层协议族之间的通信。</p>
+</li>
+<li>拥有独特的缓冲机制，可以更加有效利用缓冲区。尽量避免内存复制，减少性能损失</li>
+<li>模块化设计实现</li>
+</ul>
+<h4 id="LwIP的进程模型"><a href="#LwIP的进程模型" class="headerlink" title="LwIP的进程模型"></a>LwIP的进程模型</h4><p>TCP/IP协议族的进程模型指的是采用何种方法把系统分成不同进程。</p>
+<p>常见的进程模型有两种：</p>
+<ul>
+<li>每个协议作为一个独立进程<ul>
+<li>该模型必须符合协议的每一层，协议层之间通过指定的方式进行通讯。</li>
+<li>优点是每一种协议可以独立参与系统运行，且实现简单，便于理解和调试</li>
+<li>缺点是跨层传递必须产生进程切换和内存复制。这一缺点极大影响整体性能，为嵌入式系统不能接受。</li>
+</ul>
+</li>
+<li>协议栈作为一个内核，只占据一个进程<ul>
+<li>协议栈在操作系统内核中，应用程序通过系统调用与协议栈通讯。</li>
+<li>缺点是层次不清，不好理解</li>
+</ul>
+</li>
+</ul>
+<p>LwIP的进程模型比较灵活，可以所有协议驻留在一个进程，以便独立于内核之外，也可以根据协议层次结构创建多个进程，但是各个进程之间只传送尽可能少的必要信息，没有引入额外的内存复制。</p>
+<h4 id="LWIP的函数调用关系"><a href="#LWIP的函数调用关系" class="headerlink" title="LWIP的函数调用关系"></a>LWIP的函数调用关系</h4><p>为了避免内存复制，LwIP采用基于<strong>回调函数</strong>的设计方法  。</p>
+<ul>
+<li>优点时提高了整体性能</li>
+<li>缺点是使整个软件体系显得略微复杂</li>
+</ul>
+<p>回调函数是一种异步的设计方法，是事件驱动式的。</p>
+<h4 id="协议层的调用"><a href="#协议层的调用" class="headerlink" title="协议层的调用"></a>协议层的调用</h4><p>TCP/IP协议栈是按功能层组织的，每一层都为上一层提供服务，并使用下一层提供的服务。在4层TCP/IP模型中，从下至上依次是网络接口层、网际层、运输层和应用层</p>
+<ul>
+<li>网络接口层<ul>
+<li>较高协议与局域网接口的地方。</li>
+<li>收到数据帧时，该层负责判断数据帧的协议类型（IP还是ARP），<ul>
+<li>如果是ARP协议（地址解析协议，将ip地址转换为MAC地址），则本层可以自行应答</li>
+<li>如果是IP协议，则传递给上层网际层</li>
+</ul>
+</li>
+<li>发送数据帧时，该层会调用netif-&gt;output，完成真正的数据发送</li>
+</ul>
+</li>
+<li>网际层<ul>
+<li>负责网间寻址、数据封装、路由选择、错误处理和诊断等。典型协议有IP协议和ICMP协议</li>
+<li>从下层网络接口层接收到IP数据报，仅从处理。根据IP数据报中的协议字段，决定是否传给上层<ul>
+<li>如果是ICMP协议，本层的函数会被调用</li>
+<li>其他大多应该传给上层</li>
+</ul>
+</li>
+<li>当有数据需要从网际层发送出去，会先找到合适的网络接口（ip_route）再发送出去（ip_outpu_if）</li>
+</ul>
+</li>
+<li>传输层<ul>
+<li>负责在网际设备之间传输数据，有可靠或者不可靠两种方式，也就是TCP、UDP传输</li>
+<li>当下层网际层传上来数据时，根据类型不同（TCP、UDP）调用不同函数进行处理。处理后提交给上层应用层。</li>
+<li>当上层发送数据时，选择调用函数进行数据处理，然后再调用其他函数将数据交给下层。</li>
+</ul>
+</li>
+<li>应用层<ul>
+<li>用户的应用所运行的地方。</li>
+<li>用户发送数据时，LwIP根据类型调用下层运输层的发送函数</li>
+<li>用户接受数据同样由LwIP调用下层接收函数送达。</li>
+</ul>
+</li>
+</ul>
+<h4 id="典型模块的跨层调用"><a href="#典型模块的跨层调用" class="headerlink" title="典型模块的跨层调用"></a>典型模块的跨层调用</h4><p>一般对于某一个协议来说，只隶属于某一个层次（ARP除外）。但也会有其他层次调用该协议的有关函数。该协议一般也会主动调用其他层次的有关函数。</p>
+<ul>
+<li>IP模块：实现了大部分基本功能，能够发送、接收以及转发信息包</li>
+<li>ICMP模块：由ip_input函数收到，转交给icmp_input解码</li>
+<li>UDP模块</li>
+<li>TCP模块  TCP数据的发送过程一般是由应用层发起的，接受过程由网络接口层发起</li>
+</ul>
+<h4 id="IwIP的pbuf"><a href="#IwIP的pbuf" class="headerlink" title="IwIP的pbuf"></a>IwIP的pbuf</h4><p>pbuf时LwIP信息包的内部表示，pbuf结构既支持动态内存分配以保存信息报内容，又支持让信息包数据驻留在静态存储区。</p>
+<p>pbuf由四种类型：PBUF_RAM、PBUF_ROM、PBUF_REF、PBUF_POOL。</p>
+<ul>
+<li>PBUF_RAM：在实现划分好的内存堆栈中分配，用于存放应用程序动态产生的数据</li>
+<li>PBUF_ROM: PBUF_ROM类型的pbuf的payload指针指向不由协议栈管理的外部存储区，如应用程序管理的存储器为用户数据分配的缓存。同时由于应用程序交付的数据不能改动，所以动态分配一个PBUF_RAM来装载协议首部，添加到PBUF_ROM的前面</li>
+<li>PBUF_REF：和PBUF_ROM非常类似，都可以实现数据的零拷贝。当发送数据需要排队时，针对REF类型的pbuf，LwIP会在数据分组排队时为pbuf分配缓存，并将引用的应用程序的数据拷贝到分配的缓存中，这样应用程序被引用数据的存储区域能被释放。</li>
+<li>PBUF_POOL: 固定容量的pbuf，由宏定义指定。主要用于<strong>网络设备驱动层</strong>，因为分配操作可以快速完成。</li>
+</ul>
+<p>一般来说，收到的pbuf是PBUF_POOL类型，发送出的pbuf是PBUF_ROM或者PBUF_RAM类型。</p>
+<h4 id="IwIP的内存管理（这块太多了，其实就是在讲四种pbuf的内存管理相关的函数啥的，感觉也考不到这么细，不写了）"><a href="#IwIP的内存管理（这块太多了，其实就是在讲四种pbuf的内存管理相关的函数啥的，感觉也考不到这么细，不写了）" class="headerlink" title="IwIP的内存管理（这块太多了，其实就是在讲四种pbuf的内存管理相关的函数啥的，感觉也考不到这么细，不写了）"></a>IwIP的内存管理（这块太多了，其实就是在讲四种pbuf的内存管理相关的函数啥的，感觉也考不到这么细，不写了）</h4><p>LwIP的内存区域主要用于装载待接收和发送的网络数据分组。分组交付或发送完毕后，协议栈会对缓存进行回收利用。</p>
+<p>协议栈分配的缓存必须能容纳各种大小的报文。</p>
+<h5 id="PBUF-RAM"><a href="#PBUF-RAM" class="headerlink" title="PBUF_RAM"></a>PBUF_RAM</h5><p>LwIP协议栈会首先从系统内存中开辟一块连续的静态存储区域，用于PBUF_RAM，同时协议栈还定义了一个比较小的结构体mem，放在内存分配块顶层保存内存分配记录。</p>
+<p>啊吧啊吧啊吧（这块太多了，其实就是在讲四种pbuf的内存管理相关的函数啥的，感觉也考不到这么细，不写了）·······</p>
+<h4 id="LwIP移植"><a href="#LwIP移植" class="headerlink" title="LwIP移植"></a>LwIP移植</h4><p>啊吧啊吧啊吧（同样讲的是LwIP在ucosII的具体移植，代码相关，不介绍了）</p>
+<h2 id="EtherCAT实时以太网路"><a href="#EtherCAT实时以太网路" class="headerlink" title="EtherCAT实时以太网路"></a>EtherCAT实时以太网路</h2><h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p><strong>现场总线技术：</strong>全数字通信代替模拟传播。目前存在的不足有下述几点</p>
+<ul>
+<li>无统一标准</li>
+<li>不同总线不兼容，无法实现透明信息互访、信息无缝集成</li>
+<li>专用实时通信网络，成本较高</li>
+<li>速度较低，支持应用有限，不便于和因特网信息集成</li>
+</ul>
+<p><strong>以太网技术：</strong>通用性号、低成本、高效率、高可靠性、稳定性好。用于工业领域的以太网称为工业以太网。</p>
+<p><strong>普通以太网</strong>采用的是CSMA/CD(载波侦听多路访问/冲突检测）访问控制技术。网上节点通过竞争获得发送信息的权力，显然因为竞争，以及发生碰撞要推出重发等级制，会导致无法预见的延迟特性，就破坏了我们的<strong>确定性</strong>。以及以太网无法及时发现故障节点所以可能导致故障节点独占总线，其他节点无法传输，工控<strong>实时性</strong>很难保证。</p>
+<h3 id="实时工业以太网"><a href="#实时工业以太网" class="headerlink" title="实时工业以太网"></a>实时工业以太网</h3><p>一般有三种实现，分别是基于TCP/IP实现（应用层）的改造、基于以太网（主要是网络层和传输层）实现的改造以及基于修改的以太网（主要在以太网的数据链路层）实现的改造。</p>
+<h4 id="基于TCP-IP的实现"><a href="#基于TCP-IP的实现" class="headerlink" title="基于TCP/IP的实现"></a>基于TCP/IP的实现</h4><p>应用层做修改，仍使用TCP/IP协议，通过应用层过滤不确定因素。改造方法有调度法、优先级机制、交换式以太网等。代表是Modbus/TCP和Ethernet/IP。仅适用于对实时性要求不高的工控环境</p>
+<h4 id="基于以太网的实现"><a href="#基于以太网的实现" class="headerlink" title="基于以太网的实现"></a>基于以太网的实现</h4><p>网络层和传输层做修改。基于标准的ISO/IEC802.3中物理层和数据链路层协议，工控相关的过程数据不通过TCP/IP协议传输。常用手段时间片机制。代表是Ethernet powerlink、EPA、profinet RT等</p>
+<h4 id="基于修改以太网实现"><a href="#基于修改以太网实现" class="headerlink" title="基于修改以太网实现"></a>基于修改以太网实现</h4><p>数据链路层做修改。一般采用专用硬件处理数据，使用专用帧类型提高工控数据帧的优先级，简化通信处理过程，避免报文冲突，代表为EtherCAT、SERCOS III和profinet IRT。可以获得响应事件小于1ms的硬实时。</p>
+<p>tips:以太网帧的数据有1500个字节左右</p>
+<h3 id="第三类工业以太网协议性能对比"><a href="#第三类工业以太网协议性能对比" class="headerlink" title="第三类工业以太网协议性能对比"></a>第三类工业以太网协议性能对比</h3><ul>
+<li>EtherCAT，全双工（可以同时在两个方向上收发消息），拓扑结构支持星型、线型、环型、树型和总线型。同步精度最高 100ns。实时特性最好</li>
+<li>SERCOS III，全双工，拓扑结构支持线型、环型</li>
+<li>PROFINET IRT，半双工（可以双向传输，但不能同时传输），拓扑结构支持星型和线型。</li>
+</ul>
+<h3 id="EtherCAT——基于以太网的开发构架的实时工业现场总线通讯协议"><a href="#EtherCAT——基于以太网的开发构架的实时工业现场总线通讯协议" class="headerlink" title="EtherCAT——基于以太网的开发构架的实时工业现场总线通讯协议"></a>EtherCAT——基于以太网的开发构架的实时工业现场总线通讯协议</h3><p>特点：高性能、拓扑结构灵活、应用容易、低成本、高精度设备同步、可选线缆冗余、功能性安全协议、热插拔</p>
+<p>需要注意的是EtherCAT中数据交换完全基于纯粹的硬件设备，利用逻辑环网结构和全双工快速以太网。时钟抖动小，非常精确。</p>
+<p>逻辑环网是一种可以完全避免消息碰撞的技术。</p>
+<p>主要可以用于短指令的简单控制系统，可以充分利用以太网的payload空间，存放多条指令，防止浪费。</p>
+<p>后面的不总结了，看看就完事了，老师好像都没怎么讲印象里。</p>
+
+        
+            <div id="toc-article">
+                
+  <div class="widget-wrap" id="toc-wrap">
+    <h3 class="widget-title"><i class="fa fa-toc"></i> 文章目录</h3>
+    <div class="widget">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B5%8C%E5%85%A5%E5%BC%8F%E7%B3%BB%E7%BB%9F%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84%E5%9B%9E%E9%A1%BE"><span class="toc-text">嵌入式系统体系结构回顾</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="toc-text">基本概念</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%AE%9E%E6%97%B6%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5"><span class="toc-text">嵌入式实时操作系统基础概念</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%BB%E5%8A%A1"><span class="toc-text">任务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%BB%E5%8A%A1%E4%B8%8A%E4%B8%8B%E6%96%87"><span class="toc-text">任务上下文</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B0%83%E5%BA%A6"><span class="toc-text">调度</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E7%9A%84%E8%B0%83%E5%BA%A6%E7%AE%97%E6%B3%95"><span class="toc-text">基本的调度算法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B0%83%E5%BA%A6%E5%BB%B6%E8%BF%9F"><span class="toc-text">调度延迟</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BC%98%E5%85%88%E7%BA%A7"><span class="toc-text">优先级</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BC%98%E5%85%88%E7%BA%A7%E5%80%92%E7%BD%AE"><span class="toc-text">优先级倒置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BC%98%E5%85%88%E7%BA%A7%E7%BB%A7%E6%89%BF"><span class="toc-text">优先级继承</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E4%B8%B4%E7%95%8C%E5%8C%BA"><span class="toc-text">代码临界区</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%A1%E5%8F%B7%E9%87%8F"><span class="toc-text">信号量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%BB%E5%8A%A1%E9%97%B4%E9%80%9A%E4%BF%A1"><span class="toc-text">任务间通信</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BF%A1%E7%AE%B1"><span class="toc-text">信箱</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%98%9F%E5%88%97"><span class="toc-text">队列</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%92%E6%96%A5"><span class="toc-text">互斥</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8A%A2%E5%8D%A0"><span class="toc-text">抢占</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#FreeRTOS"><span class="toc-text">FreeRTOS</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%BB%E5%8A%A1-1"><span class="toc-text">任务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%98%9F%E5%88%97-1"><span class="toc-text">队列</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BB%B6%E8%BF%9F%E4%B8%AD%E6%96%AD%E5%A4%84%E7%90%86"><span class="toc-text">延迟中断处理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%A1%E6%95%B0%E4%BF%A1%E5%8F%B7%E9%87%8F"><span class="toc-text">计数信号量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B1%E4%BA%AB%E8%B5%84%E6%BA%90%E7%9A%84%E5%A4%84%E7%90%86"><span class="toc-text">共享资源的处理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%87%BD%E6%95%B0%E9%87%8D%E5%85%A5"><span class="toc-text">函数重入</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%92%E6%96%A5-1"><span class="toc-text">互斥</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86"><span class="toc-text">内存管理</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RTOS%E7%BD%91%E7%BB%9C%E9%80%9A%E8%AE%AF"><span class="toc-text">RTOS网络通讯</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#LwIP"><span class="toc-text">LwIP</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#OSI%E6%A0%87%E5%87%86%E6%A8%A1%E5%9E%8B"><span class="toc-text">OSI标准模型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#LwIP%E7%9A%84%E8%BD%AF%E4%BB%B6%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84"><span class="toc-text">LwIP的软件体系结构</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#LwIP%E7%9A%84%E8%BF%9B%E7%A8%8B%E6%A8%A1%E5%9E%8B"><span class="toc-text">LwIP的进程模型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#LWIP%E7%9A%84%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E5%85%B3%E7%B3%BB"><span class="toc-text">LWIP的函数调用关系</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8D%8F%E8%AE%AE%E5%B1%82%E7%9A%84%E8%B0%83%E7%94%A8"><span class="toc-text">协议层的调用</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%B8%E5%9E%8B%E6%A8%A1%E5%9D%97%E7%9A%84%E8%B7%A8%E5%B1%82%E8%B0%83%E7%94%A8"><span class="toc-text">典型模块的跨层调用</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#IwIP%E7%9A%84pbuf"><span class="toc-text">IwIP的pbuf</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#IwIP%E7%9A%84%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%EF%BC%88%E8%BF%99%E5%9D%97%E5%A4%AA%E5%A4%9A%E4%BA%86%EF%BC%8C%E5%85%B6%E5%AE%9E%E5%B0%B1%E6%98%AF%E5%9C%A8%E8%AE%B2%E5%9B%9B%E7%A7%8Dpbuf%E7%9A%84%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E7%9B%B8%E5%85%B3%E7%9A%84%E5%87%BD%E6%95%B0%E5%95%A5%E7%9A%84%EF%BC%8C%E6%84%9F%E8%A7%89%E4%B9%9F%E8%80%83%E4%B8%8D%E5%88%B0%E8%BF%99%E4%B9%88%E7%BB%86%EF%BC%8C%E4%B8%8D%E5%86%99%E4%BA%86%EF%BC%89"><span class="toc-text">IwIP的内存管理（这块太多了，其实就是在讲四种pbuf的内存管理相关的函数啥的，感觉也考不到这么细，不写了）</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#PBUF-RAM"><span class="toc-text">PBUF_RAM</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#LwIP%E7%A7%BB%E6%A4%8D"><span class="toc-text">LwIP移植</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#EtherCAT%E5%AE%9E%E6%97%B6%E4%BB%A5%E5%A4%AA%E7%BD%91%E8%B7%AF"><span class="toc-text">EtherCAT实时以太网路</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%83%8C%E6%99%AF"><span class="toc-text">背景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E6%97%B6%E5%B7%A5%E4%B8%9A%E4%BB%A5%E5%A4%AA%E7%BD%91"><span class="toc-text">实时工业以太网</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%BA%E4%BA%8ETCP-IP%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="toc-text">基于TCP&#x2F;IP的实现</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%BA%E4%BA%8E%E4%BB%A5%E5%A4%AA%E7%BD%91%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="toc-text">基于以太网的实现</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%BA%E4%BA%8E%E4%BF%AE%E6%94%B9%E4%BB%A5%E5%A4%AA%E7%BD%91%E5%AE%9E%E7%8E%B0"><span class="toc-text">基于修改以太网实现</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%B8%89%E7%B1%BB%E5%B7%A5%E4%B8%9A%E4%BB%A5%E5%A4%AA%E7%BD%91%E5%8D%8F%E8%AE%AE%E6%80%A7%E8%83%BD%E5%AF%B9%E6%AF%94"><span class="toc-text">第三类工业以太网协议性能对比</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#EtherCAT%E2%80%94%E2%80%94%E5%9F%BA%E4%BA%8E%E4%BB%A5%E5%A4%AA%E7%BD%91%E7%9A%84%E5%BC%80%E5%8F%91%E6%9E%84%E6%9E%B6%E7%9A%84%E5%AE%9E%E6%97%B6%E5%B7%A5%E4%B8%9A%E7%8E%B0%E5%9C%BA%E6%80%BB%E7%BA%BF%E9%80%9A%E8%AE%AF%E5%8D%8F%E8%AE%AE"><span class="toc-text">EtherCAT——基于以太网的开发构架的实时工业现场总线通讯协议</span></a></li></ol></li></ol>
+    </div>
+  </div>
+
+
+            </div>
+        
+        
+          <blockquote id="copyright">
+              <p>原文链接: <a href="https://zijian.wang/2018/06/30/嵌入式RTOS复习/">https://zijian.wang/2018/06/30/嵌入式RTOS复习/</a></p>
+              <p>版权声明: 转载请注明出处.</p>
+          </blockquote>
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+    <div class="article-reward">
+        <a id="reward-btn" href="javascript:;">打赏</a>
+        <div id="reward-content">
+            <h6 class="reward-tit">“感谢你的支持，我会继续努力！”</h6>
+            <div>
+                <div class="reward-code">
+                    <img class="type-code" src="/css/images/wechat.jpg">
+                    <img class="er-code" src="/css/images/wechat-pay.jpg">
+                </div>
+                <div class="reward-code">
+                    <img class="type-code" src="/css/images/alipay.jpg">
+                    <img class="er-code" src="/css/images/alipay-pay.jpg">
+                </div>
+            </div>
+            <p class="reward-desc">扫码打赏，感谢支持</p>
+        </div>
+    </div>
+
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8FRTOS/" rel="tag">嵌入式RTOS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag">读书笔记</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+        
+<nav id="article-nav">
+  
+    <a href="/2020/10/18/ROS%E6%BA%90%E4%BB%A3%E7%A0%81%E4%B9%8BPublish%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">newer</strong>
+      <div class="article-nav-title">
+        
+          ROS源代码阅读——publish底层实现部分
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/03/27/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%9F%BA%E7%A1%80%EF%BC%88%E4%BA%8C%EF%BC%89%E2%80%94%E2%80%94%E6%95%B0%E6%8D%AE%E6%A8%A1%E5%9E%8B%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">older</strong>
+      <div class="article-nav-title">数据库基础（二）——数据模型与数据结构</div>
+    </a>
+  
+</nav>
+
+      
+      
+        
+
+
+
+
+
+
+  <div id="SOHUCS" sid="2018/06/30/嵌入式RTOS复习/"></div>
+
+
+      
+    </footer>
+  </div>
+</article>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-posts"></i> 最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2022/03/17/XRCE-DDS%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%88epromisa%E5%AE%9E%E7%8E%B0%EF%BC%89/">XRCE-DDS源码阅读（epromisa实现）</a>
+          </li>
+        
+          <li>
+            <a href="/2021/12/30/%E5%AF%B9MQTT%E7%9A%84%E5%BD%A2%E5%BC%8F%E5%8C%96%E5%88%86%E6%9E%90%E4%B8%8E%E5%BB%BA%E6%A8%A1/">对MQTT的形式化分析和建模</a>
+          </li>
+        
+          <li>
+            <a href="/2021/12/13/git%E5%AD%A6%E4%B9%A0/">git学习</a>
+          </li>
+        
+          <li>
+            <a href="/2021/12/01/%E5%AF%B9ROS2%E7%9A%84DDS%E7%9A%84%E5%BD%A2%E5%BC%8F%E5%8C%96%E5%88%86%E6%9E%90/">对ROS2的DDS的形式化分析</a>
+          </li>
+        
+          <li>
+            <a href="/2021/10/19/%E6%97%B6%E9%97%B4%E8%87%AA%E5%8A%A8%E6%9C%BA/">时间自动机</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/C/" style="font-size: 15px;">C++</a> <a href="/tags/DDS/" style="font-size: 15px;">DDS</a> <a href="/tags/Leetcode/" style="font-size: 20px;">Leetcode</a> <a href="/tags/ROS/" style="font-size: 10px;">ROS</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/hash/" style="font-size: 13.75px;">hash</a> <a href="/tags/%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE/" style="font-size: 11.25px;">二分查找</a> <a href="/tags/%E5%89%8D%E7%BC%80%E5%92%8C/" style="font-size: 10px;">前缀和</a> <a href="/tags/%E5%89%91%E6%8C%87offer/" style="font-size: 18.75px;">剑指offer</a> <a href="/tags/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" style="font-size: 12.5px;">动态规划</a> <a href="/tags/%E5%8D%8F%E8%AE%AE%E9%98%85%E8%AF%BB/" style="font-size: 12.5px;">协议阅读</a> <a href="/tags/%E5%8F%8C%E6%8C%87%E9%92%88/" style="font-size: 11.25px;">双指针</a> <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8FRTOS/" style="font-size: 10px;">嵌入式RTOS</a> <a href="/tags/%E5%B7%A5%E5%85%B7/" style="font-size: 11.25px;">工具</a> <a href="/tags/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/" style="font-size: 10px;">工具使用</a> <a href="/tags/%E5%BD%A2%E5%BC%8F%E5%8C%96/" style="font-size: 10px;">形式化</a> <a href="/tags/%E5%BD%A2%E5%BC%8F%E5%8C%96%E9%AA%8C%E8%AF%81/" style="font-size: 11.25px;">形式化验证</a> <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%EF%BC%8C%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" style="font-size: 10px;">操作系统，环境配置</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" style="font-size: 12.5px;">数据库</a> <a href="/tags/%E6%95%B0%E7%BB%84/" style="font-size: 13.75px;">数组</a> <a href="/tags/%E6%A8%A1%E5%9E%8B%E6%A3%80%E6%B5%8B/" style="font-size: 11.25px;">模型检测</a> <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" style="font-size: 11.25px;">源码阅读</a> <a href="/tags/%E7%9F%A9%E9%98%B5/" style="font-size: 13.75px;">矩阵</a> <a href="/tags/%E7%A0%94%E7%A9%B6%E6%96%B9%E5%90%91/" style="font-size: 16.25px;">研究方向</a> <a href="/tags/%E7%A7%91%E7%A0%94%E5%91%A8%E8%AE%B0/" style="font-size: 10px;">科研周记</a> <a href="/tags/%E7%AE%97%E6%B3%95%E9%A2%98/" style="font-size: 20px;">算法题</a> <a href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" style="font-size: 10px;">计算机网络</a> <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/" style="font-size: 11.25px;">论文阅读</a> <a href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB%EF%BC%8CROS2/" style="font-size: 10px;">论文阅读，ROS2</a> <a href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" style="font-size: 17.5px;">读书笔记</a> <a href="/tags/%E8%B4%AA%E5%BF%83/" style="font-size: 10px;">贪心</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-classify"></i> 分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/C-%E8%A7%86%E9%A2%91%E8%AF%BE/">C++视频课</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Leetcode%E5%88%B7%E9%A2%98/">Leetcode刷题</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ROS/">ROS</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ROS2%E4%B8%8EMicro-ROS/">ROS2与Micro-ROS</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E3%80%8AC-Primer%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/">《C++ Primer》阅读笔记</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%88%B7%E9%A2%98%E8%AE%B0%E5%BD%95/">刷题记录</a><span class="category-list-count">14</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%89%91%E6%8C%87offer/">剑指offer</a><span class="category-list-count">25</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%B7%A5%E5%85%B7%E5%AD%A6%E4%B9%A0/">工具学习</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AD%A6%E4%B9%A0/">数据库学习</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%A7%91%E7%A0%94%E5%91%A8%E8%AE%B0/">科研周记</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E5%AD%A6%E4%B9%A0/">计算机网络学习</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">论文阅读</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">读书笔记</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/">软件安装</a><span class="category-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-archive"></i> 归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">2022年03月</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">2021年12月</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">2021年10月</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">2021年09月</a><span class="archive-list-count">17</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">2021年07月</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">2021年06月</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">2021年05月</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">2021年04月</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">2021年01月</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">2020年11月</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">2020年10月</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">2018年06月</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">2018年03月</a><span class="archive-list-count">4</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/C/" rel="tag">C++</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DDS/" rel="tag">DDS</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Leetcode/" rel="tag">Leetcode</a><span class="tag-list-count">43</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ROS/" rel="tag">ROS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hash/" rel="tag">hash</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE/" rel="tag">二分查找</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%89%8D%E7%BC%80%E5%92%8C/" rel="tag">前缀和</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%89%91%E6%8C%87offer/" rel="tag">剑指offer</a><span class="tag-list-count">25</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" rel="tag">动态规划</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8D%8F%E8%AE%AE%E9%98%85%E8%AF%BB/" rel="tag">协议阅读</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8F%8C%E6%8C%87%E9%92%88/" rel="tag">双指针</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8FRTOS/" rel="tag">嵌入式RTOS</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B7%A5%E5%85%B7/" rel="tag">工具</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/" rel="tag">工具使用</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BD%A2%E5%BC%8F%E5%8C%96/" rel="tag">形式化</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BD%A2%E5%BC%8F%E5%8C%96%E9%AA%8C%E8%AF%81/" rel="tag">形式化验证</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%EF%BC%8C%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" rel="tag">操作系统，环境配置</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E7%BB%84/" rel="tag">数组</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%A8%A1%E5%9E%8B%E6%A3%80%E6%B5%8B/" rel="tag">模型检测</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" rel="tag">源码阅读</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%9F%A9%E9%98%B5/" rel="tag">矩阵</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A0%94%E7%A9%B6%E6%96%B9%E5%90%91/" rel="tag">研究方向</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A7%91%E7%A0%94%E5%91%A8%E8%AE%B0/" rel="tag">科研周记</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95%E9%A2%98/" rel="tag">算法题</a><span class="tag-list-count">43</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag">计算机网络</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/" rel="tag">论文阅读</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB%EF%BC%8CROS2/" rel="tag">论文阅读，ROS2</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag">读书笔记</a><span class="tag-list-count">11</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%B4%AA%E5%BF%83/" rel="tag">贪心</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-link"></i> 友情链接</h3>
+    <div class="widget">
+      <ul>
+      
+        <li>
+          <a target="_blank" rel="noopener" href="https://www.guanyuqian.com/">G-Blog（关师兄的博客）</a>
+        </li>
+      
+        <li>
+          <a target="_blank" rel="noopener" href="https://imvector.github.io/">峰哥的博客</a>
+        </li>
+      
+        <li>
+          <a target="_blank" rel="noopener" href="https://amyzhoucc.github.io/">豆豆龙（zcc师姐的博客）</a>
+        </li>
+      
+        <li>
+          <a target="_blank" rel="noopener" href="https://mchen0607.github.io/">闽哥的博客</a>
+        </li>
+      
+      </ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+        
+      </div>
+      <a id="totop" href="#top"></a>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      <p>
+        <a href="/sitemap.xml">网站地图</a>
+        <span> | </span><a href="/about/">联系博主</a>
+      </p>
+      
+        <p>
+          <i class="fa fa-visitors"></i>
+          <i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>
+          ，
+          <i class="fa fa-views"></i>
+          <i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>
+        </p>
+      
+      <p>
+        <span>Copyright &copy; 2022 Eric Wang.</span>
+        <span>Theme by <a href="https://github.com/chaooo/hexo-theme-BlueLake/" target="_blank">BlueLake.</a></span>
+        
+            <span>Count by <a href="http://busuanzi.ibruce.info/" target="_blank">busuanzi.</a></span>
+        
+        <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo.</a></span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+<script src="/js/search.json.js"></script>
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+  
+<script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+  
+<script src="/localshare/js/social-share.js"></script>
+
+  
+<script src="/localshare/js/qrcode.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <script>
+    window._config = { showScore: true };
+    (function(){
+      var appid = 'cyvoLETLk';
+      var conf = '9be4582e027b7ddeb93c7cb6571009a5';
+      var width = window.innerWidth || document.documentElement.clientWidth;
+      var nodes =document.getElementsByTagName("head")[0]||document.head||document.documentElement;
+      if (/(Android|iPhone|iPad|iPod|iOS)/i.test(navigator.userAgent) && width < 750) {
+          window.document.write('<script id="changyan_mobile_js" charset="utf-8" type="text/javascript" src="https://changyan.sohu.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf + '"><\/script>');
+      }
+      else {
+        var loadJs=function(d,a){
+          var b=document.createElement("script");b.setAttribute("type","text/javascript");
+          b.setAttribute("charset","UTF-8");
+          b.setAttribute("src",d);
+          if(typeof a==="function"){if(window.attachEvent){b.onreadystatechange=function(){var e=b.readyState;if(e==="loaded"||e==="complete"){b.onreadystatechange=null;a()}}}else{b.onload=a}}
+          nodes.appendChild(b)
+        };
+        loadJs("https://changyan.sohu.com/upload/changyan.js",function(){window.changyan.api.config({appid:appid,conf:conf})});
+      }
+      var loadCss = function(cssString){
+        var style=document.createElement("style");
+        style.setAttribute("type", "text/css");
+        if(style.styleSheet){// IE
+            style.styleSheet.cssText = cssString;
+        } else {// w3c
+            var cssText = document.createTextNode(cssString);
+            style.appendChild(cssText);
+        }
+        nodes.appendChild(style);
+      }
+    })();
+    function removeElement(_element){
+         var _parentElement = _element.parentNode;
+         if(_parentElement){
+                _parentElement.removeChild(_element);
+         }
+    }
+    var removeAD = document.createElement("div");
+    removeAD.id = 'removeAD';
+    var adInterval1 = setInterval(function() {
+      if(document.querySelector("#feedAv")){
+        document.querySelector("[node-type=cmt-list]").appendChild(removeAD);
+        document.querySelector("#removeAD").appendChild(document.querySelector("#feedAv"));
+        //- removeElement(document.querySelectorAll("#feedAv")[0]);
+        var feedAv = document.querySelector("#feedAv").children;
+        for( item of feedAv){
+          item.style.display = 'none'
+        }
+        document.querySelector("#removeAD").style.display="none"
+        clearInterval(adInterval1);
+      }
+    },1000);
+    var adInterval2 = setInterval(function() {
+      if(document.querySelector("#pop_ad")){
+        removeElement(document.querySelector("#pop_ad"));
+        clearInterval(adInterval2);
+      }
+    }, 1000);
+  </script>
+  
+<script src="https://assets.changyan.sohu.com/upload/plugins/plugins.count.js"></script>
+
+
+
+
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+  <script src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML" async type="text/javascript"></script>
+
+  </div>
+</body>
+</html>
