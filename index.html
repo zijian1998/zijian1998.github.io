@@ -127,74 +127,17 @@
     </div>
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <h1 id="XRCE-DDS源码阅读（epromisa实现）"><a href="#XRCE-DDS源码阅读（epromisa实现）" class="headerlink" title="XRCE-DDS源码阅读（epromisa实现）"></a>XRCE-DDS源码阅读（epromisa实现）</h1><h2 id="MICRO-XRCE-DDS-CLIENT"><a href="#MICRO-XRCE-DDS-CLIENT" class="headerlink" title="MICRO-XRCE-DDS-CLIENT"></a>MICRO-XRCE-DDS-CLIENT</h2><h3 id="源码结构"><a href="#源码结构" class="headerlink" title="源码结构"></a>源码结构</h3><p>忽略编译后生成的build文件和其他cmake配置文件，可以得到从GitHub上下载的源码目录如下所示：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line">.</span><br><span class="line">├── CMakeLists.txt</span><br><span class="line">├── colcon.pkg</span><br><span class="line">├── CONTRIBUTING.md</span><br><span class="line">├── CTestConfig.cmake</span><br><span class="line">├── Dockerfile</span><br><span class="line">├── docs</span><br><span class="line">│   ├── Client.png</span><br><span class="line">│   └── General.png</span><br><span class="line">├── examples</span><br><span class="line">│   ├── ContinuousFragment</span><br><span class="line">│   ├── CustomTransports</span><br><span class="line">│   ├── Deployment</span><br><span class="line">│   ├── Discovery</span><br><span class="line">│   ├── Discovery_try</span><br><span class="line">│   ├── MultiSessionHelloWorld</span><br><span class="line">│   ├── PingAgent</span><br><span class="line">│   ├── PublishHelloWorld</span><br><span class="line">│   ├── PublishHelloWorldBestEffort</span><br><span class="line">│   ├── PublishHelloWorldP2P</span><br><span class="line">│   ├── ReplyAdder</span><br><span class="line">│   ├── RequestAdder</span><br><span class="line">│   ├── ShapesDemo</span><br><span class="line">│   ├── SubscribeHelloWorld</span><br><span class="line">│   ├── SubscribeHelloWorldBestEffort</span><br><span class="line">│   ├── SubscribeHelloWorldP2P</span><br><span class="line">│   ├── TimeSync</span><br><span class="line">│   └── TimeSyncWithCb</span><br><span class="line">├── include</span><br><span class="line">│   └── uxr</span><br><span class="line">├── LICENSE</span><br><span class="line">├── PLATFORM_SUPPORT.md</span><br><span class="line">├── QUALITY.md</span><br><span class="line">├── README.md</span><br><span class="line">├── src</span><br><span class="line">│   └── c</span><br><span class="line">├── test</span><br><span class="line">│   ├── case</span><br><span class="line">│   ├── memory</span><br><span class="line">│   ├── transport</span><br><span class="line">│   └── unitary</span><br><span class="line">├── toolchains</span><br><span class="line">│   ├── CMakeLists.txt</span><br><span class="line">│   ├── nuttx_toolchain.cmake</span><br><span class="line">│   ├── nuttx_toolchain.cmake.in</span><br><span class="line">│   └── raspberrypi_toolchain.cmake</span><br><span class="line">├── tree.txt</span><br><span class="line">└── VERSIONING.md</span><br></pre></td></tr></table></figure>
-<p>其中，显然include和src以及example文件夹下的文件对我们比较重要。example中有大量的示例程序，包括发现、可靠发送/接收消息等等。include中包含了XRCE-DDS定义的所需要的头文件。src下面则包括了最主要的实际实现代码</p>
-<p>其中src的框架如下所示：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line">.</span><br><span class="line">├── c</span><br><span class="line">│   ├── core</span><br><span class="line">│   │   ├── log</span><br><span class="line">│   │   │   ├── log.c</span><br><span class="line">│   │   │   └── log_internal.h</span><br><span class="line">│   │   ├── serialization</span><br><span class="line">│   │   │   ├── xrce_header.c</span><br><span class="line">│   │   │   ├── xrce_header_internal.h</span><br><span class="line">│   │   │   ├── xrce_subheader.c</span><br><span class="line">│   │   │   ├── xrce_subheader_internal.h</span><br><span class="line">│   │   │   └── xrce_types.c</span><br><span class="line">│   │   └── session</span><br><span class="line">│   │       ├── common_create_entities.c</span><br><span class="line">│   │       ├── common_create_entities_internal.h</span><br><span class="line">│   │       ├── create_entities_ref.c</span><br><span class="line">│   │       ├── create_entities_xml.c</span><br><span class="line">│   │       ├── object_id.c</span><br><span class="line">│   │       ├── read_access.c</span><br><span class="line">│   │       ├── session.c</span><br><span class="line">│   │       ├── session_info.c</span><br><span class="line">│   │       ├── session_info_internal.h</span><br><span class="line">│   │       ├── session_internal.h</span><br><span class="line">│   │       ├── stream</span><br><span class="line">│   │       │   ├── common_reliable_stream_internal.h</span><br><span class="line">│   │       │   ├── input_best_effort_stream.c</span><br><span class="line">│   │       │   ├── input_best_effort_stream_internal.h</span><br><span class="line">│   │       │   ├── input_reliable_stream.c</span><br><span class="line">│   │       │   ├── input_reliable_stream_internal.h</span><br><span class="line">│   │       │   ├── output_best_effort_stream.c</span><br><span class="line">│   │       │   ├── output_best_effort_stream_internal.h</span><br><span class="line">│   │       │   ├── output_reliable_stream.c</span><br><span class="line">│   │       │   ├── output_reliable_stream_internal.h</span><br><span class="line">│   │       │   ├── seq_num.c</span><br><span class="line">│   │       │   ├── seq_num_internal.h</span><br><span class="line">│   │       │   ├── stream_id.c</span><br><span class="line">│   │       │   ├── stream_storage.c</span><br><span class="line">│   │       │   └── stream_storage_internal.h</span><br><span class="line">│   │       ├── submessage.c</span><br><span class="line">│   │       ├── submessage_internal.h</span><br><span class="line">│   │       └── write_access.c</span><br><span class="line">│   ├── profile</span><br><span class="line">│   │   ├── discovery</span><br><span class="line">│   │   │   ├── discovery.c</span><br><span class="line">│   │   │   └── transport</span><br><span class="line">│   │   │       ├── udp_transport_datagram_freertos_plus_tcp.c</span><br><span class="line">│   │   │       ├── udp_transport_datagram_internal.h</span><br><span class="line">│   │   │       ├── udp_transport_datagram_posix.c</span><br><span class="line">│   │   │       ├── udp_transport_datagram_posix_nopoll.c</span><br><span class="line">│   │   │       └── udp_transport_datagram_windows.c</span><br><span class="line">│   │   └── transport</span><br><span class="line">│   │       ├── custom</span><br><span class="line">│   │       │   └── custom_transport.c</span><br><span class="line">│   │       ├── ip</span><br><span class="line">│   │       │   ├── ip_freertos_plus_tcp.c</span><br><span class="line">│   │       │   ├── ip_posix.c</span><br><span class="line">│   │       │   ├── ip_windows.c</span><br><span class="line">│   │       │   ├── tcp</span><br><span class="line">│   │       │   │   ├── tcp_transport.c</span><br><span class="line">│   │       │   │   ├── tcp_transport_freertos_plus_tcp.c</span><br><span class="line">│   │       │   │   ├── tcp_transport_internal.h</span><br><span class="line">│   │       │   │   ├── tcp_transport_posix.c</span><br><span class="line">│   │       │   │   └── tcp_transport_windows.c</span><br><span class="line">│   │       │   └── udp</span><br><span class="line">│   │       │       ├── udp_transport.c</span><br><span class="line">│   │       │       ├── udp_transport_freertos_plus_tcp.c</span><br><span class="line">│   │       │       ├── udp_transport_internal.h</span><br><span class="line">│   │       │       ├── udp_transport_posix.c</span><br><span class="line">│   │       │       ├── udp_transport_posix_nopoll.c</span><br><span class="line">│   │       │       └── udp_transport_windows.c</span><br><span class="line">│   │       ├── serial</span><br><span class="line">│   │       │   ├── serial_transport.c</span><br><span class="line">│   │       │   └── serial_transport_posix.c</span><br><span class="line">│   │       └── stream_framing</span><br><span class="line">│   │           ├── stream_framing_protocol.c</span><br><span class="line">│   │           └── stream_framing_protocol.h</span><br><span class="line">│   └── util</span><br><span class="line">│       ├── ping.c</span><br><span class="line">│       ├── time.c</span><br><span class="line">│       └── time_internal.h</span><br></pre></td></tr></table></figure>
-<h2 id="MICRO-XRCE-DDS-AGENT"><a href="#MICRO-XRCE-DDS-AGENT" class="headerlink" title="MICRO-XRCE-DDS-AGENT"></a>MICRO-XRCE-DDS-AGENT</h2><h3 id="相关线程"><a href="#相关线程" class="headerlink" title="相关线程"></a>相关线程</h3><h4 id="agentthread"><a href="#agentthread" class="headerlink" title="agentthread"></a>agent<em>thread</em></h4><p>由Agent_instance单例调用函数创建并启动。</p>
-<p>负责解析命令后启动agent<em>server</em>。</p>
-<p>agent<em>server</em>是一个继承自Server类的子类，可以是多个类型，跟传输方式有关，UDP、TCP等。</p>
-<p>Server类是一个继承Agent和SessoinManager类的子类。</p>
-<p>agent<em>server</em>启动主要负责三件事，一件事初始化server（主要是网络编程，使用poll进行IO复用），一个是初始化input_scheduler设置队列大小和优先级大小，以及初始化output_scheduler。最后一件事是负责初始化五个线程，这五个线程的作用会在下面讲解。</p>
-<h5 id="input-scheduler和output-scheduler"><a href="#input-scheduler和output-scheduler" class="headerlink" title="input_scheduler和output_scheduler"></a>input_scheduler和output_scheduler</h5><p>消息包packet的处理借助于类PacketScheduler，这个类包含了两个map类型的成员变量，一个key是优先级，value是一个队列，存放待处理的packet；另一个key是优先级，value表示队列的大小。这里其实是一个高优先级先调度的模型。</p>
-<h4 id="error-handler-thread"><a href="#error-handler-thread" class="headerlink" title="error_handler_thread"></a>error_handler_thread</h4><p>处理错误的线程 一个条件循环函数</p>
-<h4 id="receiver-loop"><a href="#receiver-loop" class="headerlink" title="receiver_loop"></a>receiver_loop</h4><p>处理接受消息的线程 </p>
-<p>线程启动后从传输中接受input_packet包，然后将接受的消息放入input_scheduler调度器，将不同的消息放入不同优先级的队列。</p>
-<h4 id="sender-loop"><a href="#sender-loop" class="headerlink" title="sender_loop"></a>sender_loop</h4><p>处理发送消息的线程</p>
-<p>从output_scheduler中取出优先级最高的队列的队首元素，通过send_message发送出去。</p>
-<h4 id="processing-loop"><a href="#processing-loop" class="headerlink" title="processing_loop"></a>processing_loop</h4><p>处理调度器中的消息的线程</p>
-<p>从input<em>scheduler中取出优先级最高的队列的队首元素，交给processor</em>来进行处理。</p>
-<p>processor_对象是Processor类的对象。该类统一处理所有的packet消息。会根据input<em>packet消息的sessionid来确定消息要交由root\</em>处理还是根据clientKey来确定消息交给client来处理。</p>
-<p>交由client处理的消息实际是又交给了client自己的session中指定sessionID的队列，根据session的sessionID队列messages_来依次进行处理message。</p>
-<p>处理input<em>message的过程就是不断看是否有下一条submessage，然后读取submessage，根据submessage的类型与内容，和DDS进行交互，如有数据回馈则将数据填充组成output_packet，返回给server\</em>的output_scheduler，最后将交互结果返回给上一层。</p>
-<p>处理过input<em>message后，考虑对于可靠流的消息，要组织acknack子消息。将acknack消息构成一个output_packet，交付server\</em>的output_scheduler</p>
-<p>如果client不存在 还要处理delete子消息的返回。</p>
-<h4 id="heartbeat-loop"><a href="#heartbeat-loop" class="headerlink" title="heartbeat_loop"></a>heartbeat_loop</h4><p>让processor_检查心跳信号，就是构造心跳信号进行发送，完毕后陷入休眠，休眠结束继续检查，不断循环</p>
-
-        
-        
-          <blockquote id="copyright">
-              <p>原文链接: <a href="https://zijian.wang/index.html">https://zijian.wang/index.html</a></p>
-              <p>版权声明: 转载请注明出处.</p>
-          </blockquote>
-        
+        <h1 id="XRCE-DDS源码阅读（epromisa实现）"><a href="#XRCE-DDS源码阅读（epromisa实现）" class="headerlink" title="XRCE-DDS源码阅读（epromisa实现）"></a>XRCE-DDS源码阅读（epromisa实现）</h1><p>XRCE-DDS源代码的阅读和感悟</p>
       
     </div>
     <footer class="article-footer">
       
-        <div class="article-tag-wrap">
-          
-    <div class="article-reward">
-        <a id="reward-btn" href="javascript:;">打赏</a>
-        <div id="reward-content">
-            <h6 class="reward-tit">“感谢你的支持，我会继续努力！”</h6>
-            <div>
-                <div class="reward-code">
-                    <img class="type-code" src="/css/images/wechat.jpg">
-                    <img class="er-code" src="/css/images/wechat-pay.jpg">
-                </div>
-                <div class="reward-code">
-                    <img class="type-code" src="/css/images/alipay.jpg">
-                    <img class="er-code" src="/css/images/alipay-pay.jpg">
-                </div>
-            </div>
-            <p class="reward-desc">扫码打赏，感谢支持</p>
-        </div>
-    </div>
-
-
-          
+        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DDS/" rel="tag">DDS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" rel="tag">源码阅读</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%A0%94%E7%A9%B6%E6%96%B9%E5%90%91/" rel="tag">研究方向</a></li></ul>
 
-          
-    <div class="social-share">
-      <span>分享到:</span>
-    </div>
-
-
-
-        </div>
+        <p class="article-more-link">
+          <a href="/2022/03/17/XRCE-DDS%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%EF%BC%88epromisa%E5%AE%9E%E7%8E%B0%EF%BC%89/#more">Read More</a>
+        </p>
       
       
       
@@ -416,117 +359,18 @@
     </div>
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <h1 id="时间自动机"><a href="#时间自动机" class="headerlink" title="时间自动机"></a>时间自动机</h1><p>到目前为止，我们遇到的逻辑是在描述转移系统（Transition System）如何从一种状态演变到另一种状态的转换系统上进行解释的。但是，没有涵盖时间方面。也就是说，既没有给出状态的停留时间，也没有给出在特定时间间隔内进行转换的可能性的指示。然而，诸如设备驱动程序、咖啡机、通信协议和自动取款机等反应式系统（reactive system）必须及时做出反应——它们是时间关键（Time-critical）的。时间关键的系统的行为通常受到相当严格的时序约束。对于火车交叉口，必须在检测到火车接近时，在一定时间内关闭闸门，以便在火车到达交叉口之前停止汽车和行人的通行。对于放射机来说，癌症患者接受高剂量放射的时间段极为重要；这段时间的小幅延长是危险的，可能会导致患者死亡。</p>
-<p>简而言之：</p>
-<p><strong><em>时间关键的系统的正确性不仅取决于计算的逻辑结果，还取决于结果产生的时间</em></strong></p>
-<p>由于对于反应式系统来说，及时性是至关重要的，因此必须保证满足系统的时间约束。检查时间约束是否满足是这一章节的主题。为了表达这样的时间限制，策略将被扩展到允许表达时间顺序的逻辑形式（logical formalisms），以及定量时间的概念。这些扩展允许时间约束表达，如：</p>
-<p><em>“交通灯将在接下来的30秒内变绿“</em></p>
-<p>首先要做的选择是时域（time domain）：它是离散的还是连续的？ 离散时域在概念上很简单。 转移系统用于对时间系统（timed system）进行建模，其中假设每个动作持续一个时间单位。更一般的延时可以用一个专用的不可观察的动作，$\tau$（对于每个tick），来建模。动作$\alpha$持续$k&gt;1$时间单位的事实可以用$k-1$个跟着$\alpha$的（或$\alpha$之前的）滴答动作来建模。这个经典的方法导致了非常大的转移系统。请注意，在此类模型中，任何一对动作的最小时间差都是提前固定的时间单位的倍数。对于同步系统（synchronous），比如，其中涉及的过程以锁步（lockstep）的方式进行，离散时间领域是合适的：一个时间单位对应一个时钟脉冲。在这种情况下，可以使用传统的时间逻辑表达时序约束。下一步操作可以被用来“”度量“过去时间的描述，即，$\bigcirc \Phi$表示了$\Phi$在确切的一个时间单位后满足。通过定义$\bigcirc^{k+1}\Phi=\bigcirc^k(\bigcirc\Phi)$和$\bigcirc^0\Phi=\Phi$,通常的时间约束可以被指定，通过简写$\diamondsuit^{\leq k}\Phi=\bigcirc^0\Phi \vee \bigcirc \Phi \vee \dots \vee \bigcirc^k\Phi$，上述对交通灯的非形式化的时间状态描述可以表示为：</p>
-<script type="math/tex; mode=display">
-\Box(red \Rightarrow \diamondsuit^{\leq 30}green) \nonumber</script><p>对于同步系统，可以使用 LTL 或 CTL 等转移系统和逻辑来表达时序约束，传统的模型检测算法可以使用。</p>
-<p>在这本书中，我们不想将自己限制在同步系统中，而是将像在牛顿物理学中一样考虑具有连续性的时间。 也就是说，非负实数（集合$\mathbb{R}_{\geq0}$ ）将被用作时域。 一个主要优点是不需要预先确定最小时间单位，因为连续时间模型对时间尺度的变化是不变的。 这对于异步系统更合适，例如分布式系统，其中组件可能以不同的速度运行，并且比离散时间模型更直观。 没有附加时序信息的异步系统的转换系统表示确实太抽象了，无法充分模拟时序约束，如下面的示例所示。</p>
-<p><em>示例 9.1. 一个铁路交叉口</em></p>
-<p> 考虑一个铁路交叉路口，正如示例2.30（50页）一样，如示意图9.1所示。对于这个铁路示意图，需要开发一个控制系统，在收到一个火车靠近的信号时关闭闸门，收到火车完全通过道路时打开闸门。控制系统应该成立的安全性质是当火车穿过道路时，闸门应该总是关闭的。完整的系统组成包括三个组件：<em>火车、闸门和控制器</em>。</p>
-<p><em>火车 || 闸门 || 控制器</em></p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20211019152441076.png" alt="image-20211019152441076"></p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20211019152503030.png" alt="image-20211019152503030"></p>
-<p>回想一下，一对进程共有的动作需要联合（jointly）执行，而其他动作则是自主（autonomously）执行的。这些进程的转移系统表示如图9.2所示。它遵循组合系统（composite system） <em>火车||闸门||控制器</em> 不能保证当火车通过交叉口时闸门是关闭的。这可以通过检查组合转移系统的一个初始片段轻松的看到；观察图9.3——在发出“”靠近“信号之后，火车是在闸门关闭前到达道路还是之后到达道路，都无法从转移系统中推断出来。</p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20211019152750835.png" alt="image-20211019152750835"></p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20211019153655580.png" alt="image-20211019153655580"></p>
-<p>然而，再假设火车不会超过某个确定的最大速度的情况下，一个信号“接近”和火车已经到达十字路口的时刻之间的时间段的下界，是可以指示的，如图9.4所示。假定火车在发出“接近”信号后，需要至少2分钟到达路口。据此，对控制器和闸门进行了时序假定。在获得“到达”信号是，1分钟后，控制器将会通知放下闸门，闸门确切的关闭时间被家丁不超过1分钟。全局状态中的分支$<near,1,up>$可以用时序信息来标注：</p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20211019153731268.png" alt="image-20211019153731268"></p>
-<p>火车在超过两分钟之后仅仅可以执行状态迁移$near\xrightarrow{enter} in$。另一方面，闸门在收到“接近”信号之后最多两分钟被关闭。因此，全局状态迁移</p>
-<script type="math/tex; mode=display">
-<near,1,up> \xrightarrow{enter}<in,1,up> \nonumber</script><p>永不会出现。因此，闸门在火车到达交叉路口前总是关闭的。只要火车在交叉路口，闸门就保持关闭状态的事实通过动作<em>raise</em>仅仅会在火车指示<em>exit</em>后发生的事实得到确认。</p>
-<p>根据时间关键系统的形式化建模，<em>时间自动机</em>的概念已经得到发展，这是一种具有测量时间流逝的时钟变量的转移系统（事实上是一个程序图（program graphs））的扩展。这个模型包括对状态和动作的的停留时间施加约束的方法。</p>
-<h2 id="9-1-时间自动机"><a href="#9-1-时间自动机" class="headerlink" title="9.1 时间自动机"></a>9.1 时间自动机</h2><p>时间自动机对时间关键系统的行为进行建模。时间自动机实际上是一个程序图，它配备了一组有限的实值时钟变量，简称为时钟。时钟不同于通常的变量，因为它们的访问是有限的：时钟只能被查看，以及重置为零。时钟可以重置为零，然后随着时间的推移，它们开始隐式增加它们的值。所有时钟都以速率 1 运行，即在 d 个时间单位过去后，所有时钟都前进 d。因此，时钟的值表示自上次重置以来已经过去的时间量。时钟可以直观地被视为秒表，可以相互独立地启动和查看。时钟值的条件用作动作的使能条件（即$guard$）：只有满足条件才能使能并能够采取动作；否则，该操作将被禁用。依赖于时钟值的条件称为时钟约束。为简单起见，假设启用条件仅取决于时钟而不取决于其他数据变量。 时钟约束还用于限制可能在某个位置花费的时间。 以下定义规定了如何定义时钟约束。 </p>
-<h3 id="定义-9-2：时钟约束"><a href="#定义-9-2：时钟约束" class="headerlink" title="定义 9.2：时钟约束"></a><strong>定义 9.2：时钟约束</strong></h3><p>根据语法形成对时钟集合 $C$ 的<em>时钟约束</em> ：</p>
-<script type="math/tex; mode=display">
-g::= x<c\ |\ x\leq c\ |\ x>c\ |\ x\geq c\ |\ g \land g \nonumber</script><p>其中，$c\in \mathbb{N}$且$x\in C$。令$CC(C)$表示$C$上的时钟约束集合。</p>
-<p>不包含任何连词的时钟约束是<em>原子性的</em>。 让$ ACC(C)$ 表示 $C $上所有原子时钟约束的集合 </p>
-<p>时钟约束通常以缩写形式书写，例如，$(x\geq c_1)∧ (x&lt;c_2) $可以缩写为$ x \in [c_1, c_2) $或 $c_1 \leq x&lt;c_2$。 可以以稍微复杂一点的理论为代价添加时钟差约束，例如$ x−y&lt;c$。 为简单起见，这里省略了它们，我们将讨论限制在原子钟约束上，将时钟与常数$ c \in \mathbb{N} $进行比较。如果允许 c 为有理数，则模型检查问题的<strong>可判定性</strong>不受影响。 在这种情况下，每个公式中的有理数都可以通过适当的缩放转换为自然数。 一般来说，我们可以将每个常数乘以出现在所有时钟约束中的所有常数的最小公倍数。</p>
-<p>直观地说，时间自动机是一个（稍作修改的）程序图，其变量是时钟。 时钟用于制定系统行为的实时假设。 时间自动机中的边用$guard$（何时允许选取该边？）、动作（选取该边时执行什么？）和一组时钟（要重置哪些时钟？）来标记。一个位置（location）配备了一个不变量，用于限制可能在该位置花费的时间。 正式定义是： </p>
-<h3 id="定义9-3：-时间自动机"><a href="#定义9-3：-时间自动机" class="headerlink" title="定义9.3： 时间自动机"></a>定义9.3： 时间自动机</h3><p>一个<em>时间自动机</em>是一个八元组$TA = (Loc,Act,C,\hookrightarrow,Loc_0,Inv,AP,L)$，其中</p>
-<ul>
-<li>$Loc$是位置(location)的有限集合</li>
-<li>$Loc_0 \subseteq Loc$是初始位置的集合</li>
-<li>$Act$是动作的有限集合</li>
-<li>$C$是时钟的有限集合</li>
-<li>$\hookrightarrow \subseteq Loc \times CC(C) \times Act \times2^C\times Loc$是转移关系的集合</li>
-<li>$Inv:Loc\rightarrow CC(C)$是一个不变的赋值函数</li>
-<li>$AP$是一个原子属性的有限集合</li>
-<li>$L:Loc\rightarrow2^{AP}$是对位置(location)的标签函数</li>
-</ul>
-<p>$ACC(TA)$表示了发生在$TA$的$guard$或者位置不变量中的原子时钟约束</p>
-<p>时间自动机是具有有限时钟集$C$的程序图。边用元组 $(g,\alpha, D)$ 标记，其中$g$是对时间自动机时钟的时钟约束，$\alpha$是一个动作，而$D \subseteq C$ 是一组时钟。$\ell \xhookrightarrow{g:\alpha,D}\ell’$的直观解释是时间自动机可以在时钟约束$g$满足的的情况下从一个位置$\ell$移动到另一个位置$\ell’$。此外，当从位置$\ell$移动到$\ell’$时，$D$中的所有时钟都将重置为零并执行动作$\alpha$。函数$Inv$为每个位置分配一个位置不变量，指定时间自动机可以在那里停留多长时间。对于位置$\ell$ ，$Inv(\ell)$限制了可能在$\ell$中花费的时间量。也就是说，位置应该在不变的$Inv(\ell)$失效之前停留。如果这是不可能的——因为没有启用传出转移——就不可能有进一步的进展。在定义9.11中的时间自动机的形式语义中，这种情况可能导致时间进程停止。由于时间进度不再可能，这种情况也称为<em>死锁</em>。 稍后将更详细地讨论这种现象。 函数$L$具有与转换系统相同的作用，并将在该位置有效的原子命题集与任何位置相关联。 </p>
-<p>在考虑对时间自动机的精确解释之前，我们先举几个简单的例子 </p>
-<p>为了描绘时间自动机，我们采用如下的程序图的绘制约定。 不变量在位置内标识，当它们等于真时被省略。 边标有$guard$、动作和要重置的时钟集。 空时钟集经常被省略。 这同样适用于始终为真的时钟约束。 时钟组$D$的复位有时由$reset(D)$ 表示。 如果动作不相关，则省略它们 </p>
-<h3 id="实例9-4-Guards-和位置不变量"><a href="#实例9-4-Guards-和位置不变量" class="headerlink" title="实例9.4 $Guards$和位置不变量"></a><em>实例9.4 $Guards$和位置不变量</em></h3><p>图 9.5(a) 描绘了一个简单的时间自动机，它有一个时钟$x$和一个配备自环的位置$\ell$。 如果时钟$x$ 值最少到达2，则可以采用自循环，并且在采用时，时钟$x$被重置。 最初，默认时钟$x$的值为 0。</p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/202111040920864.png" alt="image-20211028094112330"></p>
-<p>图 9.5(b) 通过描述时钟$x$的值与自从自动机启动以来经过的时间，给出了这个时间自动机的执行示例。 每次时钟重置为 0 时，自动机都会遍历位置$\ell$处的自循环。 由于$Inv(\ell) = true$，居于$\ell$中的时间可以不受任何限制地前进。 尤其是这个自动机的合法行为是将无限期地停留在位置$\ell$上。形式化地，</p>
-<script type="math/tex; mode=display">
-Loc=Loc_0=\{\ell\},C=\{x\},\ell \xhookrightarrow{true:x\geq2,{x}}\ell, 且Inv(\ell)=true \nonumber</script><p> 标签和动作被省略。</p>
-<p>通过在位置$\ell$中加入位置不变性$x\leq 3$, 稍微改变图 9.5(a) 的时间自动机，会导致$x$不再无边界的前进的效果。 相反，如果$x\geq 2$ ($guard$) 和$x\leq 3$ (不变式)，则必须进行传出转移。 请注意，没有指定在区间$[2, 3]$ 中的哪个时刻进行转换，即，这是不确定的。 时间自动机及其行为示例分别如图 9.5(c) 和 (d) 所示。 </p>
-<p>观察到在将图 9.5(a) 中的$guard$加强为$2\leq x\leq 3$ 的同时保持$Inv(\ell) = true$ 时不会获得相同的效果。 在这种情况下，传出转换只能在$2\leq x\leq 3$ 时进行（如前一场景中），但不是强制采用的，即，可以通过在停留$\ell$期间让时间流逝而简单地忽略它。 这在图 9.5(e) 和 (f) 中进行了说明。 </p>
-<p>简而言之，不变量是强制转换的唯一方法 。</p>
-<h3 id="实例-9-5-闸门的时间自动机"><a href="#实例-9-5-闸门的时间自动机" class="headerlink" title="实例 9.5 闸门的时间自动机"></a><em>实例 9.5 闸门的时间自动机</em></h3><p><img src="https://gitee.com/zijian98/images/raw/master/202111040920269.png" alt="image-20211028094745015"></p>
-<p>考虑铁路道口的闸门（见例 9.1）。 假设降低闸门最多需要一个时间单位，升门需要至少一个和最多两个时间单位，过程<em>Gate</em>的时间自动机如图 9.6 所示。我们有$Act={lowder,raise}$和</p>
-<script type="math/tex; mode=display">
-Loc = \{up,comingdown,down,goingup\} \nonumber</script><p>且$Loc_0={up}$。时间自动机的转移为：</p>
-<script type="math/tex; mode=display">
-up \xhookrightarrow{true:lower,\{x\}}comingdown \ \ \ comingdwon \xhookrightarrow{true:\tau,\varnothing} down \\
-down \xhookrightarrow{true:raise,\{x\}} goingup \ \ \ goingup \xhookrightarrow{x\geq 1:\tau,\varnothing} up
-\nonumber</script><p>带有不变式$x\leq 1$的位置$coming\ down$已被添加到模型中，该模型在动作$lower$发生和位置$down$改变之间的最大延迟至多是单个时间单位。 时钟$x$在动作$lower$发生时设置为零，从而“测量”自该事件发生以来的时间流逝。 通过将$coming\ down$的停留时间限制为$x\leq 1$，必须在一个时间单位内切换到$down$。 请注意，这不会通过在带有$guard$ $x\leq1$ 的位置$up$和$down$之间建立直接的边来建立，因为$x$的值不会指代$lower$的发生时间 。以类似的方式，具有不变式$x\leq2$ 的位置$going\ up$的目的是模拟打开阀门最多需要两个时间单位。 在初始位置$up$处，对停留时间没有限制，即$Inv(up) = true$。 这同样适用于位置$down$。 令$AP = {up, down}$，标记函数 $L(up) = { up }，L(down) ={ down }，L(comingdown) = L(goingup) = \varnothing$。 </p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/202111040920469.png" alt="image-20211028134709118"></p>
-<h4 id="备注-9-6-位置图-Location-Diagram"><a href="#备注-9-6-位置图-Location-Diagram" class="headerlink" title="备注 9.6 位置图(Location Diagram)"></a>备注 9.6 位置图(Location Diagram)</h4><p>时间自动机的每个有限行为都可以用位置图表示。 这描绘了直到某个先验固定上限的每个时刻，时间自动机在该行为期间的位置。 对于阀门的定时自动机，一个可能的实时行为由图 9.7 中的位置图指示。 </p>
-<h3 id="时间自动机的并行组合"><a href="#时间自动机的并行组合" class="headerlink" title="时间自动机的并行组合"></a>时间自动机的并行组合</h3><p>对于复杂系统的建模，允许并行组合定时自动机很方便。这允许建模以组合方式对时间关键系统进行分析。 我们考虑一个并行组合算子，记为$||_H$ ，它用一组<em>handshanking</em>动作$H$参数化。这个算子在精神上类似于转换系统上的相应算子； 参见定义 2.26:$H$中的动作需要由两个相关的时间自动机共同执行，而$H$之外的动作则以交错方式自主执行。 </p>
-<h3 id="时间自动机的握手"><a href="#时间自动机的握手" class="headerlink" title="时间自动机的握手"></a>时间自动机的握手</h3><p>假设$TA<em>i = (Loc_i,Act_i,C_i,\hookrightarrow_i,Loc</em>{0,i},Inv_i,AP_i,L_i),i=1,2$是一个时间自动机，$H\subseteq Act_1 \cap Act_2，C_1 \cap C_2=\emptyset,且AP_1 \cap AP_2 = \emptyset$。时间自动机$TA_1 |_H TA_2$可被定义为：</p>
-<script type="math/tex; mode=display">
-(Loc_1 \times Loc_2,Act_1 \cup Act_2,C_1 \cup C_2,\hookrightarrow,Loc_{0,1}\times Loc_{0,2},Inv,AP_1\cup AP_2,L)</script><p>其中$L(&lt;\ell_1,\ell_2&gt;) = L_1(\ell_1)\cup L_2(\ell_2)$且$Inv(&lt;\ell_1,\ell_2&gt;)=Inv_1(\ell_1)\and Inv_2(\ell_2)$。 转移关系</p>
-
-        
-        
-          <blockquote id="copyright">
-              <p>原文链接: <a href="https://zijian.wang/index.html">https://zijian.wang/index.html</a></p>
-              <p>版权声明: 转载请注明出处.</p>
-          </blockquote>
-        
+        <p>对《Principles  of Model Checking》一书时间自动机部分的翻译。</p>
+<p>（不全）</p>
       
     </div>
     <footer class="article-footer">
       
-        <div class="article-tag-wrap">
-          
-    <div class="article-reward">
-        <a id="reward-btn" href="javascript:;">打赏</a>
-        <div id="reward-content">
-            <h6 class="reward-tit">“感谢你的支持，我会继续努力！”</h6>
-            <div>
-                <div class="reward-code">
-                    <img class="type-code" src="/css/images/wechat.jpg">
-                    <img class="er-code" src="/css/images/wechat-pay.jpg">
-                </div>
-                <div class="reward-code">
-                    <img class="type-code" src="/css/images/alipay.jpg">
-                    <img class="er-code" src="/css/images/alipay-pay.jpg">
-                </div>
-            </div>
-            <p class="reward-desc">扫码打赏，感谢支持</p>
-        </div>
-    </div>
-
-
-          
+        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%A8%A1%E5%9E%8B%E6%A3%80%E6%B5%8B/" rel="tag">模型检测</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag">读书笔记</a></li></ul>
 
-          
-    <div class="social-share">
-      <span>分享到:</span>
-    </div>
-
-
-
-        </div>
+        <p class="article-more-link">
+          <a href="/2021/10/19/%E6%97%B6%E9%97%B4%E8%87%AA%E5%8A%A8%E6%9C%BA/#more">Read More</a>
+        </p>
       
       
       
