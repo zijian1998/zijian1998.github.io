@@ -205,14 +205,14 @@
 <p><strong>DDS-XRCE Object Model的一个重要特性就是Client能够查询Model的能力，而不是像Standard DDS Object Model中的典型行为，后者可以实时更新、推送修改。那样的模型可能不适用于设备经常性断开的目标环境。==该协议使Client能够负责何时数据接收，并且请求XRCE Agent来返回符和一系列约束的数据。如此，一个XRCE Client就不会在断开期间被一个XRCE Agent唤醒，相反，Client会在唤醒后查询XRCE Agent==</strong></p>
 <p>XRCE  Agent不必暴露任何编程API，它使用DDS-XRCE协议和XRCE Client进行标准交互，同时使用DDS-RTPS协议和其他DDS域进行交互。</p>
 <h3 id="7-4-Model-Overview"><a href="#7-4-Model-Overview" class="headerlink" title="7.4 Model Overview"></a>7.4 Model Overview</h3><p>从一个比较高的层面来看，DDS-XRCE Object Model包括五个类：<strong>Root</strong>单例、<strong>ProxyClient</strong>、<strong>Application</strong>、<strong>AccessController</strong>和<strong>DomainParticipant</strong></p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20211101160913220.png" alt="image-20211101160913220"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/image-20211101160913220.png" alt="image-20211101160913220"></p>
 <h4 id="Root"><a href="#Root" class="headerlink" title="Root"></a>Root</h4><p>Root单例是服务的入口点。它用作由XRCE Agent管理的所有对象的工厂</p>
 <h4 id="ProxyClient"><a href="#ProxyClient" class="headerlink" title="ProxyClient"></a>ProxyClient</h4><p>ProxyClient类对使用XRCE协议与XRCE Agent进行交互的XRCE Client应用程序进行建模。 每个Application对象都与单个XRCE ProxyClient关联，并从分配给XRCE Client的访问权限中获取其访问权限。</p>
 <h4 id="Application"><a href="#Application" class="headerlink" title="Application"></a>Application</h4><p>Application类对与XRCE客户端连接，并管理在一个或多个DDS域上发布和订阅数据所需的DDS对象进行管理的软件应用程序进行建模。 XRCE应用程序可以与零个或多个DomainParticipant对象相关联</p>
 <h4 id="AccessController"><a href="#AccessController" class="headerlink" title="AccessController"></a>AccessController</h4><p>AccessController负责做出有关允许特定XRCE ProxyClient执行的资源和操作的决策。 它包含将客户端与特权相关联的规则，这些规则确定代表客户端执行的应用程序可以加入哪个DDS域，该应用程序可以读取和写入的DDS主题，等等。</p>
 <h4 id="DomainParticipant"><a href="#DomainParticipant" class="headerlink" title="DomainParticipant"></a>DomainParticipant</h4><p>DDS-XRCE DomainParticipant是DDS DomainParticipant的代理，对与DDS域的关联以及应用程序在该域上发布和订阅主题的能力进行建模。</p>
 <h3 id="7-5-XRCE-DDS-Proxy-Objects"><a href="#7-5-XRCE-DDS-Proxy-Objects" class="headerlink" title="7.5 XRCE DDS Proxy Objects"></a>7.5 XRCE DDS Proxy Objects</h3><p>几个DDS-XRCE对象充当相应DDS对象的代理。委派实际的DDS行为和DDS-RTPS协议实现给DDS对象的代理，从而允许Client的应用程序以一级用户的身份参与DDS网络。</p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20211101160940205.png" alt="image-20211101160940205"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/image-20211101160940205.png" alt="image-20211101160940205"></p>
 <h3 id="7-6-XRCE-Object-Identification"><a href="#7-6-XRCE-Object-Identification" class="headerlink" title="7.6 XRCE Object Identification"></a>7.6 XRCE Object Identification</h3><p>代表特定XRCE客户端的XRCE代理管理的每个XRCE对象都通过ObjectId进行标识，也就是说，ObjectId和ClientKey的范围应该是统一的，在代理中。特定对象的ObjectId值应在XRCE代理上配置或者由XRCE客户端在创建代理时确定。</p>
 <p>两个ObjectId被保留了，分别是无效的对象（OBJECTID_INVALID），值为{0x00,0x00}，以及XRCE ProxyClient对象（OBJECTID_CLIENT），值为{0xFF,0xFF}。</p>
 <p>对象也可以被字符串resourceName所标识，这个名称的格式由资源决定，并且提供了一种使用配置文件或其他在代理上配置资源的方式。</p>
@@ -600,8 +600,8 @@ object\_id[1] = (objectid\_prefix[1] \& 0xF0) + object\_kind</script><h4 id="7-7
 <h4 id="8-2-3-Stream"><a href="#8-2-3-Stream" class="headerlink" title="8.2.3 Stream"></a>8.2.3 Stream</h4><p>Stream表示Session中独立有序的消息流。消息通过序列号在流中排序。不同流使用的序列号（sequenceNr）彼此独立。数据流可以是reliable也可以是best-effort。每个stream使用一个固定的字节序来对消息/子消息的header和payload进行编码。</p>
 <h4 id="8-2-4-Client"><a href="#8-2-4-Client" class="headerlink" title="8.2.4 Client"></a>8.2.4 Client</h4><p>XRCE client是发起与XRCE agent建session的实体。XRCE client可以在属于已建立的XRCE session的stream上向agent发送和接收message。</p>
 <h4 id="8-2-5-Agent"><a href="#8-2-5-Agent" class="headerlink" title="8.2.5 Agent"></a>8.2.5 Agent</h4><p>XRCE agent是侦听和接受请求以建立来自XRCE client的session的实体。XRCE agent可以在属于已建立session的stream上向client发送和接收message。</p>
-<h3 id="8-3-Message-Structure"><a href="#8-3-Message-Structure" class="headerlink" title="8.3 Message Structure"></a>8.3 Message Structure</h3><h4 id="8-3-1-General"><a href="#8-3-1-General" class="headerlink" title="8.3.1 General"></a>8.3.1 General</h4><p>一个XRCE message是由一个message Header跟着一个或多个Submessage组成的，它会被底层的XRCE传输以一个单元的形式进行传输。<img src="https://gitee.com/zijian98/images/raw/master/img/image-20211102090619688.png" alt="image-20211102090619688"></p>
-<h4 id="8-3-2-Message-Header"><a href="#8-3-2-Message-Header" class="headerlink" title="8.3.2 Message Header"></a>8.3.2 Message Header</h4><p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20211102090641372.png" alt="image-20211102090641372"></p>
+<h3 id="8-3-Message-Structure"><a href="#8-3-Message-Structure" class="headerlink" title="8.3 Message Structure"></a>8.3 Message Structure</h3><h4 id="8-3-1-General"><a href="#8-3-1-General" class="headerlink" title="8.3.1 General"></a>8.3.1 General</h4><p>一个XRCE message是由一个message Header跟着一个或多个Submessage组成的，它会被底层的XRCE传输以一个单元的形式进行传输。<img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/image-20211102090619688.png" alt="image-20211102090619688"></p>
+<h4 id="8-3-2-Message-Header"><a href="#8-3-2-Message-Header" class="headerlink" title="8.3.2 Message Header"></a>8.3.2 Message Header</h4><p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/image-20211102090641372.png" alt="image-20211102090641372"></p>
 <h5 id="8-3-2-1-Sessions和sessionId"><a href="#8-3-2-1-Sessions和sessionId" class="headerlink" title="8.3.2.1 Sessions和sessionId"></a>8.3.2.1 Sessions和sessionId</h5><p>XRCE Client和XRCE Agent之间的Session的建立，是为了通信建立初始的环境。这主要包括了协议版本的交换、供应商的信息以及正确处理消息的其他信息。</p>
 <p>一个Session由一个8位的sessionId来确定，sessionId对于给定XRCE Client的XRCE Agent是唯一的。seesionId同时也用来确定Header中是否包含了一个clientKey。</p>
 <ul>
@@ -644,11 +644,11 @@ object\_id[1] = (objectid\_prefix[1] \& 0xF0) + object\_kind</script><h4 id="7-7
 </ul>
 <p>XRCE传输提供的安全机制可以保护clientKey的任何交换。这些安全机制是特定于传输的，可能涉及将每个设备与代理配对或用于建立安全传输连接的一些初始握手。</p>
 <h4 id="8-3-3-Submessage-Structure"><a href="#8-3-3-Submessage-Structure" class="headerlink" title="8.3.3 Submessage Structure"></a>8.3.3 Submessage Structure</h4><p>message Header之后的就是一个或多个submessage。一个<strong>Submessage</strong>由一个<strong>SubmessageHeader</strong>和一个payload组成。</p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20211102090704134.png" alt="image-20211102090704134"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/image-20211102090704134.png" alt="image-20211102090704134"></p>
 <p>在一个message中防止多个Submessage的作用是减少带宽，原因是这样可以让多个资源来被一个message进行操作。</p>
 <p>submessage应以相对于消息开头的 4 倍数的偏移量开始。。这意味着可以在子消息的结尾和下一个子消息的开始之间进行额外的填充。</p>
 <h4 id="8-3-4-Submessage-Header"><a href="#8-3-4-Submessage-Header" class="headerlink" title="8.3.4 Submessage Header"></a>8.3.4 Submessage Header</h4><p>每一个<strong>Submessage</strong>从一个<strong>SubmessageHeader</strong>开始，<strong>SubmessageHeader</strong>结构如下：</p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20211102090716813.png" alt="image-20211102090716813"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/image-20211102090716813.png" alt="image-20211102090716813"></p>
 <h5 id="8-3-4-1-submessageId"><a href="#8-3-4-1-submessageId" class="headerlink" title="8.3.4.1 submessageId"></a>8.3.4.1 submessageId</h5><p><strong>submessageIde</strong>定义了<strong>submessage</strong>的种类。</p>
 <h5 id="8-3-4-2-flags"><a href="#8-3-4-2-flags" class="headerlink" title="8.3.4.2 flags"></a>8.3.4.2 flags</h5><p><strong>flags</strong>区域包括了Submessage的内容相关的信息。</p>
 <p>0位是“Endianness”位，表示用于编码子消息头和有效负载的Endianness。如果Endianness位设置为0，则编码应为大端序，否则为小端序。</p>
@@ -656,7 +656,7 @@ object\_id[1] = (objectid\_prefix[1] \& 0xF0) + object\_kind</script><h4 id="7-7
 <h5 id="8-3-4-3-submessageLength"><a href="#8-3-4-3-submessageLength" class="headerlink" title="8.3.4.3 submessageLength"></a>8.3.4.3 submessageLength</h5><p><strong>submessageLength</strong>定义了Submessage的长度（含Submessage的头）。</p>
 <p>同时它应该独立于flags的定义，以小端序进行编码。</p>
 <h5 id="8-3-4-4-payload"><a href="#8-3-4-4-payload" class="headerlink" title="8.3.4.4 payload"></a>8.3.4.4 payload</h5><p><strong>payload</strong>包含了特殊于submessage的信息，submessage的格式取决于submessageId定义的submessage类型</p>
-<h4 id="8-3-5-Submessage-Types"><a href="#8-3-5-Submessage-Types" class="headerlink" title="8.3.5 Submessage Types"></a>8.3.5 Submessage Types</h4><p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20211102090734908.png" alt="image-20211102090734908"></p>
+<h4 id="8-3-5-Submessage-Types"><a href="#8-3-5-Submessage-Types" class="headerlink" title="8.3.5 Submessage Types"></a>8.3.5 Submessage Types</h4><p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/image-20211102090734908.png" alt="image-20211102090734908"></p>
 <p>由SubmessageId定义的submessage中，有的是单向的，有的是双向的。</p>
 <div class="table-container">
 <table>
@@ -762,50 +762,50 @@ object\_id[1] = (objectid\_prefix[1] \& 0xF0) + object\_kind</script><h4 id="7-7
 <p><img src="https://i.loli.net/2021/04/20/ir9g7M26I8myWPD.jpg" alt="Message flow to send data using a pre-configured DataWriter.JPG"></p>
 <p>​        <em>已为Clinet（由ClientKey标识）预先配置了XRCE Agent，以便它可以识别出现在 CREATE_CLIENT消息中的application_object_id。 CREATE_CLIENT的接收触发相应XRCE对象的</em> <strong><em>创建或重用</em></strong>。<em>这些XRCE对象包括XRCE DataWriter及其相应的DDS DataWriter。 随后的WRITE_DATA消息通过那些DataWriter的ObjectId来使用DDS发布数据。</em></p>
 <h4 id="8-4-3-使用预先配置的DataReader进行数据接收"><a href="#8-4-3-使用预先配置的DataReader进行数据接收" class="headerlink" title="8.4.3 使用预先配置的DataReader进行数据接收"></a>8.4.3 使用预先配置的DataReader进行数据接收</h4><p>下面的消息流说明了XRCE Client用来通过XRCE Agent接收数据的完整消息集。 XRCE Agent已预先配置为创建一个包含DomainParticipant，Subscriber和DataReader的XRCE Application。 XRCE Client知道DataReader预先配置的object_id。</p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/IXLBZPvhVEHGy7q.jpg" alt="Message flow to receive data using a pre-configured DataReader.JPG"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/IXLBZPvhVEHGy7q.jpg" alt="Message flow to receive data using a pre-configured DataReader.JPG"></p>
 <p>​            <em>已为Client（由 ClientKey标识）预先配置了一个Agent，从而可以使它识别 出现在 CREATE_CLIENT消息中的 application_object_id。CREATE_CLIENT的接收触发相应 XRCE对象的</em> <strong><em>创建或重用</em></strong>。<em>其中包括 XRCE DataReader及其相应的 DDS DataReader。 随后的READ消息引用这些DataReader的 ObjectId以便从DDS域接收数据。</em></p>
 <h4 id="8-4-4-发现一个Agent"><a href="#8-4-4-发现一个Agent" class="headerlink" title="8.4.4 发现一个Agent"></a>8.4.4 发现一个Agent</h4><p>下面的消息流说明了XRCE客户端发现XRCE代理所需的消息。 仅当未使用XRCE代理的TransportLocator预先配置客户端时，才需要此流程。 它允许将XRCE客户端配置为满足一个或多个TransportLocator（可能包括多播地址）的需求，以便动态发现代理的存在和实际地址。</p>
 <p>作为此过程的结果，XRCE客户端可能发现多个XRCE代理。 在那种情况下，它可能会使用收到的有关XRCE代理配置的信息（例如，字段版本，vendor_id或在AGENT_Representation中找到的属性）和XRCE代理活动（例如，ActivityInfo中的可用性字段）来选择最合适的XRCE代理，<em>甚至连接到多个XRCE代理</em>。</p>
 <p><img src="https://i.loli.net/2021/04/20/TJ8oZRAvC6DfXYg.jpg" alt="Message flow for a Client to an Agent.JPG"></p>
 <p>​                        <em>XRCE 客户端使用 GET_INFO 查询 XRCE 代理的信息，代理响应后，客户端选择一个代理并使用 CREATE_CLIENT 消息连接到它。 代理以 STATUS_AGENT 响应，指示连接是否成功以及是否代表 XRCE 客户端创建了 ClientProxy。</em></p>
 <h4 id="8-4-5-链接到一个Agent上"><a href="#8-4-5-链接到一个Agent上" class="headerlink" title="8.4.5 链接到一个Agent上"></a>8.4.5 链接到一个Agent上</h4><p>下面的消息流说明了XRCE Client连接到XRCE Agent所需的消息。Client连接后，它可以创建资源或调用现有资源上的操作。</p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/9Ui56BmGRfrEIJO.jpg" alt="Message flow for a Client to connect to an Agent.JPG"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/9Ui56BmGRfrEIJO.jpg" alt="Message flow for a Client to connect to an Agent.JPG"></p>
 <p>​                        <em>XRCE Client使用 CREATE_CLIENT 消息连接到 Agent。 Agent 以 STATUS_AGENT响应，该状态指示连接是否成功以及是否代表 XRCE客户端创建了ClientProxy。</em></p>
 <h4 id="8-4-6-创造一个完整的Application"><a href="#8-4-6-创造一个完整的Application" class="headerlink" title="8.4.6 创造一个完整的Application"></a>8.4.6 创造一个完整的Application</h4><p>下面的消息流说明了已经连接的XRCE Client 创建完整的XRCE Application所需的消息。</p>
 <p><img src="https://i.loli.net/2021/04/20/ALFr26kN51J7UQo.jpg" alt="Message flow for a Client to create an ApplicationJPG.JPG"></p>
 <p>​                    <em>XRCE Client使用 CREATE 消息创建 XRCE Application。 CREATE消息带有一个CREATE_Payload，其中包含一个ObjectKind设置为OBJK_APPLICATION的 ObjectVariant。 相应的 OBJK_APPLICATION_Representation可以使用 REPRESENTATION_BY_REFERENCE 来引用在代理中预先配置的Application，也可以使用REPRESENTATION_AS_XML_STRING来完整地描述该 Application，包括任何必要的 Type，Qos和DDS实体。</em></p>
 <h4 id="8-4-7-定义Qos配置"><a href="#8-4-7-定义Qos配置" class="headerlink" title="8.4.7 定义Qos配置"></a>8.4.7 定义Qos配置</h4><p>下面的消息流说明了已连接的XRCE Client动态定义XRCE QosProfiles所需的消息，这些消息以后可用于创建其他XRCE对象。</p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/1lCmuW2qXsiGnFz.jpg" alt="Message flow for a Client to define Qos Profiles.JPG"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/1lCmuW2qXsiGnFz.jpg" alt="Message flow for a Client to define Qos Profiles.JPG"></p>
 <p>​                <em>XRCE Client使用 CREATE消息来定义Qos配置文件。 CREATE消息包含一个CREATE_Payload，其中包含一个ObjectKind设置为OBJK_QOSPROFILE的ObjectVariant。 相应的 OBJK_QOSPROFILE_Representation可以使用 REPRESENTATION_AS_XML_STRING来完整描述Qos概要文件。</em></p>
 <h4 id="8-4-8-定义类型"><a href="#8-4-8-定义类型" class="headerlink" title="8.4.8 定义类型"></a>8.4.8 定义类型</h4><p>下面的消息流说明了已连接的XRCE Client动态定义XRCE Type所需的消息，这些XRCE Type以后可用于创建XRCE Topic对象。</p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/a5wbnPKoTyDCxHM.jpg" alt="Message flow for a Client to a Client to define Types.JPG"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/a5wbnPKoTyDCxHM.jpg" alt="Message flow for a Client to a Client to define Types.JPG"></p>
 <p>​                <em>XRCE Client使用 CREATE消息创建XRCE类型。 CREATE消息带有一个CREATE_Payload，其中包含一个ObjectKind设置为OBJK_TYPE的ObjectVariant。 对应的 OBJK_TYPE_Representation可以使用 REPRESENTATION_AS_XML_STRING 来完整描述 DDS-XTYPES类型，包括任何引用的类型。</em></p>
 <h4 id="8-4-9-创建一个Topic"><a href="#8-4-9-创建一个Topic" class="headerlink" title="8.4.9 创建一个Topic"></a>8.4.9 创建一个Topic</h4><p>下面的消息流说明了已连接的XRCE Client动态创建XRCE主题所需的消息，该主题以后可用于创建XRCE DataWriter和DataReader对象。</p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/nBxlFAkr1ETu49G.jpg" alt="Message flow for a Client to a Client to define a Topic.JPG"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/nBxlFAkr1ETu49G.jpg" alt="Message flow for a Client to a Client to define a Topic.JPG"></p>
 <p>​                                <em>XRCE Client使用 CREATE消息创建 XRCE Topic。 CREATE消息包含一个CREATE_Payload，其中包含一个ObjectKind设置为OBJK_TOPIC的ObjectVariant。 相应的 OBJK_TOPIC_Representation可以使用 REPRESENTATION_IN_BINARY或 REPRESENTATION_AS_XML_STRING来完全定义主题。</em></p>
 <h4 id="8-4-10-创建一个DataWriter"><a href="#8-4-10-创建一个DataWriter" class="headerlink" title="8.4.10 创建一个DataWriter"></a>8.4.10 创建一个DataWriter</h4><p>下面的消息流说明了已连接的XRCE Client动态创建XRCE DataWriter所需的消息，该资源具有发布数据所需的所有资源。</p>
 <p>XRCE Agent可能具有QoS配置文件的先验知识，从而允许XRCE客户端按名称引用Qos，而无需明确定义它们。 或者，XRCE Client可以将它们的定义包括在XRCE DataWriter资源的定义中。</p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/iTSFz3gcNPyuK76.jpg" alt="Message flow for a Client to create a DataWriter.JPG"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/iTSFz3gcNPyuK76.jpg" alt="Message flow for a Client to create a DataWriter.JPG"></p>
 <p>​                    <em>XRCE Client使用 CREATE消息创建 XRCE DataWriter。 CREATE消息包含一个CREATE_Payload，其中包含一个ObjectKind设置为OBJK_DATAWRITER的ObjectVariat。 相应的 DATAREADER_Representation可以使用 REPRESENTATION_IN_BINARY或 REPRESENTATION_AS_XML_STRING来完全定义DataWriter。 这两种表示方式都可以指定DataWriter Qos。 DATAREADER_Representation也可以使用REPRESENTATION_BY_REFERNCE来引用Agent已知的DataWriter定义。</em></p>
 <h4 id="8-4-11-创建一个DataReader"><a href="#8-4-11-创建一个DataReader" class="headerlink" title="8.4.11 创建一个DataReader"></a>8.4.11 创建一个DataReader</h4><p>下面的消息流说明了已连接的XRCE Client动态创建XRCE DataReader所需要的消息，该资源具有订阅数据所需的所有资源<em>(原文为publish data我觉得有点问题)</em>。</p>
 <p>XRCE Agent可能具有QoS配置文件的先验知识，从而允许XRCE客户端按名称引用这些Qos，而无需明确定义。 或者，XRCE Client可以将它们的定义包括为XRCE DataReader资源的定义中。</p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/yV7STktjJD2K6rH.jpg" alt="Message flow for a Client to create a DataReader.JPG"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/yV7STktjJD2K6rH.jpg" alt="Message flow for a Client to create a DataReader.JPG"></p>
 <p>​            <em>XRCE Client使用 CREATE消息创建 XRCE DataReader。 CREATE消息包含一个CREATE_Payload，其中包含一个ObjectKind设置为OBJK_DATAREADER的ObjectVariant。 相应的 OBJK_DATAREADER_Representation可以使用 REPRESENTATION_IN_BINARY或 REPRESENTATION_AS_XML_STRING来完全定义DataReader。 这两种表示形式都允许指定DataReader Qos。 OBJK_DATAREADER_Representation也可以使用REPRESENTATION_BY_REFERENCE来引用Agent已知的DataReader定义</em></p>
 <h4 id="8-4-12-从一个资源上获取信息"><a href="#8-4-12-从一个资源上获取信息" class="headerlink" title="8.4.12 从一个资源上获取信息"></a>8.4.12 从一个资源上获取信息</h4><p>下面的消息流说明了XRCE Client如何查询有关资源的信息。 XRCE Client可以使用此机制来确定XRCE Agent代表XRCE Client管理的任何DDS代理实体的QoS。 它还可以用于读取XRCE Agent已知的QoS配置文件和类型声明。</p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/P58tgN1CoYHuI7V.jpg" alt="Message flow for a Client to update a Resource.JPG"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/P58tgN1CoYHuI7V.jpg" alt="Message flow for a Client to update a Resource.JPG"></p>
 <p>​                <em>XRCE Client使用GET_INFO消息从由其 ObjectId标识的 XRCE Object获取信息。XRCE Agent以包含ObjectVariant的 INFO消息作为响应。 ObjectVariant的ObjectKind适用于指定的 ObjectId。</em></p>
 <h4 id="8-4-13-更新一个资源"><a href="#8-4-13-更新一个资源" class="headerlink" title="8.4.13 更新一个资源"></a>8.4.13 更新一个资源</h4><p>下面的消息流说明了XRCE Client 如何更新XRCE DataReader。 XRCE Client可以使用此机制来更改XRCE Agent代表XRCE Client管理的任何DDS代理实体的QoS参数。</p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/P58tgN1CoYHuI7V.jpg" alt="Message flow for a Client to update a Resource.JPG"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/P58tgN1CoYHuI7V.jpg" alt="Message flow for a Client to update a Resource.JPG"></p>
 <p>​                        <em>XRCE Client使用CREATE消息，将属性reuse设置为TRUE，并将属性replace设置为TRUE，以表示它希望更新由ObjectId标识的对象。 CREATE消息包含一个ObjectVariant，其中ObjectKind设置为指定的ObjectId的适当值。 XRCE代理使用ObjectVariant中包含的新配置更新对象，并以STATUS消息作为响应。</em></p>
 <h4 id="8-4-14-可靠通信"><a href="#8-4-14-可靠通信" class="headerlink" title="8.4.14 可靠通信"></a>8.4.14 可靠通信</h4><p>可靠性是针对每个Stream分别实现的，并且仅针对由stream_id值介于0x80和0xFF之间标识的可靠流。 （参见第8.3.2.2节Streams和streamId。）</p>
 <p>一个Stream恰好有两个端点，即发送端点和接收端点。 请注意，对于某些流，发送者是XRCE Client，例如 当XRCE Client使用流将数据写入XRCE Agent时。 同样，在其他流中，发送方可以是XRCE Agent，例如，当XRCE Agent 使用流来发送XRCE Client在READ操作中请求的数据时。</p>
 <p>Stream上的发送者和接收者端点各自执行其自己的协议状态机。 这些在以下小节中进行了说明。<br>序列号添加和比较应使用第8.3.2.3节sequenceNr中规定的序列号算法。</p>
 <h5 id="8-4-14-1-可靠发送状态机"><a href="#8-4-14-1-可靠发送状态机" class="headerlink" title="8.4.14.1 可靠发送状态机"></a>8.4.14.1 可靠发送状态机</h5><p>由端点在流上发送的协议如下图所示。</p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/CYz5f69IdDPX8eK.jpg" alt="流上可靠协议的发送状态机.JPG"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/CYz5f69IdDPX8eK.jpg" alt="流上可靠协议的发送状态机.JPG"></p>
 <p>发送方维护与流关联的两个状态变量。 最高发送序列号（HighestSentSequenecNumber）和最高确认序列号（HighestAcknowledgedSequenceNumber）。</p>
 <p>每次发送消息时，HighestSentSequenecNumber都会增加。 ACKNACK消息的接收会 更新HighestAcknowledgedSequenceNumber。<br>当HighestAcknowledgedSequenceNumber小于HighestSentSequenceNumber时，发送方将HeartBeat消息发送给接收方，该消息宣告HighestSentSequenecNumber。 这些HeartBeat消息可以是定期的，也可以使用特定于供应商的机制进行优化。 要求以一定的速率发送它们，直到HighestAcknowledgedSequenceNumber与HighestSentSequenceNumber匹配为止。</p>
 <h5 id="8-4-14-2-可靠接收状态机"><a href="#8-4-14-2-可靠接收状态机" class="headerlink" title="8.4.14.2 可靠接收状态机"></a>8.4.14.2 可靠接收状态机</h5><p>由端点在流上接收的协议如下图所示：</p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/W85rXaStlMIgQc6.jpg" alt="流上可靠协议的接收状态机.JPG"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/W85rXaStlMIgQc6.jpg" alt="流上可靠协议的接收状态机.JPG"></p>
 <p>接收方包括两个和流关联的状态变量。最高接受序列号（HighestReceivedSequenceNumber）和最高确认序列号（HighestAnnouncedSequenceNumber  ）。</p>
 <p>每次接收到一条消息时，HighestReceivedSequenceNumber可能会更新（假定已接收到所有先前的消息）。 HighestAnnouncedSequenceNumber也会进行调整。</p>
 <p>每次收到HEARTBEAT时，可能会调整HighestAnnouncedSequenceNumber。</p>
@@ -894,19 +894,19 @@ object\_id[1] = (objectid\_prefix[1] \& 0xF0) + object\_kind</script><h4 id="7-7
 <p>任何其他 XRCE Client都可以引用由XRCE ConfigurationClient创建的 XRCE 对象。</p>
 <p>远程配置机制的典型用途是可用于在部署之前配置代理或交互式配置系统的工具。</p>
 <p>请注意， XRCE ConfigurationClient可能使用不同的网络或传输与代理进行通信，这可能与典型的 XRCE Client具有不同的约束。</p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20211102101157490.png" alt="image-20211102101157490"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/image-20211102101157490.png" alt="image-20211102101157490"></p>
 <h3 id="9-3-基于文件的配置"><a href="#9-3-基于文件的配置" class="headerlink" title="9.3 基于文件的配置"></a>9.3 基于文件的配置</h3><p>略</p>
 <h2 id="10-XRCE部署"><a href="#10-XRCE部署" class="headerlink" title="10 XRCE部署"></a>10 XRCE部署</h2><p>DDS-XRCE PIM 中描述的所有操作都与客户端应用程序与单个 DDS XRCE Agent的交互有关。 因此，所有操作的范围仅限于与该 DDS-XRCE Agent的交互。 然而，尽管连接到不同的 DDS-XRCE Agent，客户端应用程序仍可能相互交互。 这些交互将作为 DDS-XRCE  Agent在 DDS 域参与者实体上创建和执行操作的结果而发生，这些实体根据 DDS 规范交换信息。</p>
 <h3 id="10-1-XRCE-Client到DDS的通信"><a href="#10-1-XRCE-Client到DDS的通信" class="headerlink" title="10.1 XRCE Client到DDS的通信"></a>10.1 XRCE Client到DDS的通信</h3><p>该规范定义了 XRCE Client用于与代理 DDS 域中客户端的 XRCE Agent通信的协议。 这样做的主要结果是 XRCE Client现在可以与任何 DDS 域参与者进行通信。</p>
 <p>DDS 域参与者将发现 XRCE Agent代表Client创建的代理 DDS 实体，并使用标准的 DDS-RTPS 互操作性协议与代理进行通信。</p>
 <p>XRCE Client将使用 XRCE 协议与 XRCE Agent通信。 使用该协议，它可以指导 XRCE Agent创建新的 DDS 实体，并使用这些实体在DDS全局数据空间上读写数据。</p>
 <p>这种类型的部署如下面的图所示。</p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20211102102011872.png" alt="image-20211102102011872"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/image-20211102102011872.png" alt="image-20211102102011872"></p>
 <p><em>XRCE Client使用 XRCE 协议与 XRCE Agent通信。 XRCE Agent使用 DDS-RTPS 协议与 DDS 域中的其他 DDS 域参与者通信。</em></p>
 <h3 id="10-2-XRCE-Client-通过DDS到XRCE-Client的通信"><a href="#10-2-XRCE-Client-通过DDS到XRCE-Client的通信" class="headerlink" title="10.2 XRCE Client 通过DDS到XRCE Client的通信"></a>10.2 XRCE Client 通过DDS到XRCE Client的通信</h3><p>XRCE Agent在 DDS 域中显示为 DDS 域参与者。 因此，连接到不同 XRCE Agent的 XRCE Client应用程序无需进一步配置即可相互通信。</p>
 <p>每个 XRCE Agent将其他 XRCE Agent视为 DDS 域参与者，与任何其他 DDS 域参与者没有区别，并使用 DDS-RTPS 与他们通信。 XRCE Agent将将该通信中继到其各自的 XRCE Client。</p>
 <p>这种类型的场景如下图 所示</p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20211102102242827.png" alt="image-20211102102242827"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/image-20211102102242827.png" alt="image-20211102102242827"></p>
 <p><em>XRCE Client使用 XRCE 协议与其各自的 XRCE Agent进行通信。 这些 XRCE Agent使用 DDS-RTPS 相互通信，因为每个代理都是 DDS 域上的 DDS 域参与者。</em></p>
 <h3 id="10-3-由XRCE-Agent当中间人的Client到Client通信"><a href="#10-3-由XRCE-Agent当中间人的Client到Client通信" class="headerlink" title="10.3 由XRCE Agent当中间人的Client到Client通信"></a>10.3 由XRCE Agent当中间人的Client到Client通信</h3><p>多个 XRCE Client应用程序可以连接到同一个 XRCE Agent。</p>
 <p>它取决于 XRCE Agent的实现，无论它创建的 DDS 实体是每个 XRCE Client专有的，<strong>还是在 XRCE Client之间共享的。</strong>但是，<strong>XRCE Client可观察到的行为应如同 DDS XRCE Agent创建每个 XRCE Client专有的单独 DDS 对象。</strong></p>
@@ -914,7 +914,7 @@ object\_id[1] = (objectid\_prefix[1] \& 0xF0) + object\_kind</script><h4 id="7-7
 <p>如果 XRCE Agent在不同的 XRCE Client之间共享 DDS 实体，那么行为“好像”每个都有自己独立的实体的要求需要本地 DDS DataWriter 实体发现并匹配同一 DomainParticipant 中的本地 DDS DataReader 实体。这将自动导致 XRCE Client使用代理作为“代理”相互通信，而无需进一步配置。</p>
 <p>XRCE Agent的实现可以选择在本地 XRCE DataWriter 和 DataReader 对象之间创建更快的通信路径，以便来自 XRCE DataWriter 的数据可以直接进入匹配的 XRCE DataReader，而无需通过关联的 DDS 实体。这个“捷径”可以作为一种优化来实施，因为它不会影响任何协议，也不会影响与其他 XRCE Client、Agent或 DDS 域参与者的互操作性。</p>
 <p>这种类型的场景如下图 所示。</p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20211102103306558.png" alt="image-20211102103306558"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/image-20211102103306558.png" alt="image-20211102103306558"></p>
 <p><em>多个 XRCE Client可以连接到同一个 XRCE Agent。 XRCE Client使用 XRCE Agent作为“代理”相互通信。 这种“客户端到客户端”的通信可以利用相关的 DDS 对象，或者可以使用代理内部的优化路径，从而缩短 DDS 对象的使用。</em></p>
 <h3 id="10-4-联合部署"><a href="#10-4-联合部署" class="headerlink" title="10.4 联合部署"></a>10.4 联合部署</h3><h3 id="10-5-Client应用之间直接P2P通信"><a href="#10-5-Client应用之间直接P2P通信" class="headerlink" title="10.5 Client应用之间直接P2P通信"></a>10.5 Client应用之间直接P2P通信</h3><h3 id="10-6-组合部署"><a href="#10-6-组合部署" class="headerlink" title="10.6 组合部署"></a>10.6 组合部署</h3><h2 id="11-传输映射"><a href="#11-传输映射" class="headerlink" title="11 传输映射"></a>11 传输映射</h2><h3 id="11-1-传输模型"><a href="#11-1-传输模型" class="headerlink" title="11.1 传输模型"></a>11.1 传输模型</h3><p>XRCE 协议不限于任何特定的传输。它可以映射到大多数现有的网络传输，如 UDP、TCP 和低带宽传输，如蓝牙、ZigBee 和 6LoWPAN。</p>
 <p>为了在没有额外开销的情况下运行，预计传输支持以下功能：</p>

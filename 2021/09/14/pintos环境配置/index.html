@@ -152,10 +152,10 @@
 <p>其中下载新版本在公开仓库中，按下述步骤下载</p>
 <ul>
 <li><p>找到master，并点击它的tree，如图1所示</p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/pintos%E7%9A%84git%E4%BB%93%E5%BA%93.png" alt="pintos的git仓库"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/pintos%E7%9A%84git%E4%BB%93%E5%BA%93.png" alt="pintos的git仓库"></p>
 </li>
 <li><p>找到snapshot，点击，保存文件，如图52所示</p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/pintos%E7%9A%84git%E4%BB%93%E5%BA%932.png" alt="pintos的git仓库2"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/pintos%E7%9A%84git%E4%BB%93%E5%BA%932.png" alt="pintos的git仓库2"></p>
 </li>
 </ul>
 <p>此处我下载的版本为pintos-anon-master-f685123.tar.gz</p>
@@ -167,22 +167,22 @@
 <p>将路径切换到<code>/home/&#123;username&#125;/pintos/src/utils</code>下。使用vim修改其中的<code>pintos-gdb</code>文件。</p>
 <p>主要修改<code>GDBMACROS</code>变量的值。</p>
 <p>原值为：</p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/pintos-gdb%E4%BF%AE%E6%94%B9%E5%89%8D.png" alt="pintos-gdb修改前"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/pintos-gdb%E4%BF%AE%E6%94%B9%E5%89%8D.png" alt="pintos-gdb修改前"></p>
 <p>修改为本机上的gdb-macors路径，该路径也在解压的pintos下，具体路径为：</p>
 <pre><code class="lang-/home/&#123;username&#125;/pintos/src/misc/gdb-macros```">
 注意一定要填为绝对路径。 
 
-![pintos-gdb修改后](https://gitee.com/zijian98/images/raw/master/img/pintos-gdb%E4%BF%AE%E6%94%B9%E5%90%8E.png)
+![pintos-gdb修改后](https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/pintos-gdb%E4%BF%AE%E6%94%B9%E5%90%8E.png)
 
 - 修改Makefile
 
 还在当前```utils```路径下，修改```Makefile```文件，只需要改动一个变量的名字就可以，原名为：
 
-![Makefile修改前](https://gitee.com/zijian98/images/raw/master/img/Makefile%E4%BF%AE%E6%94%B9%E5%89%8D.png)
+![Makefile修改前](https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/Makefile%E4%BF%AE%E6%94%B9%E5%89%8D.png)
 
 将```LOADLIBES```改为```LDLIBS
 </code></pre>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/Makefile%E4%BF%AE%E6%94%B9%E5%90%8E.png" alt="Makefile修改后"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/Makefile%E4%BF%AE%E6%94%B9%E5%90%8E.png" alt="Makefile修改后"></p>
 <ul>
 <li>编译utils</li>
 </ul>
@@ -192,9 +192,9 @@
 </ul>
 <p>修改<code>/home/&#123;username&#125;/pintos/src/threads/</code>的<code>Make.vars</code>文件</p>
 <p>主要修改模拟器，修改前为</p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/Make.vars%E4%BF%AE%E6%94%B9%E5%89%8D.png" alt="Make.vars修改前"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/Make.vars%E4%BF%AE%E6%94%B9%E5%89%8D.png" alt="Make.vars修改前"></p>
 <p>将bochs改为qemu</p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/Make.vars%E4%BF%AE%E6%94%B9%E5%90%8E.png" alt="Make.vars修改后"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/Make.vars%E4%BF%AE%E6%94%B9%E5%90%8E.png" alt="Make.vars修改后"></p>
 <p>结束后可以切换到<code>threads</code>路径下，使用<code>make</code>进行默认编译生成<code>build</code></p>
 <ul>
 <li><p>修改pintos文件</p>
@@ -202,16 +202,16 @@
 <li><p>将路径切换到<code>utils</code>下</p>
 </li>
 <li><p>使用vim修改<code>pintos</code>文件104行左右代码，将bochs改为qemu，修改前后如图所示</p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/pintos1%E4%BF%AE%E6%94%B9%E5%89%8D.png" alt="pintos1修改前"></p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/pintos1%E4%BF%AE%E6%94%B9%E5%90%8E.png" alt="pintos1修改后"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/pintos1%E4%BF%AE%E6%94%B9%E5%89%8D.png" alt="pintos1修改前"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/pintos1%E4%BF%AE%E6%94%B9%E5%90%8E.png" alt="pintos1修改后"></p>
 </li>
 <li><p>使用vim修改<code>pintos</code>文件260行左右代码，将kernel.bin改为绝对路径。kernel.bin是上一步在threads路径下编译生成的，在编译生成的build文件夹下，路径为<code>/home/&#123;username&#125;/pintos/src/threads/build</code>。修改前后如图所示</p>
 <p><img src="/home/eric/Pictures/pintos2%E4%BF%AE%E6%94%B9%E5%89%8D.png" alt="pintos2修改前"></p>
 <p><img src="/home/eric/Pictures/pintos2%E4%BF%AE%E6%94%B9%E5%90%8E.png" alt="pintos2修改后"></p>
 </li>
 <li><p>使用vim修改<code>pintos</code>文件627行左右代码，将qemu的版本从<code>qemu-system-i386</code>改为<code>qemu-system-x86_64</code>。修改前后如图所示</p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/pintos3%E4%BF%AE%E6%94%B9%E5%89%8D.png" alt="pintos3修改前"></p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/pintos3%E4%BF%AE%E6%94%B9%E5%90%8E.png" alt="pintos3修改后"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/pintos3%E4%BF%AE%E6%94%B9%E5%89%8D.png" alt="pintos3修改前"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/pintos3%E4%BF%AE%E6%94%B9%E5%90%8E.png" alt="pintos3修改后"></p>
 </li>
 </ul>
 </li>
@@ -219,20 +219,20 @@
 <p>仍在当前<code>utils</code>路径下，使用vim修改<code>Pintos.pm</code>文件，将<code>loader.bin</code>也更改为绝对路径。<code>loader.bin</code>跟<code>kernel.bin</code>文件一样被编译生成在<code>threads/build/</code>路径下。修改前后如图所示</p>
 </li>
 </ul>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/Pintos.pm%E4%BF%AE%E6%94%B9%E5%89%8D.png" alt="Pintos.pm修改前"></p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/Pintos.pm%E4%BF%AE%E6%94%B9%E5%90%8E.png" alt="Pintos.pm修改后"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/Pintos.pm%E4%BF%AE%E6%94%B9%E5%89%8D.png" alt="Pintos.pm修改前"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/Pintos.pm%E4%BF%AE%E6%94%B9%E5%90%8E.png" alt="Pintos.pm修改后"></p>
 <h3 id="添加环境变量"><a href="#添加环境变量" class="headerlink" title="添加环境变量"></a>添加环境变量</h3><p>使用<code>vim</code>修改<code>~/.bashrc</code>，在最后一行加上</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">export PATH=/home/&#123;username&#125;/pintos/src/utils:$PATH</span><br></pre></td></tr></table></figure>
 <p>如图所示</p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/%E4%BF%AE%E6%94%B9.bashrc.png" alt="修改.bashrc"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/%E4%BF%AE%E6%94%B9.bashrc.png" alt="修改.bashrc"></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">```shell</span><br><span class="line">source ~/.bashrc</span><br></pre></td></tr></table></figure>
 <h3 id="试运行与make-check"><a href="#试运行与make-check" class="headerlink" title="试运行与make check"></a>试运行与make check</h3><p>执行</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pintos run alarm-multiple</span><br></pre></td></tr></table></figure>
 <p>会弹出qemu，并有很多信息刷新，最后显示complete，出现如图所示结果：</p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/%E6%B5%8B%E8%AF%951.png" alt="测试1"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/%E6%B5%8B%E8%AF%951.png" alt="测试1"></p>
 <p>为了实验一顺利进行，在threads/build路径下进行make check，第一次make check时间消耗很长，需要多等等，最后出现如图所示结果表示成功</p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/make_check.png" alt="make_check"></p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/make_check2.png" alt="make_check2"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/make_check.png" alt="make_check"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/make_check2.png" alt="make_check2"></p>
 
         
             <div id="toc-article">

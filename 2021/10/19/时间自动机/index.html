@@ -157,13 +157,13 @@
 <p><em>示例 9.1. 一个铁路交叉口</em></p>
 <p> 考虑一个铁路交叉路口，正如示例2.30（50页）一样，如示意图9.1所示。对于这个铁路示意图，需要开发一个控制系统，在收到一个火车靠近的信号时关闭闸门，收到火车完全通过道路时打开闸门。控制系统应该成立的安全性质是当火车穿过道路时，闸门应该总是关闭的。完整的系统组成包括三个组件：<em>火车、闸门和控制器</em>。</p>
 <p><em>火车 || 闸门 || 控制器</em></p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20211019152441076.png" alt="image-20211019152441076"></p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20211019152503030.png" alt="image-20211019152503030"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/image-20211019152441076.png" alt="image-20211019152441076"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/image-20211019152503030.png" alt="image-20211019152503030"></p>
 <p>回想一下，一对进程共有的动作需要联合（jointly）执行，而其他动作则是自主（autonomously）执行的。这些进程的转移系统表示如图9.2所示。它遵循组合系统（composite system） <em>火车||闸门||控制器</em> 不能保证当火车通过交叉口时闸门是关闭的。这可以通过检查组合转移系统的一个初始片段轻松的看到；观察图9.3——在发出“”靠近“信号之后，火车是在闸门关闭前到达道路还是之后到达道路，都无法从转移系统中推断出来。</p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20211019152750835.png" alt="image-20211019152750835"></p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20211019153655580.png" alt="image-20211019153655580"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/image-20211019152750835.png" alt="image-20211019152750835"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/image-20211019153655580.png" alt="image-20211019153655580"></p>
 <p>然而，再假设火车不会超过某个确定的最大速度的情况下，一个信号“接近”和火车已经到达十字路口的时刻之间的时间段的下界，是可以指示的，如图9.4所示。假定火车在发出“接近”信号后，需要至少2分钟到达路口。据此，对控制器和闸门进行了时序假定。在获得“到达”信号是，1分钟后，控制器将会通知放下闸门，闸门确切的关闭时间被家丁不超过1分钟。全局状态中的分支$<near,1,up>$可以用时序信息来标注：</p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20211019153731268.png" alt="image-20211019153731268"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/image-20211019153731268.png" alt="image-20211019153731268"></p>
 <p>火车在超过两分钟之后仅仅可以执行状态迁移$near\xrightarrow{enter} in$。另一方面，闸门在收到“接近”信号之后最多两分钟被关闭。因此，全局状态迁移</p>
 <script type="math/tex; mode=display">
 <near,1,up> \xrightarrow{enter}<in,1,up> \nonumber</script><p>永不会出现。因此，闸门在火车到达交叉路口前总是关闭的。只要火车在交叉路口，闸门就保持关闭状态的事实通过动作<em>raise</em>仅仅会在火车指示<em>exit</em>后发生的事实得到确认。</p>
@@ -191,14 +191,14 @@ g::= x<c\ |\ x\leq c\ |\ x>c\ |\ x\geq c\ |\ g \land g \nonumber</script><p>其�
 <p>在考虑对时间自动机的精确解释之前，我们先举几个简单的例子 </p>
 <p>为了描绘时间自动机，我们采用如下的程序图的绘制约定。 不变量在位置内标识，当它们等于真时被省略。 边标有$guard$、动作和要重置的时钟集。 空时钟集经常被省略。 这同样适用于始终为真的时钟约束。 时钟组$D$的复位有时由$reset(D)$ 表示。 如果动作不相关，则省略它们 </p>
 <h3 id="实例9-4-Guards-和位置不变量"><a href="#实例9-4-Guards-和位置不变量" class="headerlink" title="实例9.4 $Guards$和位置不变量"></a><em>实例9.4 $Guards$和位置不变量</em></h3><p>图 9.5(a) 描绘了一个简单的时间自动机，它有一个时钟$x$和一个配备自环的位置$\ell$。 如果时钟$x$ 值最少到达2，则可以采用自循环，并且在采用时，时钟$x$被重置。 最初，默认时钟$x$的值为 0。</p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/202111040920864.png" alt="image-20211028094112330"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/202111040920864.png" alt="image-20211028094112330"></p>
 <p>图 9.5(b) 通过描述时钟$x$的值与自从自动机启动以来经过的时间，给出了这个时间自动机的执行示例。 每次时钟重置为 0 时，自动机都会遍历位置$\ell$处的自循环。 由于$Inv(\ell) = true$，居于$\ell$中的时间可以不受任何限制地前进。 尤其是这个自动机的合法行为是将无限期地停留在位置$\ell$上。形式化地，</p>
 <script type="math/tex; mode=display">
 Loc=Loc_0=\{\ell\},C=\{x\},\ell \xhookrightarrow{true:x\geq2,{x}}\ell, 且Inv(\ell)=true \nonumber</script><p> 标签和动作被省略。</p>
 <p>通过在位置$\ell$中加入位置不变性$x\leq 3$, 稍微改变图 9.5(a) 的时间自动机，会导致$x$不再无边界的前进的效果。 相反，如果$x\geq 2$ ($guard$) 和$x\leq 3$ (不变式)，则必须进行传出转移。 请注意，没有指定在区间$[2, 3]$ 中的哪个时刻进行转换，即，这是不确定的。 时间自动机及其行为示例分别如图 9.5(c) 和 (d) 所示。 </p>
 <p>观察到在将图 9.5(a) 中的$guard$加强为$2\leq x\leq 3$ 的同时保持$Inv(\ell) = true$ 时不会获得相同的效果。 在这种情况下，传出转换只能在$2\leq x\leq 3$ 时进行（如前一场景中），但不是强制采用的，即，可以通过在停留$\ell$期间让时间流逝而简单地忽略它。 这在图 9.5(e) 和 (f) 中进行了说明。 </p>
 <p>简而言之，不变量是强制转换的唯一方法 。</p>
-<h3 id="实例-9-5-闸门的时间自动机"><a href="#实例-9-5-闸门的时间自动机" class="headerlink" title="实例 9.5 闸门的时间自动机"></a><em>实例 9.5 闸门的时间自动机</em></h3><p><img src="https://gitee.com/zijian98/images/raw/master/202111040920269.png" alt="image-20211028094745015"></p>
+<h3 id="实例-9-5-闸门的时间自动机"><a href="#实例-9-5-闸门的时间自动机" class="headerlink" title="实例 9.5 闸门的时间自动机"></a><em>实例 9.5 闸门的时间自动机</em></h3><p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/202111040920269.png" alt="image-20211028094745015"></p>
 <p>考虑铁路道口的闸门（见例 9.1）。 假设降低闸门最多需要一个时间单位，升门需要至少一个和最多两个时间单位，过程<em>Gate</em>的时间自动机如图 9.6 所示。我们有$Act={lowder,raise}$和</p>
 <script type="math/tex; mode=display">
 Loc = \{up,comingdown,down,goingup\} \nonumber</script><p>且$Loc_0={up}$。时间自动机的转移为：</p>
@@ -206,7 +206,7 @@ Loc = \{up,comingdown,down,goingup\} \nonumber</script><p>且$Loc_0={up}$。时�
 up \xhookrightarrow{true:lower,\{x\}}comingdown \ \ \ comingdwon \xhookrightarrow{true:\tau,\varnothing} down \\
 down \xhookrightarrow{true:raise,\{x\}} goingup \ \ \ goingup \xhookrightarrow{x\geq 1:\tau,\varnothing} up
 \nonumber</script><p>带有不变式$x\leq 1$的位置$coming\ down$已被添加到模型中，该模型在动作$lower$发生和位置$down$改变之间的最大延迟至多是单个时间单位。 时钟$x$在动作$lower$发生时设置为零，从而“测量”自该事件发生以来的时间流逝。 通过将$coming\ down$的停留时间限制为$x\leq 1$，必须在一个时间单位内切换到$down$。 请注意，这不会通过在带有$guard$ $x\leq1$ 的位置$up$和$down$之间建立直接的边来建立，因为$x$的值不会指代$lower$的发生时间 。以类似的方式，具有不变式$x\leq2$ 的位置$going\ up$的目的是模拟打开阀门最多需要两个时间单位。 在初始位置$up$处，对停留时间没有限制，即$Inv(up) = true$。 这同样适用于位置$down$。 令$AP = {up, down}$，标记函数 $L(up) = { up }，L(down) ={ down }，L(comingdown) = L(goingup) = \varnothing$。 </p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/202111040920469.png" alt="image-20211028134709118"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/202111040920469.png" alt="image-20211028134709118"></p>
 <h4 id="备注-9-6-位置图-Location-Diagram"><a href="#备注-9-6-位置图-Location-Diagram" class="headerlink" title="备注 9.6 位置图(Location Diagram)"></a>备注 9.6 位置图(Location Diagram)</h4><p>时间自动机的每个有限行为都可以用位置图表示。 这描绘了直到某个先验固定上限的每个时刻，时间自动机在该行为期间的位置。 对于阀门的定时自动机，一个可能的实时行为由图 9.7 中的位置图指示。 </p>
 <h3 id="时间自动机的并行组合"><a href="#时间自动机的并行组合" class="headerlink" title="时间自动机的并行组合"></a>时间自动机的并行组合</h3><p>对于复杂系统的建模，允许并行组合定时自动机很方便。这允许建模以组合方式对时间关键系统进行分析。 我们考虑一个并行组合算子，记为$||_H$ ，它用一组<em>handshanking</em>动作$H$参数化。这个算子在精神上类似于转换系统上的相应算子； 参见定义 2.26:$H$中的动作需要由两个相关的时间自动机共同执行，而$H$之外的动作则以交错方式自主执行。 </p>
 <h3 id="时间自动机的握手"><a href="#时间自动机的握手" class="headerlink" title="时间自动机的握手"></a>时间自动机的握手</h3><p>假设$TA<em>i = (Loc_i,Act_i,C_i,\hookrightarrow_i,Loc</em>{0,i},Inv_i,AP_i,L_i),i=1,2$是一个时间自动机，$H\subseteq Act_1 \cap Act_2，C_1 \cap C_2=\emptyset,且AP_1 \cap AP_2 = \emptyset$。时间自动机$TA_1 |_H TA_2$可被定义为：</p>

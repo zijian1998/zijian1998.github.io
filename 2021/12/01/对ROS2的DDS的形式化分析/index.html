@@ -144,7 +144,7 @@
       
         <p>一篇对ROS2的DDS的形式化分析</p>
 <span id="more"></span>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20211129142233026.png" alt="image-20211129142233026"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/image-20211129142233026.png" alt="image-20211129142233026"></p>
 <h2 id="模型组成"><a href="#模型组成" class="headerlink" title="模型组成"></a>模型组成</h2><p>模型由下述五部分组成：</p>
 <p>节点、发布缓存、订阅缓存、DDS缓存、传输信道</p>
 <h2 id="概念过程表示"><a href="#概念过程表示" class="headerlink" title="概念过程表示"></a>概念过程表示</h2><p>概念和过程表示如下：</p>
@@ -159,21 +159,21 @@
 <p>信道中的数据丢失概率——pn</p>
 <h2 id="论文特点"><a href="#论文特点" class="headerlink" title="论文特点"></a>论文特点</h2><p>优先级问题：论文使用的是非抢占式优先级</p>
 <p>PTA（概率时间自动机）是一个对有限自动机在时间和概率上的一个扩展</p>
-<h2 id="各模块详细建模"><a href="#各模块详细建模" class="headerlink" title="各模块详细建模"></a>各模块详细建模</h2><h3 id="A-节点模块"><a href="#A-节点模块" class="headerlink" title="A.节点模块"></a>A.节点模块</h3><p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20211129142248474.png" alt="image-20211129142248474"></p>
+<h2 id="各模块详细建模"><a href="#各模块详细建模" class="headerlink" title="各模块详细建模"></a>各模块详细建模</h2><h3 id="A-节点模块"><a href="#A-节点模块" class="headerlink" title="A.节点模块"></a>A.节点模块</h3><p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/image-20211129142248474.png" alt="image-20211129142248474"></p>
 <p>状态集（PTA中是Location）：Init、Send_wait、Receive</p>
 <p>不变式：true、无、t&lt;=TRH（接受和处理消息的最大时间）</p>
 <p>迁移：</p>
 <p>变量：时钟变量t、临时存储的发送消息：tmp_pub、publisher的buffer : bp、subscriber的buffer bs</p>
-<h3 id="B-Publishing-Interface-模块"><a href="#B-Publishing-Interface-模块" class="headerlink" title="B. Publishing Interface 模块"></a>B. Publishing Interface 模块</h3><p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20211129142300962.png" alt="image-20211129142300962"></p>
+<h3 id="B-Publishing-Interface-模块"><a href="#B-Publishing-Interface-模块" class="headerlink" title="B. Publishing Interface 模块"></a>B. Publishing Interface 模块</h3><p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/image-20211129142300962.png" alt="image-20211129142300962"></p>
 <p>状态集： Init、Collect</p>
 <p>不变式：true、t&lt;=TCH</p>
 <p>变量：时钟变量t、DDS的buffer bds</p>
 <p>collect时优先级高的pb[n]先进行收集，如果bds满了就删除buffer中第一条消息</p>
-<h3 id="C-数据分发模块"><a href="#C-数据分发模块" class="headerlink" title="C. 数据分发模块"></a>C. 数据分发模块</h3><p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20211129142322826.png" alt="image-20211129142322826"></p>
+<h3 id="C-数据分发模块"><a href="#C-数据分发模块" class="headerlink" title="C. 数据分发模块"></a>C. 数据分发模块</h3><p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/image-20211129142322826.png" alt="image-20211129142322826"></p>
 <p>状态集：Init、 根据数据类型不同，有5个其他状态、PUB（发布注册）、UNP（取消发布）、SUB（订阅注册）、UBS（取消订阅）、DAT（普通消息）</p>
 <p>不变式：true、t&lt;=TNH(*4),t&lt;=TDH</p>
 <p>变量：时钟变量t、publish表pub、subscribe表sub、传输信道的buffer bc</p>
-<h3 id="D-Subscribe-Interface模块"><a href="#D-Subscribe-Interface模块" class="headerlink" title="D. Subscribe Interface模块"></a>D. Subscribe Interface模块</h3><p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20211129142336749.png" alt="image-20211129142336749">状态集：Init、Match、Distribute</p>
+<h3 id="D-Subscribe-Interface模块"><a href="#D-Subscribe-Interface模块" class="headerlink" title="D. Subscribe Interface模块"></a>D. Subscribe Interface模块</h3><p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/image-20211129142336749.png" alt="image-20211129142336749">状态集：Init、Match、Distribute</p>
 <p>不变式：true、无、t&lt;=TTH</p>
 <p>变量：sub表中和bc[0]的topic对应的 sub[j]、sub[j]的nodeID tmp1、bs[tmp1]的当前大小（新消息存放位置） temp2，时钟变量t、概率p[i]</p>
 <h2 id="其中涉及的数据结构"><a href="#其中涉及的数据结构" class="headerlink" title="其中涉及的数据结构"></a>其中涉及的数据结构</h2><p>消息：一个结构体，包含node_id、type、消息内容</p>
@@ -184,7 +184,7 @@
 <h2 id="性质提取与统计分析"><a href="#性质提取与统计分析" class="headerlink" title="性质提取与统计分析"></a>性质提取与统计分析</h2><p>安全性 无死锁</p>
 <p>活性 Nn可以到达Send_Wait位置</p>
 <p>高优先级节点平均有更高的概率来先发送数据 低优先级的节点的pb满的概率比高优先级节点的pb满的概率大 低优先级节点的pb空的概率比高优先级的节点小</p>
-<p><img src="https://gitee.com/zijian98/images/raw/master/img/image-20211129142827662.png" alt="image-20211129142827662"></p>
+<p><img src="https://zijian-images.oss-cn-shanghai.aliyuncs.com/images/img/image-20211129142827662.png" alt="image-20211129142827662"></p>
 
         
             <div id="toc-article">
